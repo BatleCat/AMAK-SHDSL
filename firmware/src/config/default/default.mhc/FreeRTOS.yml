@@ -1,0 +1,109 @@
+format_version: v1.0
+type: UniqueComponent
+attributes: {id: FreeRTOS}
+children:
+- type: Symbols
+  children:
+  - type: Integer
+    attributes: {id: FREERTOS_CPU_CLOCK_HZ}
+    children:
+    - type: Values
+      children:
+      - type: Dynamic
+        attributes: {id: FreeRTOS, value: '200000000'}
+  - type: Boolean
+    attributes: {id: FREERTOS_DAEMON_TASK_STARTUP_HOOK}
+    children:
+    - type: Attributes
+      children:
+      - type: Boolean
+        attributes: {id: visible}
+        children:
+        - {type: Value, value: 'true'}
+    - type: Values
+      children:
+      - type: Dynamic
+        attributes: {id: FreeRTOS, value: 'true'}
+  - type: Integer
+    attributes: {id: FREERTOS_PERIPHERAL_CLOCK_HZ}
+    children:
+    - type: Values
+      children:
+      - type: Dynamic
+        attributes: {id: FreeRTOS, value: '100000000'}
+  - type: Combo
+    attributes: {id: FREERTOS_SCHEDULER}
+    children:
+    - type: Values
+      children:
+      - type: User
+        attributes: {value: Preemptive}
+  - type: Integer
+    attributes: {id: FREERTOS_TICK_RATE_HZ}
+    children:
+    - type: Values
+      children:
+      - type: User
+        attributes: {value: '1000'}
+  - type: Integer
+    attributes: {id: FREERTOS_TIMER_QUEUE_LENGTH}
+    children:
+    - type: Attributes
+      children:
+      - type: Boolean
+        attributes: {id: visible}
+        children:
+        - {type: Value, value: 'true'}
+    - type: Values
+      children:
+      - type: Dynamic
+        attributes: {id: FreeRTOS, value: '10'}
+  - type: Integer
+    attributes: {id: FREERTOS_TIMER_TASK_PRIORITY}
+    children:
+    - type: Attributes
+      children:
+      - type: Boolean
+        attributes: {id: visible}
+        children:
+        - {type: Value, value: 'true'}
+    - type: Values
+      children:
+      - type: Dynamic
+        attributes: {id: FreeRTOS, value: '3'}
+  - type: Integer
+    attributes: {id: FREERTOS_TIMER_TASK_STACK_DEPTH}
+    children:
+    - type: Attributes
+      children:
+      - type: Boolean
+        attributes: {id: visible}
+        children:
+        - {type: Value, value: 'true'}
+    - type: Values
+      children:
+      - type: Dynamic
+        attributes: {id: FreeRTOS, value: '256'}
+  - type: Integer
+    attributes: {id: FREERTOS_TOTAL_HEAP_SIZE}
+    children:
+    - type: Values
+      children:
+      - type: User
+        attributes: {value: '128000'}
+  - type: Boolean
+    attributes: {id: FREERTOS_USE_CONFIGASSERT}
+    children:
+    - type: Values
+      children:
+      - type: User
+        attributes: {value: 'true'}
+  - type: Boolean
+    attributes: {id: FREERTOS_USE_TIMERS}
+    children:
+    - type: Values
+      children:
+      - type: User
+        attributes: {value: 'true'}
+- type: ElementPosition
+  attributes: {x: '22', y: '110', id: FreeRTOS}

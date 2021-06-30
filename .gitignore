@@ -1,0 +1,6 @@
+
+*.flag
+
+firmware/AMAK-SHDSL_pic32mz.X/build/
+firmware/AMAK-SHDSL_pic32mz.X/debug/
+firmware/AMAK-SHDSL_pic32mz.X/dist/
