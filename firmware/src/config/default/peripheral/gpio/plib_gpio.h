@@ -62,6 +62,42 @@
 // *****************************************************************************
 
 
+/*** Macros for nLink pin ***/
+#define nLink_Set()               (LATESET = (1<<5))
+#define nLink_Clear()             (LATECLR = (1<<5))
+#define nLink_Toggle()            (LATEINV= (1<<5))
+#define nLink_OutputEnable()      (TRISECLR = (1<<5))
+#define nLink_InputEnable()       (TRISESET = (1<<5))
+#define nLink_Get()               ((PORTE >> 5) & 0x1)
+#define nLink_PIN                  GPIO_PIN_RE5
+
+/*** Macros for nRDY pin ***/
+#define nRDY_Set()               (LATESET = (1<<6))
+#define nRDY_Clear()             (LATECLR = (1<<6))
+#define nRDY_Toggle()            (LATEINV= (1<<6))
+#define nRDY_OutputEnable()      (TRISECLR = (1<<6))
+#define nRDY_InputEnable()       (TRISESET = (1<<6))
+#define nRDY_Get()               ((PORTE >> 6) & 0x1)
+#define nRDY_PIN                  GPIO_PIN_RE6
+
+/*** Macros for M_nS pin ***/
+#define M_nS_Set()               (LATESET = (1<<7))
+#define M_nS_Clear()             (LATECLR = (1<<7))
+#define M_nS_Toggle()            (LATEINV= (1<<7))
+#define M_nS_OutputEnable()      (TRISECLR = (1<<7))
+#define M_nS_InputEnable()       (TRISESET = (1<<7))
+#define M_nS_Get()               ((PORTE >> 7) & 0x1)
+#define M_nS_PIN                  GPIO_PIN_RE7
+
+/*** Macros for COT_nRTA pin ***/
+#define COT_nRTA_Set()               (LATCSET = (1<<1))
+#define COT_nRTA_Clear()             (LATCCLR = (1<<1))
+#define COT_nRTA_Toggle()            (LATCINV= (1<<1))
+#define COT_nRTA_OutputEnable()      (TRISCCLR = (1<<1))
+#define COT_nRTA_InputEnable()       (TRISCSET = (1<<1))
+#define COT_nRTA_Get()               ((PORTC >> 1) & 0x1)
+#define COT_nRTA_PIN                  GPIO_PIN_RC1
+
 
 // *****************************************************************************
 /* GPIO Port

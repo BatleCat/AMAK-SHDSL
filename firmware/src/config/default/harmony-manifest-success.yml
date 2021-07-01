@@ -4,13 +4,13 @@
 
 
 project: AMAK-SHDSL
-creation_date: 2021-06-30T10:40:22.660+03:00[Europe/Moscow]    # ISO 8601 format: https://www.w3.org/TR/NOTE-datetime
+creation_date: 2021-06-30T16:12:56.564+03:00[Europe/Moscow]    # ISO 8601 format: https://www.w3.org/TR/NOTE-datetime
 operating_system: Windows 10
 mhc_mode: IDE            # [IDE|Standalone|Headless]
 mhc_version: v3.7.2
 mplabx_version: v5.45        # if MPLAB X plugin only
 plugin_version: v3.6.4        # if MPLAB X plugin only
-compiler: XC32 (2.50)
+compiler: XC32 (3.01)
 
 modules:
     - {name: "core", version: "v3.9.1"}
