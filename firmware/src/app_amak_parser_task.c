@@ -51,6 +51,20 @@
 
 APP_AMAK_PARSER_TASK_DATA app_amak_parser_taskData;
 
+/*------------------------------------------------------------------------------
+  Event Queue for AMAK Parser Task Application
+
+  Summary:
+    This variable holds event queue for AMAK parser task application
+
+  Description:
+    
+  Remarks:
+    
+*/
+//------------------------------------------------------------------------------
+QueueHandle_t eventQueue_app_amak_parser_task = NULL;
+
 // *****************************************************************************
 // *****************************************************************************
 // Section: Application Callback Functions

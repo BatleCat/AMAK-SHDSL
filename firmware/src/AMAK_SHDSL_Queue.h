@@ -1,12 +1,13 @@
-/* 
+/*------------------------------------------------------------------------------
+ 
  * File:   AMAK_SHDSL_Queue.h
  * Author: petruhin.as
  *
  * Created on 01/07/2021 , 11:36
- */
+//----------------------------------------------------------------------------*/
 
-//------------------------------------------------------------------------------
-/*******************************************************************************
+/*------------------------------------------------------------------------------
+
   MPLAB Harmony Application Header File
 
   Company:
@@ -25,12 +26,14 @@
     the application.
  * ?????????? ??????????? ????? ? ?????????? ??? ??????????? ?????? ????????.
 
-*******************************************************************************/
+------------------------------------------------------------------------------*/
 //------------------------------------------------------------------------------
 #ifndef AMAK_SHDSL_QUEUE_H
 #define	AMAK_SHDSL_QUEUE_H
 //------------------------------------------------------------------------------
-#include <xc.h>
+#include "third_party/rtos/FreeRTOS/Source/include/FreeRTOS.h"
+#include "third_party/rtos/FreeRTOS/Source/include/queue.h"
+
 //------------------------------------------------------------------------------
 #ifdef	__cplusplus
 extern "C" {
@@ -53,6 +56,7 @@ extern "C" {
 */
 typedef enum
 {
+    EVENT_TYPE_UNKNOWN = 0,
     EVENT_TYPE_SHDSL_DATA_POCKET,
     EVENT_TYPE_SHDSL_STATE_POCKET,
     EVENT_TYPE_UART_SERVICE_POCKET,
@@ -62,9 +66,10 @@ typedef enum
 typedef struct
 {
     ENUM_EVENT_TYPE event_id;
-    int16_t         data_len;
-    char*           pData;
+    uint16_t        data_len;
+    uint8_t*        pData;
 } EVENT_INFO;
+#define EVENT_INFO_SIZE ( sizeof(EVENT_INFO) )
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 #define UDP_POCKET_SIZE        (1472 / 2)
@@ -103,6 +108,11 @@ typedef struct
 } SHDSL_POCKET;
 typedef SHDSL_POCKET*     pSHDSL_POCKET;
 #define SHDSL_POCKET_SIZE ( sizeof(SHDSL_POCKET) )
+//------------------------------------------------------------------------------
+extern QueueHandle_t eventQueue_app_udp_task;
+extern QueueHandle_t eventQueue_app_amak_parser_task;
+extern QueueHandle_t eventQueue_app_shdsl_task;
+extern QueueHandle_t eventQueue_app_service_uart_task;
 //------------------------------------------------------------------------------
 #ifdef	__cplusplus
 }
