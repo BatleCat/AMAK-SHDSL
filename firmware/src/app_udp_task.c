@@ -109,7 +109,7 @@ void APP_UDP_TASK_Initialize ( void )
     /* TODO: Initialize your application's state machine and other
      * parameters.
      */
-    eventQueue_app_udp_task = xQueueCreate( 3, EVENT_INFO_SIZE );
+    eventQueue_app_udp_task = xQueueCreate( APP_UDP_TASK_QUEUE_LEN, EVENT_INFO_SIZE );
     if (NULL == eventQueue_app_udp_task)
     {
         /* Handle error condition. Not sufficient memory to create Queue */
@@ -149,9 +149,14 @@ void APP_UDP_TASK_Tasks ( void )
         /* Application's initial state. */
         case APP_UDP_TASK_STATE_INIT:
         {
-            bool appInitialized = true;
+            bool appUdpTaskInitialized = false;
+            
+            if (NULL == eventQueue_app_udp_task)
+            {
+                appUdpTaskInitialized = true;
+            }
        
-            if (appInitialized)
+            if (appUdpTaskInitialized)
             {
                 app_udp_taskData.state = APP_UDP_TASK_STATE_Start;
 //                SYS_PORTS_PinClear(PORTS_ID_0, PORT_CHANNEL_D, PORTS_BIT_POS_10);

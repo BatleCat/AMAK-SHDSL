@@ -56,18 +56,18 @@ extern "C" {
 */
 typedef enum
 {
-    EVENT_TYPE_UNKNOWN = 0,
-    EVENT_TYPE_SHDSL_DATA_POCKET,
-    EVENT_TYPE_SHDSL_STATE_POCKET,
-    EVENT_TYPE_UART_SERVICE_POCKET,
-    EVENT_TYPE_AMAK_UDP_POCKET,
+    EVENT_TYPE_UNKNOWN = 0,             // неизвестный тип источника события
+    EVENT_TYPE_SHDSL_DATA_POCKET,       // событие от/для App_SHDSL_Task
+    EVENT_TYPE_SHDSL_STATE_POCKET,      // событие запроса/оповещения состояния SHDSL-модема (сигналы: nLink, nReady)
+    EVENT_TYPE_UART_SERVICE_POCKET,     // событие от/для App_Service_UART_Task (управление SHDSL-модемом по терминалу)
+    EVENT_TYPE_AMAK_UDP_POCKET,         // событие от/для App_UDP_Task
 } ENUM_EVENT_TYPE;
 //------------------------------------------------------------------------------
 typedef struct
 {
-    ENUM_EVENT_TYPE event_id;
-    uint16_t        data_len;
-    uint8_t*        pData;
+    ENUM_EVENT_TYPE event_id;           // идентификатор события
+    uint16_t        data_len;           // длина передаваемых данных
+    uint8_t*        pData;              // указатель на передаваемые данные
 } EVENT_INFO;
 #define EVENT_INFO_SIZE ( sizeof(EVENT_INFO) )
 //------------------------------------------------------------------------------
@@ -86,6 +86,7 @@ typedef union
     TDATA_IN_SHDSL_POCKET shdsl_pocket[SHDSL_POCKETS_IN_FRAME];
 } TAMAK_UDP_POCKET;
 typedef TAMAK_UDP_POCKET* pAMAK_UDP_POCKET;
+#define AMAK_UDP_POCKET_SIZE ( sizeof(TAMAK_UDP_POCKET) )
 //------------------------------------------------------------------------------
 typedef enum
 {
@@ -108,6 +109,11 @@ typedef struct
 } SHDSL_POCKET;
 typedef SHDSL_POCKET*     pSHDSL_POCKET;
 #define SHDSL_POCKET_SIZE ( sizeof(SHDSL_POCKET) )
+//------------------------------------------------------------------------------
+#define APP_UDP_TASK_QUEUE_LEN          3
+#define APP_AMAK_PARSER_TASK_QUEUE_LEN  15
+#define APP_SHDSL_TASK_QUEUE_LEN        15
+#define APP_SERVICE_UART_TASK_QUEUE_LEN 3
 //------------------------------------------------------------------------------
 extern QueueHandle_t eventQueue_app_udp_task;
 extern QueueHandle_t eventQueue_app_amak_parser_task;
