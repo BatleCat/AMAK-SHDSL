@@ -95,10 +95,18 @@ typedef struct
 
     /* TODO: Define any additional data used by the application. */
     EVENT_INFO                  event_info;
-    TAMAK_UDP_POCKET            amak2shdsl_frame;
-    int16_t                     amak2shdsl_frame_count;
-    TAMAK_UDP_POCKET            shdsl2amak_frame;
-    int16_t                     shdsl2amak_frame_count;
+    /*--------------------------------------------------------------------------
+        Счетчик переданных SHDSL-пакетов.  Используется принимающей стороной для 
+    определения потери пакетов.
+    */
+    uint16_t                    tx_pocket_count;            
+    /*--------------------------------------------------------------------------
+        Счетчик принятых SHDSL-пакетов.  Сравнивается  с  полем  tx_pocket_count 
+    принятого SHDSL-пакета. Если разница больше единицы, то произошла потеря па-
+    кетов.
+    */
+    uint16_t                    rx_pocket_count;            
+    //--------------------------------------------------------------------------
 
 } APP_AMAK_PARSER_TASK_DATA;
 //------------------------------------------------------------------------------

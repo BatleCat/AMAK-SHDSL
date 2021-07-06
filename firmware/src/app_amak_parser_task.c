@@ -76,6 +76,11 @@ APP_AMAK_PARSER_TASK_DATA app_amak_parser_taskData;
 //------------------------------------------------------------------------------
 QueueHandle_t eventQueue_app_amak_parser_task = NULL;
 
+TAMAK_UDP_POCKET            amak2shdsl_frame;
+int16_t                     amak2shdsl_frame_count;
+TAMAK_UDP_POCKET            shdsl2amak_frame;
+int16_t                     shdsl2amak_frame_count;
+
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 // Section: Application Callback Functions
@@ -131,10 +136,13 @@ void APP_AMAK_PARSER_TASK_Initialize ( void )
     app_amak_parser_taskData.event_info.pData = NULL;
     app_amak_parser_taskData.event_info.event_id = ENUM_EVENT_TYPE.EVENT_TYPE_UNKNOWN;
     //--------------------------------------------------------------------------
-    app_amak_parser_taskData.amak2shdsl_frame_count = 0;
-    app_amak_parser_taskData.shdsl2amak_frame_count = 0;
-    memset(app_amak_parser_taskData.amak2shdsl_frame, 0, AMAK_UDP_POCKET_SIZE);
-    memset(app_amak_parser_taskData.shdsl2amak_frame, 0, AMAK_UDP_POCKET_SIZE);
+    app_amak_parser_taskData.rx_pocket_count = 0;
+    app_amak_parser_taskData.tx_pocket_count = 0;
+    //--------------------------------------------------------------------------
+    amak2shdsl_frame_count = 0;
+    shdsl2amak_frame_count = 0;
+    memset(amak2shdsl_frame, 0, AMAK_UDP_POCKET_SIZE);
+    memset(shdsl2amak_frame, 0, AMAK_UDP_POCKET_SIZE);
     //--------------------------------------------------------------------------
 }
 //------------------------------------------------------------------------------
@@ -190,56 +198,94 @@ void APP_AMAK_PARSER_TASK_Tasks ( void )
             //------------------------------------------------------------------
             if ( ENUM_EVENT_TYPE.EVENT_TYPE_AMAK_UDP_POCKET == app_amak_parser_taskData.event_info.event_id )
             {
+                uint16_t rx_udp_len = app_amak_parser_taskData.event_info.data_len;
+                
                 // копирую данные из принятого события в app_amak_parser_taskData.amak2shdsl_pocket
-                memset(app_amak_parser_taskData.amak2shdsl_frame, 0, AMAK_UDP_POCKET_SIZE);
-                memcpy(app_amak_parser_taskData.amak2shdsl_frame, app_amak_parser_taskData.event_info.pData, app_amak_parser_taskData.event_info.data_len);
+                memset(amak2shdsl_frame, 0, AMAK_UDP_POCKET_SIZE);
+                memcpy(amak2shdsl_frame, app_amak_parser_taskData.event_info.pData, app_amak_parser_taskData.event_info.data_len);
                 // освобождаю память по указателю данных из события
                 free(app_amak_parser_taskData.event_info.pData);
                 
-                uint16_t rx_udp_len = app_amak_parser_taskData.event_info.data_len;
-                app_amak_parser_taskData.event_info.event_id = EVENT_TYPE_SHDSL_DATA_POCKET;
+                app_amak_parser_taskData.event_info.event_id = ENUM_EVENT_TYPE.EVENT_TYPE_SHDSL_DATA_POCKET;
+                app_amak_parser_taskData.event_info.data_len = SHDSL_POCKET_SIZE;
 
-                uint16_t        k = 0;
-                uint16_t        count = 0;
-                pSHDSL_POCKET   shdsl_pocket = malloc(SHDSL_POCKET_SIZE);
-                shdsl_pocket->frame_count = app_amak_parser_taskData.amak2shdsl_frame_count;
-                
-                shdsl_pocket->tx_pocket_count = app_amak_parser_taskData.amak2shdsl_frame_count;
-                shdsl_pocket->rx_pocket_count = app_amak_parser_taskData.shdsl2amak_frame_count;
-                shdsl_pocket->shdsl_pocket_count :9;  //lo
-                shdsl_pocket->frame_count        :3;  //mid
-                shdsl_pocket->pocket_id = ENUM_SHDSL_POCKET_ID.AMAK;
-                shdsl_pocket->data[SHDSL_POCKET_DATA_LEN];
-                shdsl_pocket->crc;
-                
-                uint16_t i;
-                for (i = 0; i < rx_udp_len; i++)
+                uint16_t frame_count = 0x07 & amak2shdsl_frame_count;
+
+                uint16_t num_pocket = rx_udp_len / SHDSL_POCKET_DATA_LEN;
+                if ( 0 != (rx_udp_len % SHDSL_POCKET_DATA_LEN) )
                 {
-                    
+                    num_pocket++;
                 }
                 
-                configASSERT(app_amak_parser_taskData.event_info.pData);
-                
-                app_amak_parser_taskData.event_info.data_len = pocket_len;
-                app_amak_parser_taskData.event_info.event_id = ENUM_EVENT_TYPE.EVENT_TYPE_SHDSL_DATA_POCKET;
-                
-                xQueueSend( eventQueue_app_shdsl_task, (void*)&( app_amak_parser_taskData.event_info ), 0 );//portMAX_DELAY); 
+                uint16_t pocket_count;
+                for (pocket_count = 0; pocket_count < num_pocket; pocket_count++)
+                {
+                    pSHDSL_POCKET   shdsl_pocket = malloc(SHDSL_POCKET_SIZE);
+                    configASSERT(shdsl_pocket);
+                    memset(shdsl_pocket, 0, SHDSL_POCKET_SIZE);
+
+                    shdsl_pocket->tx_pocket_count       = app_amak_parser_taskData.tx_pocket_count;
+                    //shdsl_pocket->rx_pocket_count       = 0;                        // поле заполняется в app_shdsl_task, перед отправкой пакета
+                    shdsl_pocket->shdsl_pocket_count    = 0x01FF & pocket_count;
+                    shdsl_pocket->frame_count           = frame_count
+                    shdsl_pocket->pocket_id             = ENUM_SHDSL_POCKET_ID.AMAK;
+                    memcpy(shdsl_pocket->data, amak2shdsl_frame.shdsl_pocket[pocket_count], SHDSL_POCKET_DATA_LEN);
+                    //shdsl_pocket->crc                   = 0;                        // расчет CRC выполняется в app_shdsl_task, перед отправкой пакета
+                    xQueueSend( eventQueue_app_shdsl_task, (void*)&( app_amak_parser_taskData.event_info ), 0 );//portMAX_DELAY);
+                    
+                    app_amak_parser_taskData.tx_pocket_count++;
+                }
 
                 // увеличиваю счетчик amak2shdsl_pocket_count UDP-пакетов
-                app_amak_parser_taskData.amak2shdsl_frame_count++;
-                app_amak_parser_taskData.amak2shdsl_frame_count &= 0x01FF;
+                amak2shdsl_frame_count++;
             }
             //------------------------------------------------------------------
             // Если данные в очереди от App_SHDSL_Task
             //------------------------------------------------------------------
             if ( ENUM_EVENT_TYPE.EVENT_TYPE_SHDSL_DATA_POCKET == app_amak_parser_taskData.event_info.event_id )
             {
+                pSHDSL_POCKET   shdsl_pocket = (pSHDSL_POCKET)app_amak_parser_taskData.event_info.pData;
+                configASSERT(shdsl_pocket);
                 
-                configASSERT(app_amak_parser_taskData.event_info.pData);
+                //--------------------------------------------------------------
+                // проверка CRC пакета
+                //--------------------------------------------------------------
                 
-                app_amak_parser_taskData.event_info.data_len = pocket_len;
+                //--------------------------------------------------------------
+                // проверка есть ли потери пакетов
+                //--------------------------------------------------------------
+                if ( app_amak_parser_taskData.rx_pocket_count != shdsl_pocket->tx_pocket_count )
+                {
+                    // Ошибка! Потеряны пакеты...
+                }
+                app_amak_parser_taskData.rx_pocket_count++;
+                
+                //--------------------------------------------------------------
+                //
+                //--------------------------------------------------------------
+                if (ENUM_SHDSL_POCKET_ID.AMAK != shdsl_pocket->pocket_id)
+                {
+                    //Ошибка! Пакет данных не для АМАК!
+                }
+                
+                shdsl_pocket->frame_count;
+                
+                
+                shdsl2amak_frame.shdsl_pocket[shdsl_pocket->shdsl_pocket_count];
+
+                //--------------------------------------------------------------
+                // освобождаю память по указателю данных из события
+                //--------------------------------------------------------------
+                free(app_amak_parser_taskData.event_info.pData);
+
+                //--------------------------------------------------------------
+                // пакет UDP собран из SHDSL-пакетов и отправляется в app_udp_task
+                //--------------------------------------------------------------
+                uint16_t curent_udp_pocket_size = AMAK_UDP_POCKET_SIZE;
                 app_amak_parser_taskData.event_info.event_id = ENUM_EVENT_TYPE.EVENT_TYPE_AMAK_UDP_POCKET;
-                
+                app_amak_parser_taskData.event_info.data_len = curent_udp_pocket_size;
+                app_amak_parser_taskData.event_info.pData    = malloc(curent_udp_pocket_size);
+                memcpy(app_amak_parser_taskData.event_info.pData, shdsl2amak_frame, curent_udp_pocket_size);
                 xQueueSend( eventQueue_app_udp_task, (void*)&( app_amak_parser_taskData.event_info ), 0 );//portMAX_DELAY); 
             }
             break;
