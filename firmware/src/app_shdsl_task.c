@@ -137,7 +137,7 @@ void APP_SHDSL_TASK_Initialize ( void )
     //--------------------------------------------------------------------------
     app_shdsl_taskData.event_info.data_len = 0;
     app_shdsl_taskData.event_info.pData = NULL;
-    app_shdsl_taskData.event_info.event_id = ENUM_EVENT_TYPE.EVENT_TYPE_UNKNOWN;
+    app_shdsl_taskData.event_info.event_id = (ENUM_EVENT_TYPE)EVENT_TYPE_UNKNOWN; //ENUM_EVENT_TYPE.EVENT_TYPE_UNKNOWN;
     //--------------------------------------------------------------------------
     app_shdsl_taskData.rx_pocket_count = 0;
     app_shdsl_taskData.tx_pocket_count = 0;
@@ -184,7 +184,7 @@ void APP_SHDSL_TASK_Tasks ( void )
 
         case APP_SHDSL_TASK_STATE_SERVICE_TASKS:
         {
-            app_shdsl_taskData.event_info = ENUM_EVENT_TYPE.EVENT_TYPE_UNKNOWN;
+            app_shdsl_taskData.event_info.event_id = (ENUM_EVENT_TYPE)EVENT_TYPE_UNKNOWN; //ENUM_EVENT_TYPE.EVENT_TYPE_UNKNOWN;
             //------------------------------------------------------------------
             // Проверяем есть ли в очереди данные на передачу
             //------------------------------------------------------------------
@@ -193,7 +193,7 @@ void APP_SHDSL_TASK_Tasks ( void )
             //------------------------------------------------------------------
             // Если данные в очереди от App_AMAK_Parser_Task
             //------------------------------------------------------------------
-            if ( ENUM_EVENT_TYPE.EVENT_TYPE_SHDSL_DATA_POCKET == app_shdsl_taskData.event_info.event_id )
+            if ( (ENUM_EVENT_TYPE)EVENT_TYPE_SHDSL_DATA_POCKET == app_shdsl_taskData.event_info.event_id )
             {
                 //--------------------------------------------------------------
                 // копирую данные из принятого события
@@ -208,7 +208,7 @@ void APP_SHDSL_TASK_Tasks ( void )
                 
                 //--------------------------------------------------------------
                 //--------------------------------------------------------------
-                app_shdsl_taskData.event_info.event_id = ENUM_EVENT_TYPE.EVENT_TYPE_SHDSL_DATA_POCKET;
+                app_shdsl_taskData.event_info.event_id = (ENUM_EVENT_TYPE)EVENT_TYPE_SHDSL_DATA_POCKET;
                 app_shdsl_taskData.event_info.data_len = SHDSL_POCKET_SIZE;
 
                 shdsl_pocket->rx_pocket_count = app_shdsl_taskData.rx_pocket_count;   // поле заполняется в app_shdsl_task, перед отправкой пакета

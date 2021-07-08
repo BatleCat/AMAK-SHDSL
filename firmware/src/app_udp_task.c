@@ -29,11 +29,15 @@
 //------------------------------------------------------------------------------
 #include <stddef.h>
 #include <string.h>
+
+#include "system_config.h"
+#include "system_definitions.h"
+
 #include "config/default/library/tcpip/tcp.h"
 #include "config/default/library/tcpip/udp.h"
 #include "third_party/rtos/FreeRTOS/Source/include/FreeRTOS.h"
 #include "third_party/rtos/FreeRTOS/Source/include/queue.h"
-//#include "config/default/system/debug/sys_debug.h"
+#include "config/default/system/debug/sys_debug.h"
 #include "config/default/system/console/sys_console.h"
 #include <bsp/bsp.h>
 //------------------------------------------------------------------------------
@@ -150,8 +154,11 @@ void APP_UDP_TASK_Tasks ( void )
         case APP_UDP_TASK_STATE_INIT:
         {
             bool appUdpTaskInitialized = false;
+            #ifdef ENABLE_CONSOLE_MESSAGE
+                SYS_CONSOLE_MESSAGE(" APP_UDP_TASK: APP_UDP_TASK_STATE_INIT\r\n");
+            #endif
             
-            if (NULL == eventQueue_app_udp_task)
+            if (NULL != eventQueue_app_udp_task)
             {
                 appUdpTaskInitialized = true;
             }
@@ -159,8 +166,6 @@ void APP_UDP_TASK_Tasks ( void )
             if (appUdpTaskInitialized)
             {
                 app_udp_taskData.state = APP_UDP_TASK_STATE_Start;
-//                SYS_PORTS_PinClear(PORTS_ID_0, PORT_CHANNEL_D, PORTS_BIT_POS_10);
-//                SYS_PORTS_PinSet(PORTS_ID_0, PORT_CHANNEL_H, PORTS_BIT_POS_0);
                 #ifdef ENABLE_CONSOLE_MESSAGE
                     SYS_CONSOLE_MESSAGE(" APP_UDP_TASK: Initialization complite\r\n");
                 #endif
@@ -317,7 +322,7 @@ void APP_UDP_TASK_Tasks ( void )
                 configASSERT(app_udp_taskData.event_info.pData);
                 
                 app_udp_taskData.event_info.data_len = TCPIP_UDP_ArrayGet(app_udp_taskData.udp_rx_socket, app_udp_taskData.event_info.pData, read_len);
-                app_udp_taskData.event_info.event_id = ENUM_EVENT_TYPE.EVENT_TYPE_AMAK_UDP_POCKET;
+                app_udp_taskData.event_info.event_id = (ENUM_EVENT_TYPE)EVENT_TYPE_AMAK_UDP_POCKET;
                 
                 xQueueSend( eventQueue_app_amak_parser_task, (void*)&( app_udp_taskData.event_info ), 0 );//portMAX_DELAY); 
 
@@ -335,7 +340,7 @@ void APP_UDP_TASK_Tasks ( void )
         {
             app_udp_taskData.state = APP_UDP_TASK_STATE_Rx;
 
-            app_udp_taskData.event_info = ENUM_EVENT_TYPE.EVENT_TYPE_UNKNOWN;
+            app_udp_taskData.event_info.event_id = (ENUM_EVENT_TYPE)EVENT_TYPE_UNKNOWN;
             //------------------------------------------------------------------
             // Проверяем есть ли в очереди данные на передачу
             //------------------------------------------------------------------
@@ -344,8 +349,8 @@ void APP_UDP_TASK_Tasks ( void )
             //------------------------------------------------------------------
             // Если данные в очереди от App_AMAK_Parser_Task или от App_Service_UART_Task
             //------------------------------------------------------------------
-            if ( ( ENUM_EVENT_TYPE.EVENT_TYPE_AMAK_UDP_POCKET == app_udp_taskData.event_info.event_id ) ||
-                 ( ENUM_EVENT_TYPE.EVENT_TYPE_UART_SERVICE_POCKET == app_udp_taskData.event_info.event_id ) )
+            if ( ( (ENUM_EVENT_TYPE)EVENT_TYPE_AMAK_UDP_POCKET     == app_udp_taskData.event_info.event_id ) ||
+                 ( (ENUM_EVENT_TYPE)EVENT_TYPE_UART_SERVICE_POCKET == app_udp_taskData.event_info.event_id ) )
             {
 //                #ifdef ENABLE_CONSOLE_MESSAGE
 //                  SYS_CONSOLE_MESSAGE(" APP_UDP_TASK: UDP-packet send start\r\n");

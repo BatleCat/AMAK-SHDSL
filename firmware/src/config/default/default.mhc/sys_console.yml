@@ -125,4 +125,4 @@ children:
             children:
             - {type: Value, value: UART2_UART}
 - type: ElementPosition
-  attributes: {x: '573', y: '455', id: sys_console}
+  attributes: {x: '572', y: '324', id: sys_console}

@@ -30,6 +30,9 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "config/default/library/tcpip/tcpip.h"
+#include "config/default/library/tcpip/tcp.h"
+#include "config/default/library/tcpip/udp.h"
 #include "configuration.h"
 //------------------------------------------------------------------------------
 #include "AMAK_SHDSL_Queue.h"

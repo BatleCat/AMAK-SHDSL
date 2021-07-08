@@ -138,4 +138,4 @@ children:
         children:
         - {type: Value, value: sys_console_UART_dependency}
 - type: ElementPosition
-  attributes: {x: '428', y: '516', id: uart2}
+  attributes: {x: '431', y: '388', id: uart2}

@@ -251,13 +251,13 @@ files:
   security: NON_SECURE
   type: SOURCE
   userChecksum: F61802AB2B31364D0B9AE3B6AE4D92F4
-- generatedChecksum: 9629EA2E3AFCFD6DE684ACD38F559B55
+- generatedChecksum: 889C00C5FC82E25CB64D730F8E091BCD
   logicalPath: config/default/peripheral/gpio
   name: plib_gpio.c
   physicalPath: peripheral/gpio
   security: NON_SECURE
   type: SOURCE
-  userChecksum: 9629EA2E3AFCFD6DE684ACD38F559B55
+  userChecksum: 889C00C5FC82E25CB64D730F8E091BCD
 - generatedChecksum: 44532C1EDDEA0CF40F7118AA028A5BB9
   logicalPath: config/default/peripheral/spi/spi_master
   name: plib_spi2_master.c
@@ -545,13 +545,13 @@ files:
   security: NON_SECURE
   type: HEADER
   userChecksum: D24505F81C0F11274D502E0135E16982
-- generatedChecksum: C440E07E09E962F45A6EF1AC32DB5595
+- generatedChecksum: A9C595E0E5A92D2B85C18D2A27597B84
   logicalPath: config/default/bsp
   name: bsp.h
   physicalPath: bsp
   security: NON_SECURE
   type: HEADER
-  userChecksum: C440E07E09E962F45A6EF1AC32DB5595
+  userChecksum: A9C595E0E5A92D2B85C18D2A27597B84
 - generatedChecksum: 6D82F5E3F79640FE52F3DC4ECD4FC558
   logicalPath: config/default
   name: configuration.h
