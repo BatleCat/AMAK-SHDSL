@@ -169,7 +169,8 @@ static DRV_ETH_RX_FILTERS _DRV_ETHMAC_MacToEthFilter(TCPIP_MAC_RX_FILTER_TYPE ma
 // to support multiple instances
 // create an array/list of MAC_DCPT structures
 // or allocate dynamically
-static DRV_ETHMAC_INSTANCE_DCPT _pic32_emb_mac_dcpt[1] = 
+#define DRV_ETHMAC_INSTANCES     1
+static DRV_ETHMAC_INSTANCE_DCPT _pic32_emb_mac_dcpt[DRV_ETHMAC_INSTANCES] = 
 {
     {
         &DRV_ETHMAC_PIC32MACObject,
@@ -219,13 +220,41 @@ static const _DRV_ETHMAC_LinkStateF _DRV_ETHMAC_LinkStateTbl[] =
 static __inline__ int __attribute__((always_inline)) _PIC32MacIdToIx(TCPIP_MODULE_MAC_ID macId)
 {
     int macIx = macId - TCPIP_MODULE_MAC_PIC32INT_0;
-    if(macIx >= 0 && macIx < sizeof(_pic32_emb_mac_dcpt)/sizeof(*_pic32_emb_mac_dcpt))
+    if(macIx >= 0 && macIx < sizeof(_pic32_emb_mac_dcpt) / sizeof(*_pic32_emb_mac_dcpt))
     {
         return macIx;
     }
 
     return -1;
 }
+
+
+#if (DRV_ETHMAC_INSTANCES == 1)
+static __inline__ DRV_ETHMAC_INSTANCE_DCPT* __attribute__((always_inline)) _PIC32HandleToMacInst(uintptr_t handle)
+{
+    DRV_ETHMAC_INSTANCE_DCPT* pMacD = (DRV_ETHMAC_INSTANCE_DCPT*)handle;
+    return pMacD == _pic32_emb_mac_dcpt ? pMacD : 0;
+}
+#else
+// multiple instances version
+// could be refined more
+static DRV_ETHMAC_INSTANCE_DCPT* _PIC32HandleToMacInst(uintptr_t handle)
+{
+    DRV_ETHMAC_INSTANCE_DCPT* pMacD = (DRV_ETHMAC_INSTANCE_DCPT*)handle;
+    int macIx = pMacD - _pic32_emb_mac_dcpt;
+    if(macIx >= 0 && macIx < sizeof(_pic32_emb_mac_dcpt) / sizeof(*_pic32_emb_mac_dcpt))
+    {
+        if(pMacD == _pic32_emb_mac_dcpt + macIx)
+        {
+            return pMacD;
+        }
+    }
+
+    return 0;
+}
+#endif  // (DRV_ETHMAC_INSTANCES == 1)
+
+
 
 #if defined(__PIC32MZ__)
 
@@ -384,16 +413,16 @@ SYS_MODULE_OBJ DRV_ETHMAC_PIC32MACInitialize(const SYS_MODULE_INDEX index, const
     union
     {
         double      align;              // alignement
-        uint8_t		addr[6];            // address itself
+        uint8_t     addr[6];            // address itself
     }alignMacAddress;        // aligned MAC address
 
-    int		    nRxBuffs;
-	DRV_ETHPHY_RESULT   phyInitRes;
-	uint8_t		useFactMACAddr[6] = {0x00, 0x04, 0xa3, 0x00, 0x00, 0x00};		// to check if factory programmed MAC address needed
-	uint8_t		unsetMACAddr[6] =   {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};		// not set MAC address
+    int         nRxBuffs;
+    DRV_ETHPHY_RESULT   phyInitRes;
+    uint8_t     useFactMACAddr[6] = {0x00, 0x04, 0xa3, 0x00, 0x00, 0x00};       // to check if factory programmed MAC address needed
+    uint8_t     unsetMACAddr[6] =   {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};       // not set MAC address
 
     TCPIP_MAC_RES   initRes;
-    int		        macIx, phyIx;
+    int             macIx, phyIx;
     DRV_ETHERNET_REGISTERS*   ethId;
     DRV_ETH_RX_FILTERS ethRxFilt;
     DRV_ETHMAC_INSTANCE_DCPT* pMacD;
@@ -422,8 +451,8 @@ SYS_MODULE_OBJ DRV_ETHMAC_PIC32MACInitialize(const SYS_MODULE_INDEX index, const
         return SYS_MODULE_OBJ_INVALID;     // have a client connected
     }
 
-    if(macControl->memH == 0 || macControl->segLoadOffset < sizeof(TCPIP_MAC_PACKET*))
-    {     // not possible without dynamic memory or if there is no room to store the packet pointer!        
+    if(macControl->memH == 0)
+    {     // not possible without dynamic memory!        
         return SYS_MODULE_OBJ_INVALID;
     }
     
@@ -450,12 +479,13 @@ SYS_MODULE_OBJ DRV_ETHMAC_PIC32MACInitialize(const SYS_MODULE_INDEX index, const
     pMacD->mData._macFlags._linkPrev = 0;
 
     pMacD->mData._macIntSrc = DRV_ETHMAC_INTERRUPT_SOURCE;
-	
+    
     // use initialization data
     pMacD->mData._AllocH = macControl->memH;
     pMacD->mData._callocF = macControl->callocF;
     pMacD->mData._freeF = macControl->freeF;
-    pMacD->mData._segLoadOffset = macControl->segLoadOffset;    // Note: the driver assumes that the packet allocator sets the packet pointer for each allocated packet!
+    pMacD->mData._gapDcptOffset = macControl->gapDcptOffset;    // Note: the driver assumes that the packet allocator sets the packet pointer for each allocated packet!
+    pMacD->mData._gapDcptSize = macControl->gapDcptSize;
 
 
     pMacD->mData.pktAllocF = macControl->pktAllocF;
@@ -463,6 +493,8 @@ SYS_MODULE_OBJ DRV_ETHMAC_PIC32MACInitialize(const SYS_MODULE_INDEX index, const
     pMacD->mData.pktAckF = macControl->pktAckF;
 
     pMacD->mData._synchF = macControl->synchF;
+    pMacD->mData._dataOffsetMask = (macControl->controlFlags & TCPIP_MAC_CONTROL_PAYLOAD_OFFSET_2) ? 0xfffffffc : 0xffffffff;
+    pMacD->mData._controlFlags = macControl->controlFlags;
 
     // copy the configuration data
     pMacD->mData.macConfig = *initData; 
@@ -499,15 +531,15 @@ SYS_MODULE_OBJ DRV_ETHMAC_PIC32MACInitialize(const SYS_MODULE_INDEX index, const
     initRes = TCPIP_MAC_RES_OK;
     ethId = pMacD->mData.pEthReg;
 
-	while(1)
-	{
+    while(1)
+    {
         DRV_ETHPHY_SETUP phySetup;
         const DRV_ETHPHY_OBJECT_BASE* pPhyBase;   
 
 
-		// start the initialization sequence	
+        // start the initialization sequence    
         SYS_INT_SourceDisable(pMacD->mData._macIntSrc);      // stop Eth ints
-		DRV_ETHMAC_LibInit(pMacD);
+        DRV_ETHMAC_LibInit(pMacD);
         SYS_INT_SourceStatusClear(pMacD->mData._macIntSrc); // clear any pending interrupt flag
         DRV_ETH_MaxFrameLengthSet(ethId, _TCPIP_EMAC_MAX_FRAME);
 
@@ -544,8 +576,8 @@ SYS_MODULE_OBJ DRV_ETHMAC_PIC32MACInitialize(const SYS_MODULE_INDEX index, const
         }
 
         // OK, we can continue initalization
-		// let the PHY initialization and auto-negotiation (if any) take place
-		// and continue the initialization
+        // let the PHY initialization and auto-negotiation (if any) take place
+        // and continue the initialization
 
         // Set the RX filters
         DRV_ETH_RxFiltersClr(ethId, DRV_ETH_FILT_ALL_FILTERS);
@@ -578,25 +610,25 @@ SYS_MODULE_OBJ DRV_ETHMAC_PIC32MACInitialize(const SYS_MODULE_INDEX index, const
         DRV_ETH_AutoFlowControlEnable(ethId);
 #endif  // (TCPIP_EMAC_AUTO_FLOW_CONTROL_ENABLE) 
         
-		// set the MAC address
+        // set the MAC address
         memcpy(alignMacAddress.addr, macControl->ifPhyAddress.v, sizeof(alignMacAddress.addr));
         if(memcmp(alignMacAddress.addr, useFactMACAddr, sizeof(useFactMACAddr)) !=0 && memcmp(alignMacAddress.addr, unsetMACAddr, sizeof(unsetMACAddr)) !=0 )
         {   // use the supplied address
             DRV_ETH_MACSetAddress(ethId, alignMacAddress.addr);
         }
         // else use the factory programmed address existent in the MAC
-				
-		if(DRV_ETHMAC_LibDescriptorsPoolAdd(pMacD, pMacD->mData.macConfig.nTxDescriptors, DRV_ETHMAC_DCPT_TYPE_TX, _MacCallocCallback, (void*)pMacD)!=pMacD->mData.macConfig.nTxDescriptors)
-		{
+                
+        if(DRV_ETHMAC_LibDescriptorsPoolAdd(pMacD, pMacD->mData.macConfig.nTxDescriptors, DRV_ETHMAC_DCPT_TYPE_TX, _MacCallocCallback, (void*)pMacD)!=pMacD->mData.macConfig.nTxDescriptors)
+        {
             initRes = TCPIP_MAC_RES_ALLOC_ERR;
             break;
-		}
+        }
 
-		if(DRV_ETHMAC_LibDescriptorsPoolAdd(pMacD, pMacD->mData.macConfig.nRxDescriptors, DRV_ETHMAC_DCPT_TYPE_RX, _MacCallocCallback, (void*)pMacD)!=pMacD->mData.macConfig.nRxDescriptors)
-		{
+        if(DRV_ETHMAC_LibDescriptorsPoolAdd(pMacD, pMacD->mData.macConfig.nRxDescriptors, DRV_ETHMAC_DCPT_TYPE_RX, _MacCallocCallback, (void*)pMacD)!=pMacD->mData.macConfig.nRxDescriptors)
+        {
             initRes = TCPIP_MAC_RES_ALLOC_ERR;
             break;
-		}
+        }
 
         // add RX dedicated buffers
         if((nRxDedicatedBuffers = pMacD->mData.macConfig.nRxDedicatedBuffers))
@@ -625,8 +657,8 @@ SYS_MODULE_OBJ DRV_ETHMAC_PIC32MACInitialize(const SYS_MODULE_INDEX index, const
             break;
         }
         // end of initialization        
-		break;
-	}
+        break;
+    }
 
 
 
@@ -642,7 +674,7 @@ SYS_MODULE_OBJ DRV_ETHMAC_PIC32MACInitialize(const SYS_MODULE_INDEX index, const
     
     pMacD->mData._macFlags._init = 1;
     pMacD->mData.sysStat = SYS_STATUS_BUSY;
-	return (SYS_MODULE_OBJ)pMacD;
+    return (SYS_MODULE_OBJ)pMacD;
 }
 
 /****************************************************************************
@@ -663,9 +695,9 @@ SYS_MODULE_OBJ DRV_ETHMAC_PIC32MACInitialize(const SYS_MODULE_INDEX index, const
 #if (TCPIP_STACK_MAC_DOWN_OPERATION != 0)
 void DRV_ETHMAC_PIC32MACDeinitialize(SYS_MODULE_OBJ object)
 {
-    DRV_ETHMAC_INSTANCE_DCPT* pMacD = (DRV_ETHMAC_INSTANCE_DCPT*)object;
+    DRV_ETHMAC_INSTANCE_DCPT* pMacD = _PIC32HandleToMacInst(object);
 
-    if(pMacD->mData._macFlags._init != 0)
+    if(pMacD != 0 && pMacD->mData._macFlags._init != 0)
     {
         _MACDeinit(pMacD);
     }
@@ -679,9 +711,9 @@ void DRV_ETHMAC_PIC32MACReinitialize(SYS_MODULE_OBJ object, const SYS_MODULE_INI
 
 SYS_STATUS DRV_ETHMAC_PIC32MACStatus (SYS_MODULE_OBJ object)
 {
-    DRV_ETHMAC_INSTANCE_DCPT* pMacD = (DRV_ETHMAC_INSTANCE_DCPT*)object;
+    DRV_ETHMAC_INSTANCE_DCPT* pMacD = _PIC32HandleToMacInst(object);
 
-    if(pMacD->mData._macFlags._init != 0)
+    if(pMacD != 0 && pMacD->mData._macFlags._init != 0)
     {
         return pMacD->mData.sysStat;
     }
@@ -694,11 +726,11 @@ void DRV_ETHMAC_PIC32MACTasks(SYS_MODULE_OBJ object)
     TCPIP_ETH_PAUSE_TYPE        pauseType;
     DRV_ETHPHY_CLIENT_STATUS    phyStat;
     DRV_HANDLE                  hPhyClient;
-	DRV_ETHPHY_RESULT           phyInitRes;
+    DRV_ETHPHY_RESULT           phyInitRes;
     const DRV_ETHPHY_OBJECT_BASE* pPhyBase;   
-    DRV_ETHMAC_INSTANCE_DCPT*   pMacD = (DRV_ETHMAC_INSTANCE_DCPT*)object;
+    DRV_ETHMAC_INSTANCE_DCPT*   pMacD = _PIC32HandleToMacInst(object);
 
-    if(pMacD->mData._macFlags._init == 0)
+    if(pMacD == 0 || pMacD->mData._macFlags._init == 0)
     {   // nothing to do
         return;
     }
@@ -720,11 +752,9 @@ void DRV_ETHMAC_PIC32MACTasks(SYS_MODULE_OBJ object)
 
             phyInitRes = pPhyBase->DRV_ETHPHY_ClientOperationResult(hPhyClient);
 
-            if ( phyInitRes != DRV_ETHPHY_RES_OK)
+            if ( phyInitRes != DRV_ETHPHY_RES_OK )
             {
                 _MACDeinit(pMacD);
-                // keep the error status though
-                pMacD->mData._macFlags._init = 1;
                 pMacD->mData.sysStat = SYS_STATUS_ERROR; 
                 SYS_ERROR_PRINT(SYS_ERROR_ERROR, "DRV PHY init failed: %d\r\n", phyInitRes);
                 break;
@@ -733,11 +763,11 @@ void DRV_ETHMAC_PIC32MACTasks(SYS_MODULE_OBJ object)
             // PHY was detected properly
             pMacD->mData._macFlags._linkPresent = 1;
             if((pMacD->mData.macConfig.ethFlags & TCPIP_ETH_OPEN_AUTO) != 0)
-            {	// we'll just wait for the negotiation to be done
-                pMacD->mData._macFlags._linkNegotiation = 1;	// performing the negotiation
+            {   // we'll just wait for the negotiation to be done
+                pMacD->mData._macFlags._linkNegotiation = 1;    // performing the negotiation
             }
             else
-            {	// no need of negotiation results; just update the MAC
+            {   // no need of negotiation results; just update the MAC
                 pauseType = (pMacD->mData.macConfig.ethFlags & TCPIP_ETH_OPEN_FDUPLEX) ? DRV_ETHMAC_PAUSE_CPBL_MASK : TCPIP_ETH_PAUSE_TYPE_NONE;
                 DRV_ETHMAC_LibMACOpen(pMacD, pMacD->mData._linkResFlags, pauseType);
             }
@@ -757,19 +787,22 @@ void DRV_ETHMAC_PIC32MACTasks(SYS_MODULE_OBJ object)
 
 size_t DRV_ETHMAC_PIC32MACConfigGet(DRV_HANDLE hMac, void* configBuff, size_t buffSize, size_t* pConfigSize)
 {
-    DRV_ETHMAC_INSTANCE_DCPT* pMacD = (DRV_ETHMAC_INSTANCE_DCPT*)hMac;
+    DRV_ETHMAC_INSTANCE_DCPT* pMacD = _PIC32HandleToMacInst(hMac);
 
-    if(pConfigSize)
+    if(pMacD != 0)
     {
-        *pConfigSize =  sizeof(TCPIP_MODULE_MAC_PIC32INT_CONFIG);
-    }
+        if(pConfigSize)
+        {
+            *pConfigSize =  sizeof(TCPIP_MODULE_MAC_PIC32INT_CONFIG);
+        }
 
-    if(configBuff && buffSize >= sizeof(TCPIP_MODULE_MAC_PIC32INT_CONFIG))
-    {   // can copy the data
-        TCPIP_MODULE_MAC_PIC32INT_CONFIG* pMacConfig = (TCPIP_MODULE_MAC_PIC32INT_CONFIG*)configBuff;
+        if(configBuff && buffSize >= sizeof(TCPIP_MODULE_MAC_PIC32INT_CONFIG))
+        {   // can copy the data
+            TCPIP_MODULE_MAC_PIC32INT_CONFIG* pMacConfig = (TCPIP_MODULE_MAC_PIC32INT_CONFIG*)configBuff;
 
-        *pMacConfig = pMacD->mData.macConfig;
-        return sizeof(TCPIP_MODULE_MAC_PIC32INT_CONFIG);
+            *pMacConfig = pMacD->mData.macConfig;
+            return sizeof(TCPIP_MODULE_MAC_PIC32INT_CONFIG);
+        }
     }
 
     return 0;
@@ -809,11 +842,9 @@ DRV_HANDLE DRV_ETHMAC_PIC32MACOpen(const SYS_MODULE_INDEX drvIndex, const DRV_IO
 
 void DRV_ETHMAC_PIC32MACClose( DRV_HANDLE hMac )
 {
-    DRV_ETHMAC_INSTANCE_DCPT* pMacD;
+    DRV_ETHMAC_INSTANCE_DCPT* pMacD = _PIC32HandleToMacInst(hMac);
 
-    pMacD = (DRV_ETHMAC_INSTANCE_DCPT*)hMac;
-
-    if(pMacD->mData._macFlags._init == 1)
+    if(pMacD != 0 && pMacD->mData._macFlags._init == 1)
     {
         pMacD->mData._macFlags._open = 0;
     }
@@ -828,7 +859,12 @@ TCPIP_MAC_RES DRV_ETHMAC_PIC32MACPacketTx(DRV_HANDLE hMac, TCPIP_MAC_PACKET * pt
     TCPIP_MAC_RES       macRes;
     TCPIP_MAC_PACKET*   pPkt;
     TCPIP_MAC_DATA_SEGMENT* pSeg;
-    DRV_ETHMAC_INSTANCE_DCPT* pMacD = (DRV_ETHMAC_INSTANCE_DCPT*)hMac;
+    DRV_ETHMAC_INSTANCE_DCPT* pMacD = _PIC32HandleToMacInst(hMac);
+
+    if(pMacD == 0)
+    {
+        return TCPIP_MAC_RES_OP_ERR;
+    }
 
     _DRV_ETHMAC_TxLock(pMacD);
 
@@ -844,7 +880,7 @@ TCPIP_MAC_RES DRV_ETHMAC_PIC32MACPacketTx(DRV_HANDLE hMac, TCPIP_MAC_PACKET * pt
     while(pPkt)
     {
         pSeg = pPkt->pDSeg;
-        if(pSeg == 0 || pSeg->segLoadOffset < pMacD->mData._segLoadOffset)
+        if(pSeg == 0)
         {   // cannot send this packet
             _DRV_ETHMAC_TxUnlock(pMacD);
             return TCPIP_MAC_RES_PACKET_ERR;
@@ -891,21 +927,26 @@ TCPIP_MAC_RES DRV_ETHMAC_PIC32MACPacketTx(DRV_HANDLE hMac, TCPIP_MAC_PACKET * pt
  ***********************************************/
 
 // returns a pending RX packet if exists
-TCPIP_MAC_PACKET* DRV_ETHMAC_PIC32MACPacketRx (DRV_HANDLE hMac, TCPIP_MAC_RES* pRes, const TCPIP_MAC_PACKET_RX_STAT** ppPktStat)
+TCPIP_MAC_PACKET* DRV_ETHMAC_PIC32MACPacketRx (DRV_HANDLE hMac, TCPIP_MAC_RES* pRes, TCPIP_MAC_PACKET_RX_STAT* pPktStat)
 {
-	DRV_ETHMAC_RESULT			        ethRes;
-    DRV_ETHMAC_PKT_DCPT            *pRootDcpt, *pLastDcpt;
+    DRV_ETHMAC_RESULT       ethRes;
+    DRV_ETHMAC_PKT_DCPT     *pRootDcpt, *pLastDcpt;
     TCPIP_MAC_RES           mRes;
 #if (TCPIP_EMAC_RX_FRAGMENTS > 1)
     TCPIP_MAC_PACKET       *pCurrPkt, *pPrevPkt;
     TCPIP_MAC_DATA_SEGMENT *pCurrDSeg;
-    DRV_ETHMAC_PKT_DCPT            *pCurrDcpt;
+    DRV_ETHMAC_PKT_DCPT    *pCurrDcpt;
 #endif  // (TCPIP_EMAC_RX_FRAGMENTS > 1)
-    TCPIP_MAC_PACKET*       pRxPkt = 0;
-	const DRV_ETHMAC_PKT_STAT_RX* pRxPktStat = 0;
-    int                     buffsPerRxPkt = 0;
-    DRV_ETHMAC_INSTANCE_DCPT     *pMacD = (DRV_ETHMAC_INSTANCE_DCPT*)hMac;
 
+    DRV_ETHMAC_INSTANCE_DCPT* pMacD = _PIC32HandleToMacInst(hMac);
+    if(pMacD == 0)
+    {
+        return 0;
+    }
+
+    TCPIP_MAC_PACKET* pRxPkt = 0;
+    const DRV_ETHMAC_PKT_STAT_RX* pRxPktStat = 0;
+    int               buffsPerRxPkt = 0;
 
     // prepare the receive packet descriptor
     // for receiving a new packet
@@ -953,10 +994,6 @@ TCPIP_MAC_PACKET* DRV_ETHMAC_PIC32MACPacketRx (DRV_HANDLE hMac, TCPIP_MAC_RES* p
     {
         *pRes = mRes;
     }
-    if(ppPktStat)
-    {
-        *ppPktStat = 0; 
-    }
 
     if(mRes == TCPIP_MAC_RES_OK)
     {   // valid ETH packet;
@@ -965,7 +1002,10 @@ TCPIP_MAC_PACKET* DRV_ETHMAC_PIC32MACPacketRx (DRV_HANDLE hMac, TCPIP_MAC_RES* p
 #if (TCPIP_EMAC_RX_FRAGMENTS > 1)
         for(pPrevPkt = 0, pCurrDcpt = pLastDcpt = pRootDcpt; pCurrDcpt != 0 && pCurrDcpt->pBuff != 0; pCurrDcpt = pCurrDcpt->next)
         {
-            pCurrPkt = (TCPIP_MAC_PACKET*)*(uint32_t*)((uint8_t*)pCurrDcpt->pBuff - pMacD->mData._segLoadOffset);
+            uint8_t* segBuff = (uint8_t*)((uint32_t)pCurrDcpt->pBuff & pMacD->mData._dataOffsetMask);
+            TCPIP_MAC_SEGMENT_GAP_DCPT* pGap = (TCPIP_MAC_SEGMENT_GAP_DCPT*)(segBuff + pMacD->mData._gapDcptOffset);
+            pCurrPkt = pGap->segmentPktPtr;
+                
             pCurrDSeg = pCurrPkt->pDSeg;
             pCurrDSeg->segLen = pCurrDcpt->nBytes;
             pCurrDSeg->next = 0;
@@ -989,14 +1029,16 @@ TCPIP_MAC_PACKET* DRV_ETHMAC_PIC32MACPacketRx (DRV_HANDLE hMac, TCPIP_MAC_RES* p
             pRxPkt->pktFlags |= TCPIP_MAC_PKT_FLAG_SPLIT;
         } 
 #else
-        pRxPkt = (TCPIP_MAC_PACKET*)*(uint32_t*)((uint8_t*)pRootDcpt->pBuff - pMacD->mData._segLoadOffset);
+        uint8_t* segBuff = (uint8_t*)((uint32_t)pRootDcpt->pBuff & pMacD->mData._dataOffsetMask);
+        TCPIP_MAC_SEGMENT_GAP_DCPT* pGap = (TCPIP_MAC_SEGMENT_GAP_DCPT*)(segBuff + pMacD->mData._gapDcptOffset);
+        pRxPkt = pGap->segmentPktPtr;
         pRxPkt->pDSeg->next = 0;
         // adjust the last segment for FCS size
         pLastDcpt->nBytes -= 4;
 #endif  // (TCPIP_EMAC_RX_FRAGMENTS > 1)
 
         // no maintenance of the total packet length
-        // could be obtained through ppPktStat 
+        // could be obtained through pPktStat 
         pRxPkt->pDSeg->segLen = pRootDcpt->nBytes - sizeof(TCPIP_MAC_ETHERNET_HEADER);
         // Note: re-set pMacLayer and pNetLayer; IPv6 changes these pointers inside the packet!
         pRxPkt->pMacLayer = pRxPkt->pDSeg->segLoad;
@@ -1021,9 +1063,9 @@ TCPIP_MAC_PACKET* DRV_ETHMAC_PIC32MACPacketRx (DRV_HANDLE hMac, TCPIP_MAC_RES* p
             pRxPkt->pktFlags |= TCPIP_MAC_PKT_FLAG_UNICAST;
         }
 
-        if(ppPktStat)
+        if(pPktStat)
         {
-            *ppPktStat = (const TCPIP_MAC_PACKET_RX_STAT*)pRxPktStat; 
+            *pPktStat = *(TCPIP_MAC_PACKET_RX_STAT*)pRxPktStat; 
         }
         // success
         return pRxPkt;
@@ -1046,14 +1088,15 @@ TCPIP_MAC_PACKET* DRV_ETHMAC_PIC32MACPacketRx (DRV_HANDLE hMac, TCPIP_MAC_RES* p
 
 bool DRV_ETHMAC_PIC32MACLinkCheck(DRV_HANDLE hMac)
 {
+    DRV_ETHMAC_INSTANCE_DCPT* pMacD = _PIC32HandleToMacInst(hMac);
 
-    DRV_ETHMAC_INSTANCE_DCPT* pMacD = (DRV_ETHMAC_INSTANCE_DCPT*)hMac;
-
-    if(pMacD->mData._macFlags._linkPresent == 0)
+    if(pMacD == 0 || pMacD->mData._macFlags._linkPresent == 0)
     {
         return false;
     }
 
+    const DRV_ETHPHY_OBJECT_BASE* pPhyBase =  pMacD->mData.macConfig.pPhyBase;
+    pPhyBase->DRV_ETHPHY_Tasks(pMacD->mData.hPhySysObject);
 
     (*_DRV_ETHMAC_LinkStateTbl[pMacD->mData._linkCheckState])(pMacD);
 
@@ -1241,105 +1284,113 @@ static void _DRV_ETHMAC_LinkStateNegResult(DRV_ETHMAC_INSTANCE_DCPT* pMacD)
  ***********************************************/
 TCPIP_MAC_RES DRV_ETHMAC_PIC32MACRxFilterHashTableEntrySet(DRV_HANDLE hMac, const TCPIP_MAC_ADDR* DestMACAddr)
 {
-      volatile unsigned int*    pHTSet;
-      uint8_t                   hVal;
-      int                       i, j;
-      TCPIP_MAC_ADDR            destAddr;
-      uint8_t                   nullMACAddr[6] =   {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-      DRV_ETHERNET_REGISTERS*   ethId = ((DRV_ETHMAC_INSTANCE_DCPT*)hMac)->mData.pEthReg;
-
-      typedef union
-      {
-          uint8_t Val;
-          struct __attribute__((packed))
-          {
-              uint8_t b0:1;
-              uint8_t b1:1;
-              uint8_t b2:1;
-              uint8_t b3:1;
-              uint8_t b4:1;
-              uint8_t b5:1;
-              uint8_t b6:1;
-              uint8_t b7:1;
-          } bits;
-      }crc_byte;
-
-      union
-      {
-          uint32_t Val;
-          crc_byte v[4];
-          struct __attribute__((packed))
-          {
-              uint32_t b0_23: 24;
-
-              uint32_t b24:1;
-              uint32_t b25:1;
-              uint32_t b26:1;
-              uint32_t b27:1;
-              uint32_t b28:1;
-              uint32_t b29:1;
-              uint32_t b30:1;
-              uint32_t b31:1;
-          } bits;
-      } crc32_val;
-
-      crc_byte    macByte;
-
-      crc32_val.Val = 0xFFFFFFFF;
+    volatile unsigned int*    pHTSet;
+    uint8_t                   hVal;
+    int                       i, j;
+    TCPIP_MAC_ADDR            destAddr;
+    uint8_t                   nullMACAddr[6] =   {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
 
+    DRV_ETHMAC_INSTANCE_DCPT* pMacD = _PIC32HandleToMacInst(hMac);
+    if(pMacD == 0)
+    {
+        return TCPIP_MAC_RES_OP_ERR;
+    }
 
-      // Clear the Hash Table bits and disable the Hash Table Filter if a special 
-      // 00-00-00-00-00-00 destination MAC address is provided.
-      if( DestMACAddr == 0 || memcmp(DestMACAddr->v, nullMACAddr, sizeof(nullMACAddr))==0 )
-      {
-          // Disable the Hash Table receive filter and clear the hash table
-          DRV_ETH_RxFiltersClr(ethId, DRV_ETH_FILT_HTBL_ACCEPT);
-          DRV_ETH_RxFiltersHTSet(ethId, 0);
-          return TCPIP_MAC_RES_OK;
-      }
+    DRV_ETHERNET_REGISTERS*   ethId = pMacD->mData.pEthReg;
 
- 
-      // Calculate a CRC-32 over the 6 byte MAC address 
-      // using polynomial 0x4C11DB7
-      memcpy(destAddr.v, DestMACAddr->v, sizeof(destAddr));
-      for(i = 0; i < sizeof(TCPIP_MAC_ADDR); i++)
-      {
-            uint8_t  crcnext;
-      
-            // shift in 8 bits
-            for(j = 0; j < 8; j++)
+    typedef union
+    {
+        uint8_t Val;
+        struct __attribute__((packed))
+        {
+            uint8_t b0:1;
+            uint8_t b1:1;
+            uint8_t b2:1;
+            uint8_t b3:1;
+            uint8_t b4:1;
+            uint8_t b5:1;
+            uint8_t b6:1;
+            uint8_t b7:1;
+        } bits;
+    }crc_byte;
+
+    union
+    {
+        uint32_t Val;
+        crc_byte v[4];
+        struct __attribute__((packed))
+        {
+            uint32_t b0_23: 24;
+
+            uint32_t b24:1;
+            uint32_t b25:1;
+            uint32_t b26:1;
+            uint32_t b27:1;
+            uint32_t b28:1;
+            uint32_t b29:1;
+            uint32_t b30:1;
+            uint32_t b31:1;
+        } bits;
+    } crc32_val;
+
+    crc_byte    macByte;
+
+    crc32_val.Val = 0xFFFFFFFF;
+
+
+
+    // Clear the Hash Table bits and disable the Hash Table Filter if a special 
+    // 00-00-00-00-00-00 destination MAC address is provided.
+    if( DestMACAddr == 0 || memcmp(DestMACAddr->v, nullMACAddr, sizeof(nullMACAddr))==0 )
+    {
+        // Disable the Hash Table receive filter and clear the hash table
+        DRV_ETH_RxFiltersClr(ethId, DRV_ETH_FILT_HTBL_ACCEPT);
+        DRV_ETH_RxFiltersHTSet(ethId, 0);
+        return TCPIP_MAC_RES_OK;
+    }
+
+
+    // Calculate a CRC-32 over the 6 byte MAC address 
+    // using polynomial 0x4C11DB7
+    memcpy(destAddr.v, DestMACAddr->v, sizeof(destAddr));
+    for(i = 0; i < sizeof(TCPIP_MAC_ADDR); i++)
+    {
+        uint8_t  crcnext;
+
+        // shift in 8 bits
+        for(j = 0; j < 8; j++)
+        {
+            crcnext = 0;
+            if( crc32_val.v[3].bits.b7)
             {
-                  crcnext = 0;
-                  if( crc32_val.v[3].bits.b7)
-                  {
-                        crcnext = 1;
-                  }
-                  macByte.Val = destAddr.v[i];
-                  crcnext ^= macByte.bits.b0;
-      
-                  crc32_val.Val <<= 1;
-                  if(crcnext)
-                  {
-                        crc32_val.Val ^= 0x4C11DB7;
-                  }
-                  // next bit
-                  destAddr.v[i] >>= 1;
+                crcnext = 1;
             }
-      }
-      
-      // CRC-32 calculated, now extract bits 28:23
-      // Bit 28 defines what HT register is affected: ETHHT0 or ETHHT1
-      // Bits 27:23 define the bit offset within the ETHHT register
-      pHTSet = (crc32_val.bits.b28)? &ETHHT1SET : &ETHHT0SET;
-      hVal = (crc32_val.Val >> 23)&0x1f;
-      *pHTSet = 1 << hVal;
-      
-      // Enable that the Hash Table receive filter
-      DRV_ETH_RxFiltersSet(ethId, DRV_ETH_FILT_HTBL_ACCEPT);
+            macByte.Val = destAddr.v[i];
+            crcnext ^= macByte.bits.b0;
 
-      return TCPIP_MAC_RES_OK;
-      
+            crc32_val.Val <<= 1;
+            if(crcnext)
+            {
+                crc32_val.Val ^= 0x4C11DB7;
+            }
+            // next bit
+            destAddr.v[i] >>= 1;
+        }
+    }
+
+    // CRC-32 calculated, now extract bits 28:23
+    // Bit 28 defines what HT register is affected: ETHHT0 or ETHHT1
+    // Bits 27:23 define the bit offset within the ETHHT register
+    pHTSet = (crc32_val.bits.b28)? &ETHHT1SET : &ETHHT0SET;
+    hVal = (crc32_val.Val >> 23)&0x1f;
+    *pHTSet = 1 << hVal;
+
+    // Enable that the Hash Table receive filter
+    DRV_ETH_RxFiltersSet(ethId, DRV_ETH_FILT_HTBL_ACCEPT);
+
+    return TCPIP_MAC_RES_OK;
+
 }
 
 bool DRV_ETHMAC_PIC32MACPowerMode(DRV_HANDLE hMac, TCPIP_MAC_POWER_MODE pwrMode)
@@ -1432,7 +1483,12 @@ static int _DRV_ETHMAC_AddRxBuffers(DRV_ETHMAC_INSTANCE_DCPT* pMacD, int nBuffs,
 TCPIP_MAC_RES DRV_ETHMAC_PIC32MACProcess(DRV_HANDLE hMac)
 {
     int rxLowThreshold;
-    DRV_ETHMAC_INSTANCE_DCPT* pMacD = (DRV_ETHMAC_INSTANCE_DCPT*)hMac;
+    DRV_ETHMAC_INSTANCE_DCPT* pMacD = _PIC32HandleToMacInst(hMac);
+
+    if(pMacD == 0)
+    {
+        return TCPIP_MAC_RES_OP_ERR;
+    }
 
     _DRV_ETHMAC_TxLock(pMacD);
     _MACTxAcknowledgeEth(pMacD);
@@ -1469,7 +1525,11 @@ TCPIP_MAC_RES DRV_ETHMAC_PIC32MACProcess(DRV_HANDLE hMac)
 
 TCPIP_MAC_RES DRV_ETHMAC_PIC32MACStatisticsGet(DRV_HANDLE hMac, TCPIP_MAC_RX_STATISTICS* pRxStatistics, TCPIP_MAC_TX_STATISTICS* pTxStatistics)
 {
-    DRV_ETHMAC_INSTANCE_DCPT* pMacD = (DRV_ETHMAC_INSTANCE_DCPT*)hMac;
+    DRV_ETHMAC_INSTANCE_DCPT* pMacD = _PIC32HandleToMacInst(hMac);
+    if(pMacD == 0)
+    {
+        return TCPIP_MAC_RES_OP_ERR;
+    }
 
     if(pRxStatistics)
     {
@@ -1494,7 +1554,11 @@ TCPIP_MAC_RES DRV_ETHMAC_PIC32MACStatisticsGet(DRV_HANDLE hMac, TCPIP_MAC_RX_STA
 TCPIP_MAC_RES DRV_ETHMAC_PIC32MACRegisterStatisticsGet(DRV_HANDLE hMac, TCPIP_MAC_STATISTICS_REG_ENTRY* pRegEntries, int nEntries, int* pHwEntries)
 {
     const DRV_ETHMAC_HW_REG_DCPT*   pHwRegDcpt;
-    DRV_ETHMAC_INSTANCE_DCPT* pMacD = (DRV_ETHMAC_INSTANCE_DCPT*)hMac;
+    DRV_ETHMAC_INSTANCE_DCPT* pMacD = _PIC32HandleToMacInst(hMac);
+    if(pMacD == 0)
+    {
+        return TCPIP_MAC_RES_OP_ERR;
+    }
 
     int nHwEntries = sizeof(macPIC32INTHwRegDcpt)/sizeof(*macPIC32INTHwRegDcpt);
 
@@ -1521,7 +1585,11 @@ TCPIP_MAC_RES DRV_ETHMAC_PIC32MACRegisterStatisticsGet(DRV_HANDLE hMac, TCPIP_MA
 
 TCPIP_MAC_RES DRV_ETHMAC_PIC32MACParametersGet(DRV_HANDLE hMac, TCPIP_MAC_PARAMETERS* pMacParams)
 {
-    DRV_ETHMAC_INSTANCE_DCPT* pMacD = (DRV_ETHMAC_INSTANCE_DCPT*)hMac;
+    DRV_ETHMAC_INSTANCE_DCPT* pMacD = _PIC32HandleToMacInst(hMac);
+    if(pMacD == 0)
+    {
+        return TCPIP_MAC_RES_OP_ERR;
+    }
 
     if(pMacD->mData.sysStat == SYS_STATUS_READY)
     { 
@@ -1571,14 +1639,16 @@ static void _MACTxAcknowledgeEth(DRV_ETHMAC_INSTANCE_DCPT* pMacD)
     DRV_ETHMAC_LibTxAcknowledgePacket(pMacD, 0, _MACTxPacketAckCallback, pMacD);
 }
 
-static void	_MACTxPacketAckCallback(void* pBuff, int buffIx, void* fParam)
+static void _MACTxPacketAckCallback(void* pBuff, int buffIx, void* fParam)
 {
     if(buffIx == 0)
     {
         DRV_ETHMAC_INSTANCE_DCPT* pMacD = (DRV_ETHMAC_INSTANCE_DCPT*)fParam;
 
-       // restore packet the buffer belongs to
-        TCPIP_MAC_PACKET* ptrPacket = (TCPIP_MAC_PACKET*)*(uint32_t*)((uint8_t*)pBuff - pMacD->mData._segLoadOffset);
+        // restore packet the buffer belongs to
+        uint8_t* segBuff = (uint8_t*)((uint32_t)pBuff & pMacD->mData._dataOffsetMask);
+        TCPIP_MAC_SEGMENT_GAP_DCPT* pGap = (TCPIP_MAC_SEGMENT_GAP_DCPT*)(segBuff + pMacD->mData._gapDcptOffset);
+        TCPIP_MAC_PACKET* ptrPacket = pGap->segmentPktPtr;
         
         // acknowledge the packet
         (*pMacD->mData.pktAckF)(ptrPacket, TCPIP_MAC_PKT_ACK_TX_OK, TCPIP_THIS_MODULE_ID);
@@ -1598,7 +1668,7 @@ static TCPIP_MAC_RES _MacTxPendingPackets(DRV_ETHMAC_INSTANCE_DCPT* pMacD)
     TCPIP_MAC_PACKET* pPkt;
     TCPIP_MAC_RES     pktRes;
 
-    if(pMacD->mData._macFlags._linkPrev == false)
+    if((pMacD->mData._controlFlags & TCPIP_MAC_CONTROL_NO_LINK_CHECK) == 0 && pMacD->mData._macFlags._linkPrev == false)
     {   // discard the TX queues
         _MacTxDiscardQueues(pMacD, TCPIP_MAC_PKT_ACK_LINK_DOWN); 
         // no need to try to schedule for TX
@@ -1719,7 +1789,11 @@ static void _MacTxFreeCallback(  void* ptr, void* param )
     uint8_t*    pTxBuff = (uint8_t*)DRV_ETHMAC_LibDescriptorGetBuffer(pMacD, ptr);
     if(pTxBuff)
     {
-        pTxPkt = (TCPIP_MAC_PACKET*)*(uint32_t*)(pTxBuff - pMacD->mData._segLoadOffset);
+        // check if the payload offset is actually used for TX
+        uint8_t* segBuff = (uint8_t*)((uint32_t)pTxBuff & pMacD->mData._dataOffsetMask);
+        TCPIP_MAC_SEGMENT_GAP_DCPT* pGap = (TCPIP_MAC_SEGMENT_GAP_DCPT*)(segBuff + pMacD->mData._gapDcptOffset);
+        pTxPkt = pGap->segmentPktPtr;
+
         (*pMacD->mData.pktAckF)(pTxPkt, TCPIP_MAC_PKT_ACK_NET_DOWN, TCPIP_THIS_MODULE_ID);
     }
 
@@ -1739,7 +1813,9 @@ static void _MacRxFreeCallback(  void* ptr, void* param )
     uint8_t*    pRxBuff = (uint8_t*)DRV_ETHMAC_LibDescriptorGetBuffer(pMacD, ptr);
     if(pRxBuff)
     {
-        pRxPkt = (TCPIP_MAC_PACKET*)*(uint32_t*)(pRxBuff - pMacD->mData._segLoadOffset);
+        uint8_t* segBuff = (uint8_t*)((uint32_t)pRxBuff & pMacD->mData._dataOffsetMask);
+        TCPIP_MAC_SEGMENT_GAP_DCPT* pGap = (TCPIP_MAC_SEGMENT_GAP_DCPT*)(segBuff + pMacD->mData._gapDcptOffset);
+        pRxPkt = pGap->segmentPktPtr;
         pRxPkt->pDSeg->next = 0;     // break the ETH MAC run time chaining
 #if defined(TCPIP_STACK_DRAM_DEBUG_ENABLE)
         (*(TCPIP_MAC_PKT_FreeFDbg)pMacD->mData.pktFreeF)(pRxPkt, TCPIP_THIS_MODULE_ID);
@@ -1807,9 +1883,12 @@ static bool _MacRxPacketAck(TCPIP_MAC_PACKET* pRxPkt,  const void* param)
         }
 
         // extract packet the segment belongs to
-        pCurrPkt = (TCPIP_MAC_PACKET*)*(uint32_t*)(pSeg->segLoad - pMacD->mData._segLoadOffset);
+        TCPIP_MAC_SEGMENT_GAP_DCPT* pGap = (TCPIP_MAC_SEGMENT_GAP_DCPT*)(pSeg->segBuffer + pMacD->mData._gapDcptOffset);
+        pCurrPkt = pGap->segmentPktPtr;
+
         if(isMacDead || (pSeg->segFlags & TCPIP_MAC_SEG_FLAG_RX_STICKY) == 0)
         {   // free the packet this segment belongs to
+            // Note: smart alloc could be implemented: reuse the dynamic buffers if below the threshold!
 #if defined(TCPIP_STACK_DRAM_DEBUG_ENABLE)
             (*(TCPIP_MAC_PKT_FreeFDbg)pMacD->mData.pktFreeF)(pCurrPkt, TCPIP_THIS_MODULE_ID);
 #else
@@ -2075,7 +2154,12 @@ static TCPIP_MAC_RES DRV_ETHMAC_PIC32MACEventDeInit(DRV_HANDLE hMac)
 *****************************************************************************/
 bool DRV_ETHMAC_PIC32MACEventMaskSet(DRV_HANDLE hMac, TCPIP_MAC_EVENT macEvMask, bool enable)
 {
-    DRV_ETHMAC_INSTANCE_DCPT*     pMacD = (DRV_ETHMAC_INSTANCE_DCPT*)hMac;
+    DRV_ETHMAC_INSTANCE_DCPT* pMacD = _PIC32HandleToMacInst(hMac);
+    if(pMacD == 0)
+    {
+        return false;
+    }
+
     DRV_ETHMAC_EVENT_DCPT*  pDcpt = &pMacD->mData._pic32_ev_group_dcpt; 
     DRV_ETHERNET_REGISTERS* ethId = pMacD->mData.pEthReg;
 
@@ -2182,8 +2266,14 @@ bool DRV_ETHMAC_PIC32MACEventMaskSet(DRV_HANDLE hMac, TCPIP_MAC_EVENT macEvMask,
 *****************************************************************************/
 bool DRV_ETHMAC_PIC32MACEventAcknowledge(DRV_HANDLE hMac, TCPIP_MAC_EVENT tcpAckEv)
 {
+
+    DRV_ETHMAC_INSTANCE_DCPT* pMacD = _PIC32HandleToMacInst(hMac);
+    if(pMacD == 0)
+    {
+        return false;
+    }
+
     int                   ethILev;
-    DRV_ETHMAC_INSTANCE_DCPT*     pMacD = (DRV_ETHMAC_INSTANCE_DCPT*)hMac;
     DRV_ETHMAC_EVENT_DCPT*  pDcpt = &pMacD->mData._pic32_ev_group_dcpt; 
     DRV_ETHERNET_REGISTERS* ethId = pMacD->mData.pEthReg;
 
@@ -2254,8 +2344,13 @@ bool DRV_ETHMAC_PIC32MACEventAcknowledge(DRV_HANDLE hMac, TCPIP_MAC_EVENT tcpAck
 *****************************************************************************/
 TCPIP_MAC_EVENT DRV_ETHMAC_PIC32MACEventPendingGet(DRV_HANDLE hMac)
 {
-    DRV_ETHMAC_INSTANCE_DCPT*     pMacD = (DRV_ETHMAC_INSTANCE_DCPT*)hMac;
-    return pMacD->mData._pic32_ev_group_dcpt._TcpPendingEvents;
+    DRV_ETHMAC_INSTANCE_DCPT* pMacD = _PIC32HandleToMacInst(hMac);
+    if(pMacD != 0)
+    {
+        return pMacD->mData._pic32_ev_group_dcpt._TcpPendingEvents;
+    }
+
+    return TCPIP_MAC_EV_NONE;
 }
 
 
@@ -2282,7 +2377,7 @@ static DRV_ETH_RX_FILTERS _DRV_ETHMAC_MacToEthFilter(TCPIP_MAC_RX_FILTER_TYPE ma
 
 void ETHERNET_InterruptHandler(void)
 {
-	DRV_ETHMAC_Tasks_ISR((SYS_MODULE_OBJ)0);
+    DRV_ETHMAC_Tasks_ISR((SYS_MODULE_OBJ)0);
 }
 
 /****************************************************************************
@@ -2304,7 +2399,6 @@ void DRV_ETHMAC_Tasks_ISR( SYS_MODULE_OBJ macIndex )
 {
     DRV_ETH_EVENTS          currEthEvents, currGroupEvents;
     DRV_ETHMAC_EVENT_DCPT* pDcpt;
-    //DRV_ETHMAC_INSTANCE_DCPT* pMacD = (DRV_ETHMAC_INSTANCE_DCPT*)p;
     DRV_ETHMAC_INSTANCE_DCPT* pMacD = &_pic32_emb_mac_dcpt[macIndex];
     DRV_ETHERNET_REGISTERS* ethId = pMacD->mData.pEthReg;
 

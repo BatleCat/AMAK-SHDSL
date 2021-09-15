@@ -18,6 +18,8 @@ children:
       children:
       - type: Dynamic
         attributes: {id: FreeRTOS, value: 'false'}
+      - type: User
+        attributes: {value: 'false'}
   - type: File
     attributes: {id: FREERTOS_HEAP_1_C}
     children:
@@ -28,7 +30,7 @@ children:
         children:
         - {type: Value, value: 'false'}
   - type: File
-    attributes: {id: FREERTOS_HEAP_5_C}
+    attributes: {id: FREERTOS_HEAP_2_C}
     children:
     - type: Attributes
       children:
@@ -36,13 +38,27 @@ children:
         attributes: {id: enabled}
         children:
         - {type: Value, value: 'true'}
+  - type: Integer
+    attributes: {id: FREERTOS_ISR_STACK_SIZE}
+    children:
+    - type: Values
+      children:
+      - type: User
+        attributes: {value: '8196'}
   - type: Combo
     attributes: {id: FREERTOS_MEMORY_MANAGEMENT_CHOICE}
     children:
     - type: Values
       children:
       - type: User
-        attributes: {value: Heap_5}
+        attributes: {value: Heap_2}
+  - type: Integer
+    attributes: {id: FREERTOS_MINIMAL_STACK_SIZE}
+    children:
+    - type: Values
+      children:
+      - type: User
+        attributes: {value: '8196'}
   - type: Integer
     attributes: {id: FREERTOS_PERIPHERAL_CLOCK_HZ}
     children:
@@ -57,6 +73,20 @@ children:
       children:
       - type: User
         attributes: {value: Preemptive}
+  - type: Boolean
+    attributes: {id: FREERTOS_STATIC_ALLOC}
+    children:
+    - type: Values
+      children:
+      - type: User
+        attributes: {value: 'false'}
+  - type: Combo
+    attributes: {id: FREERTOS_TASK_SELECTION}
+    children:
+    - type: Values
+      children:
+      - type: User
+        attributes: {value: Port_Optimized}
   - type: Integer
     attributes: {id: FREERTOS_TICK_RATE_HZ}
     children:
@@ -107,4 +137,4 @@ children:
       - type: User
         attributes: {value: 'false'}
 - type: ElementPosition
-  attributes: {x: '23', y: '110', id: FreeRTOS}
+  attributes: {x: '24', y: '68', id: FreeRTOS}

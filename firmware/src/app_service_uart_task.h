@@ -32,6 +32,9 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include "configuration.h"
+//------------------------------------------------------------------------------
+#include "AMAK_SHDSL_Queue.h"
+//------------------------------------------------------------------------------
 
 // DOM-IGNORE-BEGIN
 #ifdef __cplusplus  // Provide C++ Compatibility
@@ -63,6 +66,7 @@ typedef enum
     /* Application's state machine's initial state. */
     APP_SERVICE_UART_TASK_STATE_INIT=0,
     APP_SERVICE_UART_TASK_STATE_SERVICE_TASKS,
+    APP_SERVICE_UART_TASK_STATE_SEND_UDP,
     /* TODO: Define states used by the application state machine. */
 
 } APP_SERVICE_UART_TASK_STATES;
@@ -87,7 +91,7 @@ typedef struct
     APP_SERVICE_UART_TASK_STATES state;
 
     /* TODO: Define any additional data used by the application. */
-
+    EVENT_INFO          event_info;
 } APP_SERVICE_UART_TASK_DATA;
 
 // *****************************************************************************

@@ -120,28 +120,26 @@ void APP_SHDSL_TASK_Initialize ( void )
     /* Place the App state machine in its initial state. */
     app_shdsl_taskData.state = APP_SHDSL_TASK_STATE_INIT;
 
-
-
-    /* TODO: Initialize your application's state machine and other
-     * parameters.
-     */
-    //--------------------------------------------------------------------------
-    eventQueue_app_shdsl_task = xQueueCreate( APP_SHDSL_TASK_QUEUE_LEN, EVENT_INFO_SIZE );
-    if (NULL == eventQueue_app_amak_parser_task)
-    {
-        /* Handle error condition. Not sufficient memory to create Queue */
-        #ifdef ENABLE_CONSOLE_MESSAGE
-            SYS_CONSOLE_MESSAGE(" APP_SHDSL_TASK: Handle error condition. Not sufficient memory to create Queue\r\n");
-        #endif
-    }
-    //--------------------------------------------------------------------------
-    app_shdsl_taskData.event_info.data_len = 0;
-    app_shdsl_taskData.event_info.pData = NULL;
-    app_shdsl_taskData.event_info.event_id = (ENUM_EVENT_TYPE)EVENT_TYPE_UNKNOWN; //ENUM_EVENT_TYPE.EVENT_TYPE_UNKNOWN;
-    //--------------------------------------------------------------------------
-    app_shdsl_taskData.rx_pocket_count = 0;
-    app_shdsl_taskData.tx_pocket_count = 0;
-    //--------------------------------------------------------------------------
+//    /* TODO: Initialize your application's state machine and other
+//     * parameters.
+//     */
+//    //--------------------------------------------------------------------------
+//    eventQueue_app_shdsl_task = xQueueCreate( APP_SHDSL_TASK_QUEUE_LEN, EVENT_INFO_SIZE );
+//    if (NULL == eventQueue_app_shdsl_task)
+//    {
+//        /* Handle error condition. Not sufficient memory to create Queue */
+//        #ifdef ENABLE_CONSOLE_MESSAGE
+//            SYS_CONSOLE_MESSAGE(" APP_SHDSL_TASK: Handle error condition. Not sufficient memory to create Queue\r\n");
+//        #endif
+//    }
+//    //--------------------------------------------------------------------------
+//    app_shdsl_taskData.event_info.data_len = 0;
+//    app_shdsl_taskData.event_info.pData = NULL;
+//    app_shdsl_taskData.event_info.event_id = (ENUM_EVENT_TYPE)EVENT_TYPE_UNKNOWN; //ENUM_EVENT_TYPE.EVENT_TYPE_UNKNOWN;
+//    //--------------------------------------------------------------------------
+//    app_shdsl_taskData.rx_pocket_count = 0;
+//    app_shdsl_taskData.tx_pocket_count = 0;
+//    //--------------------------------------------------------------------------
 }
 //------------------------------------------------------------------------------
 
@@ -165,10 +163,10 @@ void APP_SHDSL_TASK_Tasks ( void )
         {
             bool appSHDSLTaskInitialized = false;
             
-            if (NULL != eventQueue_app_amak_parser_task)
-            {
-                appSHDSLTaskInitialized = true;
-            }
+//            if (NULL != eventQueue_app_amak_parser_task)
+//            {
+//                appSHDSLTaskInitialized = true;
+//            }
 
             if (appSHDSLTaskInitialized)
             {
@@ -251,6 +249,8 @@ void APP_SHDSL_TASK_Tasks ( void )
         default:
         {
             /* TODO: Handle error in application's state machine. */
+            taskYIELD();
+
             break;
         }
     }

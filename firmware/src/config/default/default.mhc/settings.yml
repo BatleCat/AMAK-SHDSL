@@ -1,7 +1,7 @@
 configName: default
 folderName: AMAK-SHDSL_pic32mz
 format_version: v1.0
-frameworkPath: D:\Andrey\Harmony3
+frameworkPath: C:\Microchip\Harmony3
 processor: PIC32MZ2048EFH144
 projectName: AMAK-SHDSL_pic32mz_FreeRTOS
 settings:

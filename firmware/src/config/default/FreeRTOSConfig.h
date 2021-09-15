@@ -47,10 +47,10 @@
 #define configCPU_CLOCK_HZ                      ( 200000000UL )
 #define configTICK_RATE_HZ                      ( ( TickType_t ) 1000 )
 #define configMAX_PRIORITIES                    ( 5UL )
-#define configMINIMAL_STACK_SIZE                ( 128 )
+#define configMINIMAL_STACK_SIZE                ( 8196 )
 #define configSUPPORT_DYNAMIC_ALLOCATION        1
 #define configSUPPORT_STATIC_ALLOCATION         0
-#define configTOTAL_HEAP_SIZE                   ( ( size_t ) 128000 )
+#define configTOTAL_HEAP_SIZE                   ( ( size_t ) 200000 )
 #define configMAX_TASK_NAME_LEN                 ( 16 )
 #define configUSE_16_BIT_TICKS                  0
 #define configIDLE_SHOULD_YIELD                 1
@@ -98,7 +98,7 @@
 
 /* Interrupt nesting behaviour configuration. */
 #define configPERIPHERAL_CLOCK_HZ               ( 100000000UL )
-#define configISR_STACK_SIZE                    ( 512 )
+#define configISR_STACK_SIZE                    ( 8196 )
 /* The priority at which the tick interrupt runs.  This should probably be kept at lowest priority. */
 #define configKERNEL_INTERRUPT_PRIORITY         (1)
 /* The maximum interrupt priority from which FreeRTOS.org API functions can be called.

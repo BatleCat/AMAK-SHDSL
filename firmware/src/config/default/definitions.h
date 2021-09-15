@@ -48,33 +48,29 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "driver/ethmac/drv_ethmac.h"
 #include "system/time/sys_time.h"
 #include "peripheral/coretimer/plib_coretimer.h"
 #include "peripheral/uart/plib_uart2.h"
-#include "peripheral/spi/spi_master/plib_spi2_master.h"
-#include "driver/spi/drv_spi.h"
 #include "library/tcpip/tcpip.h"
-#include "driver/ethmac/drv_ethmac.h"
-#include "driver/miim/drv_miim.h"
 #include "system/sys_time_h2_adapter.h"
 #include "system/sys_random_h2_adapter.h"
 #include "system/int/sys_int.h"
-#include "system/ports/sys_ports.h"
 #include "system/dma/sys_dma.h"
+#include "system/reset/sys_reset.h"
 #include "osal/osal.h"
 #include "system/debug/sys_debug.h"
+#include "system/command/sys_command.h"
 #include "peripheral/clk/plib_clk.h"
 #include "peripheral/gpio/plib_gpio.h"
 #include "peripheral/evic/plib_evic.h"
-#include "peripheral/dmac/plib_dmac.h"
 #include "bsp/bsp.h"
+#include "driver/miim/drv_miim.h"
 #include "system/console/sys_console.h"
 #include "system/console/src/sys_console_uart_definitions.h"
 #include "FreeRTOS.h"
 #include "task.h"
 #include "app_udp_task.h"
-#include "app_shdsl_task.h"
-#include "app_amak_parser_task.h"
 #include "app_service_uart_task.h"
 
 
@@ -205,13 +201,8 @@ typedef struct
 
 
     SYS_MODULE_OBJ  tcpip;
-    /* SPI0 Driver Object */
-    SYS_MODULE_OBJ drvSPI0;
-
 
     SYS_MODULE_OBJ  drvMiim;
-    SYS_MODULE_OBJ  sysDebug;
-
 
 } SYSTEM_OBJECTS;
 

@@ -62,10 +62,6 @@
 
 
 void CORE_TIMER_InterruptHandler( void );
-void DMA0_InterruptHandler( void );
-void DMA1_InterruptHandler( void );
-void SPI2_RX_InterruptHandler( void );
-void SPI2_TX_InterruptHandler( void );
 void UART2_FAULT_InterruptHandler( void );
 void UART2_RX_InterruptHandler( void );
 void UART2_TX_InterruptHandler( void );
@@ -80,26 +76,6 @@ void CORE_TIMER_Handler (void)
 }
 
 
-
-void DMA0_Handler (void)
-{
-    DMA0_InterruptHandler();
-}
-
-void DMA1_Handler (void)
-{
-    DMA1_InterruptHandler();
-}
-
-void SPI2_RX_Handler (void)
-{
-    SPI2_RX_InterruptHandler();
-}
-
-void SPI2_TX_Handler (void)
-{
-    SPI2_TX_InterruptHandler();
-}
 
 void UART2_FAULT_Handler (void)
 {

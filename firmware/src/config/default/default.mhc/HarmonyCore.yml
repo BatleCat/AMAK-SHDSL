@@ -35,10 +35,6 @@ children:
     children:
     - type: Attributes
       children:
-      - type: Boolean
-        attributes: {id: enabled}
-        children:
-        - {type: Value, value: 'true'}
       - type: String
         attributes: {id: name}
         children:
@@ -48,10 +44,6 @@ children:
     children:
     - type: Attributes
       children:
-      - type: Boolean
-        attributes: {id: enabled}
-        children:
-        - {type: Value, value: 'true'}
       - type: String
         attributes: {id: name}
         children:
@@ -61,10 +53,6 @@ children:
     children:
     - type: Attributes
       children:
-      - type: Boolean
-        attributes: {id: enabled}
-        children:
-        - {type: Value, value: 'true'}
       - type: String
         attributes: {id: name}
         children:
@@ -74,10 +62,6 @@ children:
     children:
     - type: Attributes
       children:
-      - type: Boolean
-        attributes: {id: enabled}
-        children:
-        - {type: Value, value: 'true'}
       - type: String
         attributes: {id: name}
         children:
@@ -119,17 +103,17 @@ children:
         - type: Pairs
           children:
           - type: Pair
-            attributes: {description: 'FALSE', value: '3', key: ENABLE_DRV_COMMON}
+            attributes: {description: 'FALSE', value: '2', key: ENABLE_DRV_COMMON}
           - type: Pair
-            attributes: {description: 'FALSE', value: '4', key: ENABLE_SYS_COMMON}
+            attributes: {description: 'FALSE', value: '3', key: ENABLE_SYS_COMMON}
           - type: Pair
             attributes: {description: 'FALSE', value: '0', key: ENABLE_SYS_MEDIA}
           - type: Pair
-            attributes: {description: 'TRUE', value: '1', key: ENABLE_SYS_PORTS}
+            attributes: {description: 'TRUE', value: '0', key: ENABLE_SYS_PORTS}
           - type: Pair
-            attributes: {description: 'FALSE', value: '1', key: ENABLE_SYS_DMA}
+            attributes: {description: 'FALSE', value: '0', key: ENABLE_SYS_DMA}
           - type: Pair
-            attributes: {description: 'FALSE', value: '0', key: ENABLE_SYS_RESET}
+            attributes: {description: 'TRUE', value: '1', key: ENABLE_SYS_RESET}
   - type: File
     attributes: {id: CONFIGURATION_H}
     children:
@@ -257,6 +241,13 @@ children:
   - type: Boolean
     attributes: {id: ENABLE_SYS_PORTS}
     children:
+    - type: Values
+      children:
+      - type: Dynamic
+        attributes: {id: HarmonyCore, value: 'false'}
+  - type: Boolean
+    attributes: {id: ENABLE_SYS_RESET}
+    children:
     - type: Attributes
       children:
       - type: Boolean
@@ -267,6 +258,13 @@ children:
       children:
       - type: Dynamic
         attributes: {id: HarmonyCore, value: 'true'}
+  - type: Integer
+    attributes: {id: GEN_APP_RTOS_TASK_0_DELAY}
+    children:
+    - type: Values
+      children:
+      - type: User
+        attributes: {value: '5'}
   - type: Boolean
     attributes: {id: GEN_APP_RTOS_TASK_0_OPT_USE_FPU_CONTEXT}
     children:
@@ -276,6 +274,20 @@ children:
         attributes: {id: visible}
         children:
         - {type: Value, value: 'true'}
+  - type: Integer
+    attributes: {id: GEN_APP_RTOS_TASK_0_SIZE}
+    children:
+    - type: Values
+      children:
+      - type: User
+        attributes: {value: '4096'}
+  - type: Boolean
+    attributes: {id: GEN_APP_RTOS_TASK_0_USE_DELAY}
+    children:
+    - type: Values
+      children:
+      - type: User
+        attributes: {value: 'false'}
   - type: Boolean
     attributes: {id: GEN_APP_RTOS_TASK_10_OPT_USE_FPU_CONTEXT}
     children:
@@ -375,6 +387,13 @@ children:
         attributes: {id: visible}
         children:
         - {type: Value, value: 'true'}
+  - type: Integer
+    attributes: {id: GEN_APP_RTOS_TASK_1_SIZE}
+    children:
+    - type: Values
+      children:
+      - type: User
+        attributes: {value: '8192'}
   - type: Boolean
     attributes: {id: GEN_APP_RTOS_TASK_2_OPT_USE_FPU_CONTEXT}
     children:
@@ -384,6 +403,20 @@ children:
         attributes: {id: visible}
         children:
         - {type: Value, value: 'true'}
+  - type: Integer
+    attributes: {id: GEN_APP_RTOS_TASK_2_SIZE}
+    children:
+    - type: Values
+      children:
+      - type: User
+        attributes: {value: '8192'}
+  - type: Integer
+    attributes: {id: GEN_APP_RTOS_TASK_3_DELAY}
+    children:
+    - type: Values
+      children:
+      - type: User
+        attributes: {value: '5'}
   - type: Boolean
     attributes: {id: GEN_APP_RTOS_TASK_3_OPT_USE_FPU_CONTEXT}
     children:
@@ -393,6 +426,20 @@ children:
         attributes: {id: visible}
         children:
         - {type: Value, value: 'true'}
+  - type: Integer
+    attributes: {id: GEN_APP_RTOS_TASK_3_SIZE}
+    children:
+    - type: Values
+      children:
+      - type: User
+        attributes: {value: '4096'}
+  - type: Boolean
+    attributes: {id: GEN_APP_RTOS_TASK_3_USE_DELAY}
+    children:
+    - type: Values
+      children:
+      - type: User
+        attributes: {value: 'false'}
   - type: Boolean
     attributes: {id: GEN_APP_RTOS_TASK_4_OPT_USE_FPU_CONTEXT}
     children:
@@ -526,6 +573,27 @@ children:
       children:
       - type: User
         attributes: {value: '4'}
+  - type: Boolean
+    attributes: {id: GEN_APP_TASK_ENABLE_1}
+    children:
+    - type: Values
+      children:
+      - type: User
+        attributes: {value: 'false'}
+  - type: Boolean
+    attributes: {id: GEN_APP_TASK_ENABLE_2}
+    children:
+    - type: Values
+      children:
+      - type: User
+        attributes: {value: 'false'}
+  - type: Boolean
+    attributes: {id: GEN_APP_TASK_ENABLE_3}
+    children:
+    - type: Values
+      children:
+      - type: User
+        attributes: {value: 'true'}
   - type: Menu
     attributes: {id: GEN_APP_TASK_MENU}
     children:
@@ -663,7 +731,7 @@ children:
         children:
         - {type: Value, value: 'true'}
   - type: File
-    attributes: {id: PORTS_DEF}
+    attributes: {id: RESET_DEF}
     children:
     - type: Attributes
       children:
@@ -672,7 +740,7 @@ children:
         children:
         - {type: Value, value: 'true'}
   - type: File
-    attributes: {id: PORTS_HEADER}
+    attributes: {id: RESET_HEADER}
     children:
     - type: Attributes
       children:
@@ -681,7 +749,7 @@ children:
         children:
         - {type: Value, value: 'true'}
   - type: File
-    attributes: {id: PORTS_MAPPING}
+    attributes: {id: RESET_MAPPING}
     children:
     - type: Attributes
       children:
@@ -760,4 +828,4 @@ children:
         children:
         - {type: Value, value: 'true'}
 - type: ElementPosition
-  attributes: {x: '165', y: '110', id: HarmonyCore}
+  attributes: {x: '166', y: '69', id: HarmonyCore}

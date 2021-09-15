@@ -68,8 +68,8 @@
 /*** LED Macros for LED2 ***/
 #define LED2_Toggle() (LATHINV = (1<<1))
 #define LED2_Get() ((PORTH >> 1) & 0x1)
-#define LED2_On() (LATHSET = (1<<1))
-#define LED2_Off() (LATHCLR = (1<<1))
+#define LED2_On() (LATHCLR = (1<<1))
+#define LED2_Off() (LATHSET = (1<<1))
 /*** LED Macros for LED3 ***/
 #define LED3_Toggle() (LATHINV = (1<<2))
 #define LED3_Get() ((PORTH >> 2) & 0x1)

@@ -4,6 +4,29 @@ attributes: {id: sys_time}
 children:
 - type: Symbols
   children:
+  - type: Comment
+    attributes: {id: SYS_TIME_ACHIEVABLEE_TICK_RATE_COMMENT}
+    children:
+    - type: Attributes
+      children:
+      - type: String
+        attributes: {id: text}
+        children:
+        - {type: Value, value: 'Achievable Tick Rate Resolution (ms):0.999840005602ms'}
+  - type: Long
+    attributes: {id: SYS_TIME_ACHIEVABLE_TICK_RATE_HZ}
+    children:
+    - type: Values
+      children:
+      - type: Dynamic
+        attributes: {id: sys_time, value: '100016002'}
+  - type: Integer
+    attributes: {id: SYS_TIME_MAX_TIMERS}
+    children:
+    - type: Values
+      children:
+      - type: User
+        attributes: {value: '7'}
   - type: Combo
     attributes: {id: SYS_TIME_OPERATING_MODE}
     children:
@@ -35,6 +58,20 @@ children:
       children:
       - type: Dynamic
         attributes: {id: sys_time, value: core_timer}
+  - type: Float
+    attributes: {id: SYS_TIME_TICK_RATE_MS}
+    children:
+    - type: Values
+      children:
+      - type: User
+        attributes: {value: '1.0'}
+  - type: Boolean
+    attributes: {id: SYS_TIME_USE_FLOATING_POINT_CALCULATIONS}
+    children:
+    - type: Values
+      children:
+      - type: User
+        attributes: {value: 'false'}
 - type: Attachments
   children:
   - type: DirectDependency

@@ -40,10 +40,6 @@
               </logicalFolder>
               <itemPath>../src/config/default/driver/miim/drv_miim.h</itemPath>
             </logicalFolder>
-            <logicalFolder name="f2" displayName="spi" projectFiles="true">
-              <itemPath>../src/config/default/driver/spi/drv_spi.h</itemPath>
-              <itemPath>../src/config/default/driver/spi/drv_spi_definitions.h</itemPath>
-            </logicalFolder>
             <itemPath>../src/config/default/driver/driver.h</itemPath>
             <itemPath>../src/config/default/driver/driver_common.h</itemPath>
           </logicalFolder>
@@ -193,20 +189,11 @@
             <logicalFolder name="f1" displayName="coretimer" projectFiles="true">
               <itemPath>../src/config/default/peripheral/coretimer/plib_coretimer.h</itemPath>
             </logicalFolder>
-            <logicalFolder name="f7" displayName="dmac" projectFiles="true">
-              <itemPath>../src/config/default/peripheral/dmac/plib_dmac.h</itemPath>
-            </logicalFolder>
             <logicalFolder name="f6" displayName="evic" projectFiles="true">
               <itemPath>../src/config/default/peripheral/evic/plib_evic.h</itemPath>
             </logicalFolder>
             <logicalFolder name="f5" displayName="gpio" projectFiles="true">
               <itemPath>../src/config/default/peripheral/gpio/plib_gpio.h</itemPath>
-            </logicalFolder>
-            <logicalFolder name="f3" displayName="spi" projectFiles="true">
-              <logicalFolder name="f1" displayName="spi_master" projectFiles="true">
-                <itemPath>../src/config/default/peripheral/spi/spi_master/plib_spi_master_common.h</itemPath>
-                <itemPath>../src/config/default/peripheral/spi/spi_master/plib_spi2_master.h</itemPath>
-              </logicalFolder>
             </logicalFolder>
             <logicalFolder name="f2" displayName="uart" projectFiles="true">
               <itemPath>../src/config/default/peripheral/uart/plib_uart_common.h</itemPath>
@@ -214,6 +201,9 @@
             </logicalFolder>
           </logicalFolder>
           <logicalFolder name="f2" displayName="system" projectFiles="true">
+            <logicalFolder name="f8" displayName="command" projectFiles="true">
+              <itemPath>../src/config/default/system/command/sys_command.h</itemPath>
+            </logicalFolder>
             <logicalFolder name="f6" displayName="console" projectFiles="true">
               <itemPath>../src/config/default/system/console/sys_console.h</itemPath>
             </logicalFolder>
@@ -228,9 +218,8 @@
               <itemPath>../src/config/default/system/int/sys_int.h</itemPath>
               <itemPath>../src/config/default/system/int/sys_int_mapping.h</itemPath>
             </logicalFolder>
-            <logicalFolder name="f3" displayName="ports" projectFiles="true">
-              <itemPath>../src/config/default/system/ports/sys_ports.h</itemPath>
-              <itemPath>../src/config/default/system/ports/sys_ports_mapping.h</itemPath>
+            <logicalFolder name="f7" displayName="reset" projectFiles="true">
+              <itemPath>../src/config/default/system/reset/sys_reset.h</itemPath>
             </logicalFolder>
             <logicalFolder name="f1" displayName="time" projectFiles="true">
               <itemPath>../src/config/default/system/time/sys_time.h</itemPath>
@@ -285,10 +274,9 @@
         </logicalFolder>
       </logicalFolder>
       <itemPath>../src/app_udp_task.h</itemPath>
-      <itemPath>../src/app_shdsl_task.h</itemPath>
-      <itemPath>../src/app_amak_parser_task.h</itemPath>
-      <itemPath>../src/app_service_uart_task.h</itemPath>
       <itemPath>../src/AMAK_SHDSL_Queue.h</itemPath>
+      <itemPath>../src/app_commands.h</itemPath>
+      <itemPath>../src/app_service_uart_task.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -332,10 +320,6 @@
                 </logicalFolder>
               </logicalFolder>
             </logicalFolder>
-            <logicalFolder name="f2" displayName="spi" projectFiles="true">
-              <itemPath>../src/config/default/driver/spi/src/drv_spi.c</itemPath>
-              <itemPath>../src/config/default/driver/spi/src/drv_spi_local.h</itemPath>
-            </logicalFolder>
           </logicalFolder>
           <logicalFolder name="f2" displayName="library" projectFiles="true">
             <logicalFolder name="f1" displayName="tcpip" projectFiles="true">
@@ -357,6 +341,7 @@
                 <itemPath>../src/config/default/library/tcpip/src/tcpip_notify.c</itemPath>
                 <itemPath>../src/config/default/library/tcpip/src/tcpip_packet.c</itemPath>
                 <itemPath>../src/config/default/library/tcpip/src/udp.c</itemPath>
+                <itemPath>../src/config/default/library/tcpip/src/icmp.c</itemPath>
               </logicalFolder>
             </logicalFolder>
           </logicalFolder>
@@ -370,19 +355,11 @@
             <logicalFolder name="f1" displayName="coretimer" projectFiles="true">
               <itemPath>../src/config/default/peripheral/coretimer/plib_coretimer.c</itemPath>
             </logicalFolder>
-            <logicalFolder name="f7" displayName="dmac" projectFiles="true">
-              <itemPath>../src/config/default/peripheral/dmac/plib_dmac.c</itemPath>
-            </logicalFolder>
             <logicalFolder name="f6" displayName="evic" projectFiles="true">
               <itemPath>../src/config/default/peripheral/evic/plib_evic.c</itemPath>
             </logicalFolder>
             <logicalFolder name="f5" displayName="gpio" projectFiles="true">
               <itemPath>../src/config/default/peripheral/gpio/plib_gpio.c</itemPath>
-            </logicalFolder>
-            <logicalFolder name="f3" displayName="spi" projectFiles="true">
-              <logicalFolder name="f1" displayName="spi_master" projectFiles="true">
-                <itemPath>../src/config/default/peripheral/spi/spi_master/plib_spi2_master.c</itemPath>
-              </logicalFolder>
             </logicalFolder>
             <logicalFolder name="f2" displayName="uart" projectFiles="true">
               <itemPath>../src/config/default/peripheral/uart/plib_uart2.c</itemPath>
@@ -392,6 +369,9 @@
             <itemPath>../src/config/default/stdio/xc32_monitor.c</itemPath>
           </logicalFolder>
           <logicalFolder name="f3" displayName="system" projectFiles="true">
+            <logicalFolder name="f7" displayName="command" projectFiles="true">
+              <itemPath>../src/config/default/system/command/src/sys_command.c</itemPath>
+            </logicalFolder>
             <logicalFolder name="f2" displayName="console" projectFiles="true">
               <itemPath>../src/config/default/system/console/src/sys_console_uart.h</itemPath>
               <itemPath>../src/config/default/system/console/src/sys_console_uart_definitions.h</itemPath>
@@ -399,15 +379,14 @@
               <itemPath>../src/config/default/system/console/src/sys_console.c</itemPath>
               <itemPath>../src/config/default/system/console/src/sys_console_local.h</itemPath>
             </logicalFolder>
-            <logicalFolder name="f5" displayName="debug" projectFiles="true">
-              <itemPath>../src/config/default/system/debug/src/sys_debug_local.h</itemPath>
-              <itemPath>../src/config/default/system/debug/src/sys_debug.c</itemPath>
-            </logicalFolder>
             <logicalFolder name="f4" displayName="dma" projectFiles="true">
               <itemPath>../src/config/default/system/dma/sys_dma.c</itemPath>
             </logicalFolder>
             <logicalFolder name="f3" displayName="int" projectFiles="true">
               <itemPath>../src/config/default/system/int/src/sys_int.c</itemPath>
+            </logicalFolder>
+            <logicalFolder name="f6" displayName="reset" projectFiles="true">
+              <itemPath>../src/config/default/system/reset/sys_reset.c</itemPath>
             </logicalFolder>
             <logicalFolder name="f1" displayName="time" projectFiles="true">
               <itemPath>../src/config/default/system/time/src/sys_time.c</itemPath>
@@ -426,7 +405,7 @@
         <logicalFolder name="f1" displayName="Source" projectFiles="true">
           <logicalFolder name="f1" displayName="portable" projectFiles="true">
             <logicalFolder name="f1" displayName="MemMang" projectFiles="true">
-              <itemPath>../src/third_party/rtos/FreeRTOS/Source/portable/MemMang/heap_5.c</itemPath>
+              <itemPath>../src/third_party/rtos/FreeRTOS/Source/portable/MemMang/heap_2.c</itemPath>
             </logicalFolder>
             <logicalFolder name="f2" displayName="MPLAB" projectFiles="true">
               <logicalFolder name="f1" displayName="PIC32MZ" projectFiles="true">
@@ -445,10 +424,9 @@
         </logicalFolder>
       </logicalFolder>
       <itemPath>../src/app_udp_task.c</itemPath>
-      <itemPath>../src/app_shdsl_task.c</itemPath>
-      <itemPath>../src/app_amak_parser_task.c</itemPath>
-      <itemPath>../src/app_service_uart_task.c</itemPath>
       <itemPath>../src/main.c</itemPath>
+      <itemPath>../src/app_commands.c</itemPath>
+      <itemPath>../src/app_service_uart_task.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -458,6 +436,7 @@
           <logicalFolder name="f1" displayName="APPLICATION_LAYER" projectFiles="true">
             <itemPath>../src/config/default/default.mhc/TCP_IP_STACK/APPLICATION_LAYER/APPLICATION_LAYER.yml</itemPath>
             <itemPath>../src/config/default/default.mhc/TCP_IP_STACK/APPLICATION_LAYER/tcpipDhcp.yml</itemPath>
+            <itemPath>../src/config/default/default.mhc/TCP_IP_STACK/APPLICATION_LAYER/tcpipDns.yml</itemPath>
             <itemPath>../src/config/default/default.mhc/TCP_IP_STACK/APPLICATION_LAYER/tcpip_apps_config.yml</itemPath>
           </logicalFolder>
           <logicalFolder name="f2" displayName="BASIC_CONFIGURATION" projectFiles="true">
@@ -476,6 +455,7 @@
           <logicalFolder name="f4" displayName="NETWORK_LAYER" projectFiles="true">
             <itemPath>../src/config/default/default.mhc/TCP_IP_STACK/NETWORK_LAYER/NETWORK_LAYER.yml</itemPath>
             <itemPath>../src/config/default/default.mhc/TCP_IP_STACK/NETWORK_LAYER/tcpipArp.yml</itemPath>
+            <itemPath>../src/config/default/default.mhc/TCP_IP_STACK/NETWORK_LAYER/tcpipIcmp.yml</itemPath>
             <itemPath>../src/config/default/default.mhc/TCP_IP_STACK/NETWORK_LAYER/tcpipIPv4.yml</itemPath>
             <itemPath>../src/config/default/default.mhc/TCP_IP_STACK/NETWORK_LAYER/tcpip_network_config.yml</itemPath>
           </logicalFolder>
@@ -490,15 +470,13 @@
         <itemPath>../src/config/default/default.mhc/core.yml</itemPath>
         <itemPath>../src/config/default/default.mhc/core_timer.yml</itemPath>
         <itemPath>../src/config/default/default.mhc/dfp.yml</itemPath>
-        <itemPath>../src/config/default/default.mhc/drv_spi.yml</itemPath>
         <itemPath>../src/config/default/default.mhc/FreeRTOS.yml</itemPath>
         <itemPath>../src/config/default/default.mhc/GraphSettings.yml</itemPath>
         <itemPath>../src/config/default/default.mhc/HarmonyCore.yml</itemPath>
         <itemPath>../src/config/default/default.mhc/project.yml</itemPath>
         <itemPath>../src/config/default/default.mhc/settings.yml</itemPath>
-        <itemPath>../src/config/default/default.mhc/spi2.yml</itemPath>
+        <itemPath>../src/config/default/default.mhc/sys_command.yml</itemPath>
         <itemPath>../src/config/default/default.mhc/sys_console.yml</itemPath>
-        <itemPath>../src/config/default/default.mhc/sys_debug.yml</itemPath>
         <itemPath>../src/config/default/default.mhc/sys_time.yml</itemPath>
         <itemPath>../src/config/default/default.mhc/uart2.yml</itemPath>
       </logicalFolder>
@@ -567,7 +545,7 @@
         <property key="isolate-each-function" value="true"/>
         <property key="make-warnings-into-errors" value="true"/>
         <property key="optimization-level" value="-O1"/>
-        <property key="place-data-into-section" value="false"/>
+        <property key="place-data-into-section" value="true"/>
         <property key="post-instruction-scheduling" value="default"/>
         <property key="pre-instruction-scheduling" value="default"/>
         <property key="preprocessor-macros" value=""/>
@@ -627,7 +605,7 @@
         <property key="generate-16-bit-code" value="false"/>
         <property key="generate-cross-reference-file" value="false"/>
         <property key="generate-micro-compressed-code" value="false"/>
-        <property key="heap-size" value="512"/>
+        <property key="heap-size" value="128000"/>
         <property key="input-libraries" value=""/>
         <property key="kseg-length" value=""/>
         <property key="kseg-origin" value=""/>
@@ -642,7 +620,7 @@
         <property key="report-memory-usage" value="false"/>
         <property key="serial-length" value=""/>
         <property key="serial-origin" value=""/>
-        <property key="stack-size" value=""/>
+        <property key="stack-size" value="8192"/>
         <property key="symbol-stripping" value=""/>
         <property key="trace-symbols" value=""/>
         <property key="warn-section-align" value="false"/>

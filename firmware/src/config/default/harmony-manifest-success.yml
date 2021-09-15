@@ -4,19 +4,19 @@
 
 
 project: AMAK-SHDSL
-creation_date: 2021-07-08T15:55:21.008+03:00[Europe/Moscow]    # ISO 8601 format: https://www.w3.org/TR/NOTE-datetime
+creation_date: 2021-09-15T14:45:02.875+03:00[Europe/Moscow]    # ISO 8601 format: https://www.w3.org/TR/NOTE-datetime
 operating_system: Windows 10
 mhc_mode: IDE            # [IDE|Standalone|Headless]
-mhc_version: v3.7.2
+mhc_version: v3.8.0
 mplabx_version: v5.45        # if MPLAB X plugin only
 plugin_version: v3.6.4        # if MPLAB X plugin only
 compiler: XC32 (3.01)
 
 modules:
-    - {name: "core", version: "v3.9.1"}
+    - {name: "core", version: "v3.9.2"}
     - {name: "csp", version: "v3.9.1"}
     - {name: "dev_packs", version: "v3.9.0"}
-    - {name: "net", version: "v3.7.2"}
+    - {name: "net", version: "v3.7.3"}
     - {name: "bsp", version: "v3.9.0"}
     - {name: "CMSIS-FreeRTOS", version: "v10.3.0"}
 

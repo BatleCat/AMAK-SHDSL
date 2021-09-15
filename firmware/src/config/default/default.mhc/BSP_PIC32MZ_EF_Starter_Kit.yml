@@ -3,4 +3,4 @@ type: UniqueComponent
 attributes: {id: BSP_PIC32MZ_EF_Starter_Kit, bsp: 'true'}
 children:
 - type: ElementPosition
-  attributes: {x: '314', y: '22', id: BSP_PIC32MZ_EF_Starter_Kit}
+  attributes: {x: '315', y: '24', id: BSP_PIC32MZ_EF_Starter_Kit}

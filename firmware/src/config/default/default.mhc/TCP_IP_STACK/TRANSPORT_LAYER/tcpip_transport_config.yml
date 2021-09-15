@@ -5,6 +5,13 @@ children:
 - type: Symbols
   children:
   - type: Boolean
+    attributes: {id: TCPIP_AUTOCONFIG_ENABLE_TCP}
+    children:
+    - type: Values
+      children:
+      - type: User
+        attributes: {value: 'false'}
+  - type: Boolean
     attributes: {id: TCPIP_AUTOCONFIG_ENABLE_UDP}
     children:
     - type: Values

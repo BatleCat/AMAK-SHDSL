@@ -82,6 +82,34 @@ typedef enum
 } APP_UDP_TASK_STATES;
 
 /*------------------------------------------------------------------------------
+ Application states
+
+  Summary:
+    Application states enumeration
+
+  Description:
+    This enumeration defines the valid application states.  These states
+    determine the behavior of the application at various times.
+*/
+//------------------------------------------------------------------------------
+typedef enum
+{
+    /* Application's state machine's initial state. */
+    APP_UDP_TASK_ERROR_NO = 0,
+//    APP_UDP_TASK_STATE_SERVICE_TASKS,
+    /* TODO: Define states used by the application state machine. */
+    APP_UDP_TASK_ERROR_Create_Queue,
+    APP_UDP_TASK_ERROR_STATE_Start,
+    APP_UDP_TASK_ERROR_STATE_WAIT_FOR_IP,
+    APP_UDP_TASK_ERROR_STATE_WAIT_SERVER_OPEN,
+    APP_UDP_TASK_ERROR_STATE_WAIT_CLIENT_OPEN,
+    APP_UDP_TASK_ERROR_STATE_WAIT_FOR_CONNECTION,
+    APP_UDP_TASK_ERROR_STATE_Rx,
+    APP_UDP_TASK_ERROR_STATE_Tx,
+    APP_UDP_TASK_ERROR_STATE_CLOSING_CONNECTION,
+
+} APP_UDP_TASK_ERRORS;
+/*------------------------------------------------------------------------------
  Application Data
 
   Summary:
@@ -100,9 +128,17 @@ typedef struct
     APP_UDP_TASK_STATES state;
 
     /* TODO: Define any additional data used by the application. */
-    EVENT_INFO  event_info;
-    UDP_SOCKET  udp_rx_socket;
-    UDP_SOCKET  udp_tx_socket;
+    APP_UDP_TASK_ERRORS error;
+    EVENT_INFO          event_info;
+    UDP_SOCKET          udp_rx_socket;
+    UDP_SOCKET          udp_tx_socket;
+    TCPIP_NET_HANDLE    netH;
+    
+    IP_MULTI_ADDRESS    dest_adr;
+    UDP_PORT            dest_port;
+
+    IP_MULTI_ADDRESS    local_adr;
+    UDP_PORT            local_port;
     
 } APP_UDP_TASK_DATA;
 

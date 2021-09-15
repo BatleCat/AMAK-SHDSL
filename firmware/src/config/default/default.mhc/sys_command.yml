@@ -1,27 +1,43 @@
 format_version: v1.0
 type: UniqueComponent
-attributes: {id: sys_debug}
+attributes: {id: sys_command}
 children:
 - type: Symbols
   children:
+  - type: Integer
+    attributes: {id: SYS_COMMAND_RTOS_DELAY}
+    children:
+    - type: Attributes
+      children:
+      - type: Boolean
+        attributes: {id: visible}
+        children:
+        - {type: Value, value: 'false'}
+  - type: Boolean
+    attributes: {id: SYS_COMMAND_RTOS_USE_DELAY}
+    children:
+    - type: Values
+      children:
+      - type: User
+        attributes: {value: 'false'}
   - type: String
     attributes: {id: SYS_CONSOLE_DEVICE}
     children:
     - type: Values
       children:
       - type: Dynamic
-        attributes: {id: sys_debug, value: SYS_CONSOLE_0}
+        attributes: {id: sys_command, value: SYS_CONSOLE_0}
   - type: String
     attributes: {id: SYS_CONSOLE_INDEX}
     children:
     - type: Values
       children:
       - type: Dynamic
-        attributes: {id: sys_debug, value: '0'}
+        attributes: {id: sys_command, value: '0'}
 - type: Attachments
   children:
   - type: DirectDependency
-    attributes: {id: sys_debug_SYS_CONSOLE_dependency}
+    attributes: {id: sys_command_SYS_CONSOLE_dependency}
     children:
     - type: Attributes
       children:
@@ -34,4 +50,4 @@ children:
         children:
         - {type: Value, value: sys_console}
 - type: ElementPosition
-  attributes: {x: '778', y: '297', id: sys_debug}
+  attributes: {x: '762', y: '382', id: sys_command}

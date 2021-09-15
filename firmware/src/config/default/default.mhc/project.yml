@@ -8,21 +8,7 @@ files:
   userChecksum: BD5E3766B27BA7E6172187AB755B4EEE
 - generatedChecksum: null
   logicalPath: ''
-  name: app_amak_parser_task.c
-  physicalPath: ../..
-  security: NON_SECURE
-  type: SOURCE
-  userChecksum: null
-- generatedChecksum: null
-  logicalPath: ''
   name: app_service_uart_task.c
-  physicalPath: ../..
-  security: NON_SECURE
-  type: SOURCE
-  userChecksum: null
-- generatedChecksum: null
-  logicalPath: ''
-  name: app_shdsl_task.c
   physicalPath: ../..
   security: NON_SECURE
   type: SOURCE
@@ -34,13 +20,13 @@ files:
   security: NON_SECURE
   type: SOURCE
   userChecksum: null
-- generatedChecksum: 296C1553168144A2F636B616C80C5472
+- generatedChecksum: E10CE63C78AB4D00FB771D39C8C32D7B
   logicalPath: config/default/library/tcpip/src
   name: arp.c
   physicalPath: library/tcpip/src
   security: NON_SECURE
   type: SOURCE
-  userChecksum: 296C1553168144A2F636B616C80C5472
+  userChecksum: E10CE63C78AB4D00FB771D39C8C32D7B
 - generatedChecksum: 64D0F9C57F1452BD074A574237B811D7
   logicalPath: config/default/bsp
   name: bsp.c
@@ -62,13 +48,13 @@ files:
   security: NON_SECURE
   type: SOURCE
   userChecksum: 537B50A67F7F96323778AA30E65317E2
-- generatedChecksum: E9CB1214FB499533C6F10FAECABCB990
+- generatedChecksum: AE84DCDFFF8163C1C783B51DBDB02503
   logicalPath: config/default/library/tcpip/src
   name: dns.c
   physicalPath: library/tcpip/src
   security: NON_SECURE
   type: SOURCE
-  userChecksum: E9CB1214FB499533C6F10FAECABCB990
+  userChecksum: AE84DCDFFF8163C1C783B51DBDB02503
 - generatedChecksum: B6BB6CB29F57E7179C0715CDC0EA0D7B
   logicalPath: config/default/driver/ethmac/src/dynamic
   name: drv_eth_pic32_lib.c
@@ -76,13 +62,13 @@ files:
   security: NON_SECURE
   type: SOURCE
   userChecksum: B6BB6CB29F57E7179C0715CDC0EA0D7B
-- generatedChecksum: 5ACEC2B084E83F0A1E01736F36C25714
+- generatedChecksum: A100DC45D9847283DF10FFEB36B218B5
   logicalPath: config/default/driver/ethmac/src/dynamic
   name: drv_ethmac.c
   physicalPath: driver/ethmac/src/dynamic
   security: NON_SECURE
   type: SOURCE
-  userChecksum: 5ACEC2B084E83F0A1E01736F36C25714
+  userChecksum: A100DC45D9847283DF10FFEB36B218B5
 - generatedChecksum: 797AC90C0306B7355E99B121F2DD863C
   logicalPath: config/default/driver/ethmac/src/dynamic
   name: drv_ethmac_lib.c
@@ -90,20 +76,20 @@ files:
   security: NON_SECURE
   type: SOURCE
   userChecksum: 797AC90C0306B7355E99B121F2DD863C
-- generatedChecksum: CF364B09187F915D4880D8B3E960A3B1
+- generatedChecksum: A56E64C8F37B41D67E395BD35798A680
   logicalPath: config/default/driver/ethphy/src/dynamic
   name: drv_ethphy.c
   physicalPath: driver/ethphy/src/dynamic
   security: NON_SECURE
   type: SOURCE
-  userChecksum: CF364B09187F915D4880D8B3E960A3B1
-- generatedChecksum: B219A7610ACBAAEA744CFD4C0FDC2D5F
+  userChecksum: A56E64C8F37B41D67E395BD35798A680
+- generatedChecksum: C9052D45CC77DF04D1AD2506D73D2758
   logicalPath: config/default/driver/ethphy/src/dynamic
   name: drv_extphy_smsc8740.c
   physicalPath: driver/ethphy/src/dynamic
   security: NON_SECURE
   type: SOURCE
-  userChecksum: B219A7610ACBAAEA744CFD4C0FDC2D5F
+  userChecksum: C9052D45CC77DF04D1AD2506D73D2758
 - generatedChecksum: 063A0626D53AF0EF665B206909725730
   logicalPath: config/default/driver/miim/src/dynamic
   name: drv_miim.c
@@ -111,20 +97,6 @@ files:
   security: NON_SECURE
   type: SOURCE
   userChecksum: 063A0626D53AF0EF665B206909725730
-- generatedChecksum: 39ACF24E542329EF512E234A8CEE165E
-  logicalPath: config/default/driver/spi
-  name: drv_spi.c
-  physicalPath: driver/spi/src
-  security: NON_SECURE
-  type: SOURCE
-  userChecksum: 39ACF24E542329EF512E234A8CEE165E
-- generatedChecksum: 11AC3E11CA4DC5B804F098EAA46B4CB4
-  logicalPath: config/default/driver/spi
-  name: drv_spi_local.h
-  physicalPath: driver/spi/src
-  security: NON_SECURE
-  type: SOURCE
-  userChecksum: 11AC3E11CA4DC5B804F098EAA46B4CB4
 - generatedChecksum: 2C34EB6E5B6B6AB8C7A31C2194889466
   logicalPath: FreeRTOS/Source
   name: event_groups.c
@@ -153,13 +125,13 @@ files:
   security: NON_SECURE
   type: SOURCE
   userChecksum: C13333EC95D004AAFF2F78E20CDAC054
-- generatedChecksum: F94D7AE4AEEA8127C848B403F5DF0AB7
+- generatedChecksum: 940A4FBBEEF11F1FDBE8FDAC00AB3CA5
   logicalPath: FreeRTOS/Source/portable/MemMang
-  name: heap_5.c
+  name: heap_2.c
   physicalPath: ../../third_party/rtos/FreeRTOS/Source/portable/MemMang
   security: NON_SECURE
   type: SOURCE
-  userChecksum: F94D7AE4AEEA8127C848B403F5DF0AB7
+  userChecksum: 940A4FBBEEF11F1FDBE8FDAC00AB3CA5
 - generatedChecksum: F47C9E7119EA3074588F2531D1800801
   logicalPath: config/default/library/tcpip/src/common
   name: helpers.c
@@ -167,34 +139,41 @@ files:
   security: NON_SECURE
   type: SOURCE
   userChecksum: F47C9E7119EA3074588F2531D1800801
-- generatedChecksum: C33C81EB183A73A27299EBED180E4904
+- generatedChecksum: 2A2E8CA2DB4CCC09019406FD3EF8C5AC
+  logicalPath: config/default/library/tcpip/src
+  name: icmp.c
+  physicalPath: library/tcpip/src
+  security: NON_SECURE
+  type: SOURCE
+  userChecksum: 2A2E8CA2DB4CCC09019406FD3EF8C5AC
+- generatedChecksum: 41DD46EDB0424A257885833ACDE6F0FF
   logicalPath: config/default
   name: initialization.c
   physicalPath: ''
   security: NON_SECURE
   type: SOURCE
-  userChecksum: C33C81EB183A73A27299EBED180E4904
-- generatedChecksum: A9E452FC16C01DF15EFB14B30D4258B6
+  userChecksum: 41DD46EDB0424A257885833ACDE6F0FF
+- generatedChecksum: 029D17606447A690C2FA8401511516D5
   logicalPath: config/default
   name: interrupts.c
   physicalPath: ''
   security: NON_SECURE
   type: SOURCE
-  userChecksum: A9E452FC16C01DF15EFB14B30D4258B6
-- generatedChecksum: 31D2D425693D805D45EE71570B7CBC6C
+  userChecksum: 029D17606447A690C2FA8401511516D5
+- generatedChecksum: 16897BA671D653C0F6C01B11C2C19A40
   logicalPath: config/default
   name: interrupts_a.S
   physicalPath: ''
   security: NON_SECURE
   type: SOURCE
-  userChecksum: 31D2D425693D805D45EE71570B7CBC6C
-- generatedChecksum: A40F0AFC67E19C6D4E8DEA7BB26DFD9E
+  userChecksum: 16897BA671D653C0F6C01B11C2C19A40
+- generatedChecksum: 2BE05452BD9BD4FE6D9A657DC71A2608
   logicalPath: config/default/library/tcpip/src
   name: ipv4.c
   physicalPath: library/tcpip/src
   security: NON_SECURE
   type: SOURCE
-  userChecksum: A40F0AFC67E19C6D4E8DEA7BB26DFD9E
+  userChecksum: 2BE05452BD9BD4FE6D9A657DC71A2608
 - generatedChecksum: 37C62E5948FBE65AF85C213106DA4CDA
   logicalPath: FreeRTOS/Source
   name: list.c
@@ -209,13 +188,13 @@ files:
   security: NON_SECURE
   type: SOURCE
   userChecksum: null
-- generatedChecksum: 417DA77DBD58024F50AC993F8D468570
+- generatedChecksum: 38E04B82DD4C8CCB7E85D66976CE7071
   logicalPath: config/default/library/tcpip/src
   name: oahash.c
   physicalPath: library/tcpip/src
   security: NON_SECURE
   type: SOURCE
-  userChecksum: 417DA77DBD58024F50AC993F8D468570
+  userChecksum: 38E04B82DD4C8CCB7E85D66976CE7071
 - generatedChecksum: 8FDD6248506F28B32C4F5FD9AA0D9C6F
   logicalPath: config/default/osal
   name: osal_freertos.c
@@ -223,13 +202,13 @@ files:
   security: NON_SECURE
   type: SOURCE
   userChecksum: 8FDD6248506F28B32C4F5FD9AA0D9C6F
-- generatedChecksum: 27ECA1C9066FB4DBA50943F54FE01D4D
+- generatedChecksum: 11E619CF65C66D03A9086FC9EFB84487
   logicalPath: config/default/peripheral/clk
   name: plib_clk.c
   physicalPath: peripheral/clk
   security: NON_SECURE
   type: SOURCE
-  userChecksum: 27ECA1C9066FB4DBA50943F54FE01D4D
+  userChecksum: 11E619CF65C66D03A9086FC9EFB84487
 - generatedChecksum: 2FEFEA0D4E94F5A5F3D76BAEC3D602E5
   logicalPath: config/default/peripheral/coretimer
   name: plib_coretimer.c
@@ -237,34 +216,20 @@ files:
   security: NON_SECURE
   type: SOURCE
   userChecksum: 2FEFEA0D4E94F5A5F3D76BAEC3D602E5
-- generatedChecksum: CE4B7F893F1464F86E6383E126CC18CF
-  logicalPath: config/default/peripheral/dmac
-  name: plib_dmac.c
-  physicalPath: peripheral/dmac
-  security: NON_SECURE
-  type: SOURCE
-  userChecksum: CE4B7F893F1464F86E6383E126CC18CF
-- generatedChecksum: F61802AB2B31364D0B9AE3B6AE4D92F4
+- generatedChecksum: AD8C463C651406A9F596969953FC5C65
   logicalPath: config/default/peripheral/evic
   name: plib_evic.c
   physicalPath: peripheral/evic
   security: NON_SECURE
   type: SOURCE
-  userChecksum: F61802AB2B31364D0B9AE3B6AE4D92F4
-- generatedChecksum: 889C00C5FC82E25CB64D730F8E091BCD
+  userChecksum: AD8C463C651406A9F596969953FC5C65
+- generatedChecksum: E430775B7A885653691C116DF15803BE
   logicalPath: config/default/peripheral/gpio
   name: plib_gpio.c
   physicalPath: peripheral/gpio
   security: NON_SECURE
   type: SOURCE
-  userChecksum: 889C00C5FC82E25CB64D730F8E091BCD
-- generatedChecksum: 44532C1EDDEA0CF40F7118AA028A5BB9
-  logicalPath: config/default/peripheral/spi/spi_master
-  name: plib_spi2_master.c
-  physicalPath: peripheral/spi/spi_master
-  security: NON_SECURE
-  type: SOURCE
-  userChecksum: 44532C1EDDEA0CF40F7118AA028A5BB9
+  userChecksum: E430775B7A885653691C116DF15803BE
 - generatedChecksum: E6DC75F0BA29ACFCB2CF87E31F24828B
   logicalPath: config/default/peripheral/uart
   name: plib_uart2.c
@@ -300,6 +265,13 @@ files:
   security: NON_SECURE
   type: SOURCE
   userChecksum: 162BBB1DB328D27F935CE22203D6A5BA
+- generatedChecksum: B272B2EB06FC4376B9EEB88671E27D74
+  logicalPath: config/default/system/command
+  name: sys_command.c
+  physicalPath: system/command/src
+  security: NON_SECURE
+  type: SOURCE
+  userChecksum: B272B2EB06FC4376B9EEB88671E27D74
 - generatedChecksum: 20C22A19D5DC74DEBFC4CCCA83B6F603
   logicalPath: config/default/system/console
   name: sys_console.c
@@ -335,27 +307,13 @@ files:
   security: NON_SECURE
   type: SOURCE
   userChecksum: 5D10B9438117B64220180660AB022150
-- generatedChecksum: 68C0D499B9EDAA3BFD7E131A48514212
-  logicalPath: config/default/system/debug
-  name: sys_debug.c
-  physicalPath: system/debug/src
-  security: NON_SECURE
-  type: SOURCE
-  userChecksum: 68C0D499B9EDAA3BFD7E131A48514212
-- generatedChecksum: B8C6C7356AC7841AECC7C779040F745C
-  logicalPath: config/default/system/debug
-  name: sys_debug_local.h
-  physicalPath: system/debug/src
-  security: NON_SECURE
-  type: SOURCE
-  userChecksum: B8C6C7356AC7841AECC7C779040F745C
-- generatedChecksum: 2E02308556447B0510575953A9E9DF6E
+- generatedChecksum: 0A6893369C4DA0EE7906866EB6E1D310
   logicalPath: config/default/system/dma
   name: sys_dma.c
   physicalPath: system/dma
   security: NON_SECURE
   type: SOURCE
-  userChecksum: 2E02308556447B0510575953A9E9DF6E
+  userChecksum: 0A6893369C4DA0EE7906866EB6E1D310
 - generatedChecksum: C95CE0ABB86E6B11CF77E8891D294510
   logicalPath: config/default/system/int
   name: sys_int.c
@@ -363,6 +321,13 @@ files:
   security: NON_SECURE
   type: SOURCE
   userChecksum: C95CE0ABB86E6B11CF77E8891D294510
+- generatedChecksum: 47B584985982B2FF32628D4CB874CB4D
+  logicalPath: config/default/system/reset
+  name: sys_reset.c
+  physicalPath: system/reset
+  security: NON_SECURE
+  type: SOURCE
+  userChecksum: 47B584985982B2FF32628D4CB874CB4D
 - generatedChecksum: 83BDE663A1AAB20C9E52263F22E2ED3C
   logicalPath: config/default/system/time
   name: sys_time.c
@@ -377,13 +342,13 @@ files:
   security: NON_SECURE
   type: SOURCE
   userChecksum: F849420C740D2B32346B4B4D9F46C136
-- generatedChecksum: 52404402A2D79BEEDD54694507088562
+- generatedChecksum: 43BEA5A503AB23ABC288A76AAFC565B5
   logicalPath: config/default
   name: tasks.c
   physicalPath: ''
   security: NON_SECURE
   type: SOURCE
-  userChecksum: 52404402A2D79BEEDD54694507088562
+  userChecksum: 43BEA5A503AB23ABC288A76AAFC565B5
 - generatedChecksum: 0911DB28A8AA8D2EDEC039BD1BA1CED1
   logicalPath: config/default/library/tcpip/src
   name: tcpip_heap_alloc.c
@@ -391,13 +356,13 @@ files:
   security: NON_SECURE
   type: SOURCE
   userChecksum: 0911DB28A8AA8D2EDEC039BD1BA1CED1
-- generatedChecksum: BA61875A383DCE26691C8213267E3284
+- generatedChecksum: 4590A2C67BDF01715945823CAB5E2F10
   logicalPath: config/default/library/tcpip/src
   name: tcpip_heap_internal.c
   physicalPath: library/tcpip/src
   security: NON_SECURE
   type: SOURCE
-  userChecksum: BA61875A383DCE26691C8213267E3284
+  userChecksum: 4590A2C67BDF01715945823CAB5E2F10
 - generatedChecksum: 41E9DA13FC2CC263ACF1F2373500E7F4
   logicalPath: config/default/library/tcpip/src
   name: tcpip_helper_c32.S
@@ -412,13 +377,13 @@ files:
   security: NON_SECURE
   type: SOURCE
   userChecksum: 6AA21E1761439974EC4DD7A49D480BF5
-- generatedChecksum: 7F61E622C3094CF0386268DFB4C829BF
+- generatedChecksum: 4A3683624416C3FDB4FC274603E42A72
   logicalPath: config/default/library/tcpip/src
   name: tcpip_manager.c
   physicalPath: library/tcpip/src
   security: NON_SECURE
   type: SOURCE
-  userChecksum: 7F61E622C3094CF0386268DFB4C829BF
+  userChecksum: 4A3683624416C3FDB4FC274603E42A72
 - generatedChecksum: 5A25A79EFC070534190D40826D08046B
   logicalPath: config/default/library/tcpip/src
   name: tcpip_notify.c
@@ -426,13 +391,13 @@ files:
   security: NON_SECURE
   type: SOURCE
   userChecksum: 5A25A79EFC070534190D40826D08046B
-- generatedChecksum: D4FC3460FFCC726F3A663E70B0062C3E
+- generatedChecksum: 011C5E24380275CB8A1925CF7B172622
   logicalPath: config/default/library/tcpip/src
   name: tcpip_packet.c
   physicalPath: library/tcpip/src
   security: NON_SECURE
   type: SOURCE
-  userChecksum: D4FC3460FFCC726F3A663E70B0062C3E
+  userChecksum: 011C5E24380275CB8A1925CF7B172622
 - generatedChecksum: BFF63C63E613200CFC9D0E9593031787
   logicalPath: FreeRTOS/Source
   name: timers.c
@@ -461,13 +426,13 @@ files:
   security: NON_SECURE
   type: HEADER
   userChecksum: BCDC1865B923B79D6B4BB4A6606CB111
-- generatedChecksum: 126B711CAD0D5CB664B9F89476F62219
+- generatedChecksum: 0592C8C1484F8189FDEBFB61F9C31B7C
   logicalPath: config/default
   name: FreeRTOSConfig.h
   physicalPath: ''
   security: NON_SECURE
   type: HEADER
-  userChecksum: 126B711CAD0D5CB664B9F89476F62219
+  userChecksum: 0592C8C1484F8189FDEBFB61F9C31B7C
 - generatedChecksum: 6AA4FBA4B9ED4676357BCC3B10E0A6D5
   logicalPath: FreeRTOS/Source/portable/MPLAB/PIC32MZ
   name: ISR_Support.h
@@ -475,30 +440,16 @@ files:
   security: NON_SECURE
   type: HEADER
   userChecksum: 6AA4FBA4B9ED4676357BCC3B10E0A6D5
-- generatedChecksum: 200FFBAC1EF1950119E7247375D24408
+- generatedChecksum: 21400130ED39C298F9049C6BA5C6FD68
   logicalPath: config/default/driver/ethmac/src/dynamic
   name: _eth_dcpt_lists.h
   physicalPath: driver/ethmac/src/dynamic
   security: NON_SECURE
   type: HEADER
-  userChecksum: 200FFBAC1EF1950119E7247375D24408
-- generatedChecksum: null
-  logicalPath: ''
-  name: app_amak_parser_task.h
-  physicalPath: ../..
-  security: NON_SECURE
-  type: HEADER
-  userChecksum: null
+  userChecksum: 21400130ED39C298F9049C6BA5C6FD68
 - generatedChecksum: null
   logicalPath: ''
   name: app_service_uart_task.h
-  physicalPath: ../..
-  security: NON_SECURE
-  type: HEADER
-  userChecksum: null
-- generatedChecksum: null
-  logicalPath: ''
-  name: app_shdsl_task.h
   physicalPath: ../..
   security: NON_SECURE
   type: HEADER
@@ -510,13 +461,13 @@ files:
   security: NON_SECURE
   type: HEADER
   userChecksum: null
-- generatedChecksum: 98728009D49AEDEBECC28140AF59DB54
+- generatedChecksum: 46B5526438A89806D96BF165338101C1
   logicalPath: config/default/library/tcpip
   name: arp.h
   physicalPath: library/tcpip
   security: NON_SECURE
   type: HEADER
-  userChecksum: 98728009D49AEDEBECC28140AF59DB54
+  userChecksum: 46B5526438A89806D96BF165338101C1
 - generatedChecksum: 07F35B7ECD80D544D58903ABE1F64F86
   logicalPath: config/default/library/tcpip/src
   name: arp_manager.h
@@ -531,34 +482,34 @@ files:
   security: NON_SECURE
   type: HEADER
   userChecksum: 95E6C92780ECEF554D27B0C15E3ADF3B
-- generatedChecksum: 4D5B02D44EF03BD1C8E8B1D40392CBFD
+- generatedChecksum: 135BC6BCC6E6BB5B47D0D3D1477113DA
   logicalPath: config/default/library/tcpip
   name: berkeley_api.h
   physicalPath: library/tcpip
   security: NON_SECURE
   type: HEADER
-  userChecksum: 4D5B02D44EF03BD1C8E8B1D40392CBFD
-- generatedChecksum: D24505F81C0F11274D502E0135E16982
+  userChecksum: 135BC6BCC6E6BB5B47D0D3D1477113DA
+- generatedChecksum: 7774A96BC3229FF92454D22B75D94FA3
   logicalPath: config/default/library/tcpip/src
   name: berkeley_manager.h
   physicalPath: library/tcpip/src
   security: NON_SECURE
   type: HEADER
-  userChecksum: D24505F81C0F11274D502E0135E16982
-- generatedChecksum: A9C595E0E5A92D2B85C18D2A27597B84
+  userChecksum: 7774A96BC3229FF92454D22B75D94FA3
+- generatedChecksum: C7339BAAFE16E4F0DA1B8B27795504DB
   logicalPath: config/default/bsp
   name: bsp.h
   physicalPath: bsp
   security: NON_SECURE
   type: HEADER
-  userChecksum: A9C595E0E5A92D2B85C18D2A27597B84
-- generatedChecksum: 6D82F5E3F79640FE52F3DC4ECD4FC558
+  userChecksum: C7339BAAFE16E4F0DA1B8B27795504DB
+- generatedChecksum: EE6C79D86E2FF9AF0ACA40536E5DC0B3
   logicalPath: config/default
   name: configuration.h
   physicalPath: ''
   security: NON_SECURE
   type: HEADER
-  userChecksum: 6D82F5E3F79640FE52F3DC4ECD4FC558
+  userChecksum: EE6C79D86E2FF9AF0ACA40536E5DC0B3
 - generatedChecksum: 799499D320508B137A1F38041909EE57
   logicalPath: FreeRTOS/Source/include
   name: croutine.h
@@ -580,13 +531,13 @@ files:
   security: NON_SECURE
   type: HEADER
   userChecksum: 7959E2B94CEE186632B984636D40C252
-- generatedChecksum: A064B12284F367243E41D804A9DAEFC0
+- generatedChecksum: 16060F756C77BD511CAEE3B84136557B
   logicalPath: config/default
   name: definitions.h
   physicalPath: ''
   security: NON_SECURE
   type: HEADER
-  userChecksum: A064B12284F367243E41D804A9DAEFC0
+  userChecksum: 16060F756C77BD511CAEE3B84136557B
 - generatedChecksum: A87B8720A7388B92787B15BFE92911FB
   logicalPath: FreeRTOS/Source/include
   name: deprecated_definitions.h
@@ -636,13 +587,13 @@ files:
   security: NON_SECURE
   type: HEADER
   userChecksum: E4B4C8DE8FA457275D1BB5F0200142E7
-- generatedChecksum: 825A2C0B9CFEA1C03AA7B7177F74F0BB
+- generatedChecksum: E6314E9DC4A37C3A0C05042987C53D8D
   logicalPath: config/default/library/tcpip/src
   name: dhcps_private.h
   physicalPath: library/tcpip/src
   security: NON_SECURE
   type: HEADER
-  userChecksum: 825A2C0B9CFEA1C03AA7B7177F74F0BB
+  userChecksum: E6314E9DC4A37C3A0C05042987C53D8D
 - generatedChecksum: 00F1A25D4FAE40690DED25BCAD3A935F
   logicalPath: config/default/library/tcpip
   name: dhcpv6.h
@@ -727,13 +678,13 @@ files:
   security: NON_SECURE
   type: HEADER
   userChecksum: 48E6786CF0AFE8287E0EB52359483A89
-- generatedChecksum: F0FD687F00DD012EC6592B767F559F84
+- generatedChecksum: 955DB39E4DD9EAB71C22250D8D71695E
   logicalPath: config/default/driver/ethmac
   name: drv_ethmac.h
   physicalPath: driver/ethmac
   security: NON_SECURE
   type: HEADER
-  userChecksum: F0FD687F00DD012EC6592B767F559F84
+  userChecksum: 955DB39E4DD9EAB71C22250D8D71695E
 - generatedChecksum: 0968A36279396C10013AAEBABB06A916
   logicalPath: config/default/driver/ethmac/src/dynamic
   name: drv_ethmac_lib.h
@@ -741,27 +692,27 @@ files:
   security: NON_SECURE
   type: HEADER
   userChecksum: 0968A36279396C10013AAEBABB06A916
-- generatedChecksum: F7EBA7B26B8383A78811B34A357B339E
+- generatedChecksum: 936DA85A141927279A84EFB11739CB23
   logicalPath: config/default/driver/ethmac/src
   name: drv_ethmac_local.h
   physicalPath: driver/ethmac/src
   security: NON_SECURE
   type: HEADER
-  userChecksum: F7EBA7B26B8383A78811B34A357B339E
-- generatedChecksum: A11286F01DA25A80B0B5D6E73134FCEA
+  userChecksum: 936DA85A141927279A84EFB11739CB23
+- generatedChecksum: 557AF10C030DC02A3A939813003F1434
   logicalPath: config/default/driver/ethphy
   name: drv_ethphy.h
   physicalPath: driver/ethphy
   security: NON_SECURE
   type: HEADER
-  userChecksum: A11286F01DA25A80B0B5D6E73134FCEA
-- generatedChecksum: 480E7A2EDA7D0D8C87419AC73D07F39C
+  userChecksum: 557AF10C030DC02A3A939813003F1434
+- generatedChecksum: 0B81A09ED983823AC5A875E51EE8A7E5
   logicalPath: config/default/driver/ethphy/src
   name: drv_ethphy_local.h
   physicalPath: driver/ethphy/src
   security: NON_SECURE
   type: HEADER
-  userChecksum: 480E7A2EDA7D0D8C87419AC73D07F39C
+  userChecksum: 0B81A09ED983823AC5A875E51EE8A7E5
 - generatedChecksum: 7903EEEDDF8FF93523B69EEEB1056519
   logicalPath: config/default/driver/ethphy/src/dynamic
   name: drv_extphy_regs.h
@@ -797,20 +748,6 @@ files:
   security: NON_SECURE
   type: HEADER
   userChecksum: 70A1EB83CE2F2835969832CB05D3903E
-- generatedChecksum: 53AD078A2F507226A6BDA2DBFEA03430
-  logicalPath: config/default/driver/spi
-  name: drv_spi.h
-  physicalPath: driver/spi
-  security: NON_SECURE
-  type: HEADER
-  userChecksum: 53AD078A2F507226A6BDA2DBFEA03430
-- generatedChecksum: 0A25F1E0706985E1D58AACA1A07810CD
-  logicalPath: config/default/driver/spi
-  name: drv_spi_definitions.h
-  physicalPath: driver/spi
-  security: NON_SECURE
-  type: HEADER
-  userChecksum: 0A25F1E0706985E1D58AACA1A07810CD
 - generatedChecksum: 1A294D6AFEFA402C2F50C385FCA54D85
   logicalPath: FreeRTOS/Source/include
   name: event_groups.h
@@ -958,13 +895,13 @@ files:
   security: NON_SECURE
   type: HEADER
   userChecksum: 25C07C460FA1705F6B3CDE09928E1D3C
-- generatedChecksum: 325F6720BE02981E762B093B7405AB23
+- generatedChecksum: E483D94FDF38E11A37653D16DCF2261A
   logicalPath: config/default/library/tcpip/src
   name: igmp_private.h
   physicalPath: library/tcpip/src
   security: NON_SECURE
   type: HEADER
-  userChecksum: 325F6720BE02981E762B093B7405AB23
+  userChecksum: E483D94FDF38E11A37653D16DCF2261A
 - generatedChecksum: 4CF4A86296482D5331331BA301C20BB2
   logicalPath: config/default
   name: interrupts.h
@@ -986,13 +923,13 @@ files:
   security: NON_SECURE
   type: HEADER
   userChecksum: 4D85CCC6B81B358A4BBA15FFDB03BD23
-- generatedChecksum: 4AF5AFEB8DD29C37B7F92636F3F7109E
+- generatedChecksum: 6A8365E1144014309D7F85B19459203C
   logicalPath: config/default/library/tcpip
   name: ipv4.h
   physicalPath: library/tcpip
   security: NON_SECURE
   type: HEADER
-  userChecksum: 4AF5AFEB8DD29C37B7F92636F3F7109E
+  userChecksum: 6A8365E1144014309D7F85B19459203C
 - generatedChecksum: CD30466652A3555A714C4366A01ADCA4
   logicalPath: config/default/library/tcpip/src
   name: ipv4_manager.h
@@ -1007,13 +944,13 @@ files:
   security: NON_SECURE
   type: HEADER
   userChecksum: FF5AF83CBBAE19018842FF9269D4B6D4
-- generatedChecksum: 60F0C9CE1871A3B85F04CE67BA983C26
+- generatedChecksum: 882FE98ABC43412C37B5C5B942696054
   logicalPath: config/default/library/tcpip
   name: ipv6.h
   physicalPath: library/tcpip
   security: NON_SECURE
   type: HEADER
-  userChecksum: 60F0C9CE1871A3B85F04CE67BA983C26
+  userChecksum: 882FE98ABC43412C37B5C5B942696054
 - generatedChecksum: 5A8BAED78CF961169B211E15AE4C94FC
   logicalPath: config/default/library/tcpip/src
   name: ipv6_manager.h
@@ -1063,13 +1000,13 @@ files:
   security: NON_SECURE
   type: HEADER
   userChecksum: 3BB97AA63C2C749A8E0E0CCB71069EE5
-- generatedChecksum: A7A8FCDA6746F7EEC2CAFD8F9AAC56CC
+- generatedChecksum: 38843E3789FC642552BCA71C39116136
   logicalPath: config/default/library/tcpip/src
   name: lldp_tlv.h
   physicalPath: library/tcpip/src
   security: NON_SECURE
   type: HEADER
-  userChecksum: A7A8FCDA6746F7EEC2CAFD8F9AAC56CC
+  userChecksum: 38843E3789FC642552BCA71C39116136
 - generatedChecksum: 5B3C83614640F65D96BFD11A151F946A
   logicalPath: FreeRTOS/Source/include
   name: message_buffer.h
@@ -1189,13 +1126,6 @@ files:
   security: NON_SECURE
   type: HEADER
   userChecksum: 49EF1C56EBDEE25C8E46F029F020AB21
-- generatedChecksum: D4A1E2329C517DB8AB49B9143079554F
-  logicalPath: config/default/peripheral/dmac
-  name: plib_dmac.h
-  physicalPath: peripheral/dmac
-  security: NON_SECURE
-  type: HEADER
-  userChecksum: D4A1E2329C517DB8AB49B9143079554F
 - generatedChecksum: 3C465EE2268CD765C11300F75C6560CC
   logicalPath: config/default/peripheral/evic
   name: plib_evic.h
@@ -1210,20 +1140,6 @@ files:
   security: NON_SECURE
   type: HEADER
   userChecksum: 33368571C6B8516B6FE5A473D8CA82A5
-- generatedChecksum: A49DF9975AD635E363B13B53F58639DB
-  logicalPath: config/default/peripheral/spi/spi_master
-  name: plib_spi2_master.h
-  physicalPath: peripheral/spi/spi_master
-  security: NON_SECURE
-  type: HEADER
-  userChecksum: A49DF9975AD635E363B13B53F58639DB
-- generatedChecksum: CFA758C8B7258190473EF7C60C4BA4E9
-  logicalPath: config/default/peripheral/spi/spi_master
-  name: plib_spi_master_common.h
-  physicalPath: peripheral/spi/spi_master
-  security: NON_SECURE
-  type: HEADER
-  userChecksum: CFA758C8B7258190473EF7C60C4BA4E9
 - generatedChecksum: 86D499749C924875389705AA3D0C9FD7
   logicalPath: config/default/peripheral/uart
   name: plib_uart2.h
@@ -1371,6 +1287,13 @@ files:
   security: NON_SECURE
   type: HEADER
   userChecksum: B016FD7AB019D16F55470D987054A878
+- generatedChecksum: 712D1407BC82CB6B3C4C44FED4F14D26
+  logicalPath: config/default/system/command
+  name: sys_command.h
+  physicalPath: system/command
+  security: NON_SECURE
+  type: HEADER
+  userChecksum: 712D1407BC82CB6B3C4C44FED4F14D26
 - generatedChecksum: 91CB36F6EC29DAA7C584282A875E5CBA
   logicalPath: config/default/system/console
   name: sys_console.h
@@ -1392,13 +1315,13 @@ files:
   security: NON_SECURE
   type: HEADER
   userChecksum: 4A7FFAD7ACF8378CEC16FBF2BC2368BE
-- generatedChecksum: FF2FADFBBFB94FF4B4A57085D719E7C8
+- generatedChecksum: 42E557EFE638D7A736FB88AA84F085F1
   logicalPath: config/default/system/dma
   name: sys_dma_mapping.h
   physicalPath: system/dma
   security: NON_SECURE
   type: HEADER
-  userChecksum: FF2FADFBBFB94FF4B4A57085D719E7C8
+  userChecksum: 42E557EFE638D7A736FB88AA84F085F1
 - generatedChecksum: 821A17F3E8B2B33F953ED3352A3FF1E9
   logicalPath: config/default/library/tcpip/src/common
   name: sys_fs_shell.h
@@ -1420,20 +1343,6 @@ files:
   security: NON_SECURE
   type: HEADER
   userChecksum: FC7B55936A09E0CA1395AE4DFB1A188F
-- generatedChecksum: 6348A6C05D5693300B296BD46CCC535D
-  logicalPath: config/default/system/ports
-  name: sys_ports.h
-  physicalPath: system/ports
-  security: NON_SECURE
-  type: HEADER
-  userChecksum: 6348A6C05D5693300B296BD46CCC535D
-- generatedChecksum: BC6E1661BF4CAC21B70F5F56A0D7BBDB
-  logicalPath: config/default/system/ports
-  name: sys_ports_mapping.h
-  physicalPath: system/ports
-  security: NON_SECURE
-  type: HEADER
-  userChecksum: BC6E1661BF4CAC21B70F5F56A0D7BBDB
 - generatedChecksum: 751EE9993B5654990D2344BA43295EAB
   logicalPath: config/default/system
   name: sys_random_h2_adapter.h
@@ -1441,6 +1350,13 @@ files:
   security: NON_SECURE
   type: HEADER
   userChecksum: 751EE9993B5654990D2344BA43295EAB
+- generatedChecksum: 8E43BD17134E69982826F202D0AB42C5
+  logicalPath: config/default/system/reset
+  name: sys_reset.h
+  physicalPath: system/reset
+  security: NON_SECURE
+  type: HEADER
+  userChecksum: 8E43BD17134E69982826F202D0AB42C5
 - generatedChecksum: 466D676839280C0E7FC2CC6F78BA6EE9
   logicalPath: config/default/system/time
   name: sys_time.h
@@ -1518,13 +1434,13 @@ files:
   security: NON_SECURE
   type: HEADER
   userChecksum: F779E377BF46D856247D545681CD753A
-- generatedChecksum: CFFB51E0D54B26C90B61FEEDE2A1CF68
+- generatedChecksum: 503C152D38F9AC23E029DE786FFE29EA
   logicalPath: config/default/library/tcpip/src
   name: tcp_manager.h
   physicalPath: library/tcpip/src
   security: NON_SECURE
   type: HEADER
-  userChecksum: CFFB51E0D54B26C90B61FEEDE2A1CF68
+  userChecksum: 503C152D38F9AC23E029DE786FFE29EA
 - generatedChecksum: 2CAF6C5D06D5DBE937D8FA1E3A2A37A2
   logicalPath: config/default/library/tcpip/src
   name: tcp_private.h
@@ -1532,13 +1448,13 @@ files:
   security: NON_SECURE
   type: HEADER
   userChecksum: 2CAF6C5D06D5DBE937D8FA1E3A2A37A2
-- generatedChecksum: AFE55AC059C34FCFA7A54F6BABCD74AE
+- generatedChecksum: 9B266C08BD4C93AF2EF1231B2E52D4EB
   logicalPath: config/default/library/tcpip
   name: tcpip.h
   physicalPath: library/tcpip
   security: NON_SECURE
   type: HEADER
-  userChecksum: AFE55AC059C34FCFA7A54F6BABCD74AE
+  userChecksum: 9B266C08BD4C93AF2EF1231B2E52D4EB
 - generatedChecksum: 60B94F95E8C1F65E61E54288D55B0319
   logicalPath: config/default/library/tcpip
   name: tcpip_announce.h
@@ -1609,13 +1525,13 @@ files:
   security: NON_SECURE
   type: HEADER
   userChecksum: 3FB4AF6DF0E1AFAAC7AB7D042672EC20
-- generatedChecksum: B90EBC1B69964AC96DD2A9961156627E
+- generatedChecksum: 86BBA852414B3F7E05B17CC113EA9DB1
   logicalPath: config/default/library/tcpip
   name: tcpip_mac.h
   physicalPath: library/tcpip
   security: NON_SECURE
   type: HEADER
-  userChecksum: B90EBC1B69964AC96DD2A9961156627E
+  userChecksum: 86BBA852414B3F7E05B17CC113EA9DB1
 - generatedChecksum: F7969FE2EDC637424E363FD8D5F894E4
   logicalPath: config/default/library/tcpip
   name: tcpip_mac_bridge.h
@@ -1637,13 +1553,13 @@ files:
   security: NON_SECURE
   type: HEADER
   userChecksum: 2E946E4B94B4E221CBF8379C477C8C0F
-- generatedChecksum: 4A677072FE7CB4B37767226CF9F19E5C
+- generatedChecksum: 6A790F9F331FF58F80B14C201FBCCED9
   logicalPath: config/default/library/tcpip
   name: tcpip_mac_object.h
   physicalPath: library/tcpip
   security: NON_SECURE
   type: HEADER
-  userChecksum: 4A677072FE7CB4B37767226CF9F19E5C
+  userChecksum: 6A790F9F331FF58F80B14C201FBCCED9
 - generatedChecksum: DF4A57443EEF976E1564F28FE4FDBD52
   logicalPath: config/default/library/tcpip
   name: tcpip_manager.h
@@ -1651,13 +1567,13 @@ files:
   security: NON_SECURE
   type: HEADER
   userChecksum: DF4A57443EEF976E1564F28FE4FDBD52
-- generatedChecksum: B5B45B6AB4198A8677CFC7207BA8A8C1
+- generatedChecksum: 37E8CD2D8A5B2B62FD680B59C5708085
   logicalPath: config/default/library/tcpip/src
   name: tcpip_manager_control.h
   physicalPath: library/tcpip/src
   security: NON_SECURE
   type: HEADER
-  userChecksum: B5B45B6AB4198A8677CFC7207BA8A8C1
+  userChecksum: 37E8CD2D8A5B2B62FD680B59C5708085
 - generatedChecksum: 5851ABD4B6100EED203CA27DFB90C598
   logicalPath: config/default/library/tcpip/src
   name: tcpip_module_manager.h
@@ -1672,20 +1588,20 @@ files:
   security: NON_SECURE
   type: HEADER
   userChecksum: B35526101B0CB88DB7C403BE62AEEAAF
-- generatedChecksum: 1550A33FF53B128BB73DD937F610E51B
+- generatedChecksum: 3DBAA4F039E31AF2D181FA01A817E728
   logicalPath: config/default/library/tcpip/src
   name: tcpip_packet.h
   physicalPath: library/tcpip/src
   security: NON_SECURE
   type: HEADER
-  userChecksum: 1550A33FF53B128BB73DD937F610E51B
-- generatedChecksum: 9E19D0EF84FAA78CDE7F2034D491E73A
+  userChecksum: 3DBAA4F039E31AF2D181FA01A817E728
+- generatedChecksum: FA6259C2A797E909D0C6B2FB067251C8
   logicalPath: config/default/library/tcpip/src
   name: tcpip_private.h
   physicalPath: library/tcpip/src
   security: NON_SECURE
   type: HEADER
-  userChecksum: 9E19D0EF84FAA78CDE7F2034D491E73A
+  userChecksum: FA6259C2A797E909D0C6B2FB067251C8
 - generatedChecksum: 1359095D6A60712C36D5DA1C8DC53BE3
   logicalPath: config/default/library/tcpip
   name: tcpip_reboot.h
@@ -1784,13 +1700,13 @@ files:
   security: NON_SECURE
   type: HEADER
   userChecksum: 23248DE45F9EC71D5484DF1895031B07
-- generatedChecksum: 4FCF3368C518DD173D08099B1DFB89D5
+- generatedChecksum: 1D7FBFA79EAE512971BD54237F6F71F4
   logicalPath: config/default/library/tcpip/src
   name: udp_manager.h
   physicalPath: library/tcpip/src
   security: NON_SECURE
   type: HEADER
-  userChecksum: 4FCF3368C518DD173D08099B1DFB89D5
+  userChecksum: 1D7FBFA79EAE512971BD54237F6F71F4
 - generatedChecksum: C99E758A00938DD4FF1F7209697D49E5
   logicalPath: config/default/library/tcpip/src
   name: udp_private.h
@@ -1819,13 +1735,13 @@ files:
   security: NON_SECURE
   type: HEADER
   userChecksum: 0E950005D87D16C0541FF1A9A2B6F3D0
-- generatedChecksum: FB4820371DD01C777345A47950B59C25
+- generatedChecksum: 69D1F5AD6F50719F20AB32B4D1308C5F
   logicalPath: config/default/library/tcpip/src
   name: zero_conf_link_local_private.h
   physicalPath: library/tcpip/src
   security: NON_SECURE
   type: HEADER
-  userChecksum: FB4820371DD01C777345A47950B59C25
+  userChecksum: 69D1F5AD6F50719F20AB32B4D1308C5F
 - generatedChecksum: E7D07DA850B2609D51D1BF383B3DCA73
   logicalPath: config/default/library/tcpip/src
   name: zero_conf_manager.h
@@ -1891,7 +1807,7 @@ settings:
   delimiter: ''
   key: heap-size
   security: NON_SECURE
-  value: '512'
+  value: '128000'
 - append: false
   category: C32-LD
   delimiter: ''
