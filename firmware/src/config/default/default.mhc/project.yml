@@ -8,7 +8,21 @@ files:
   userChecksum: BD5E3766B27BA7E6172187AB755B4EEE
 - generatedChecksum: null
   logicalPath: ''
+  name: app_amak_parser_task.c
+  physicalPath: ../..
+  security: NON_SECURE
+  type: SOURCE
+  userChecksum: null
+- generatedChecksum: null
+  logicalPath: ''
   name: app_service_uart_task.c
+  physicalPath: ../..
+  security: NON_SECURE
+  type: SOURCE
+  userChecksum: null
+- generatedChecksum: null
+  logicalPath: ''
+  name: app_shdsl_task.c
   physicalPath: ../..
   security: NON_SECURE
   type: SOURCE
@@ -146,27 +160,27 @@ files:
   security: NON_SECURE
   type: SOURCE
   userChecksum: 2A2E8CA2DB4CCC09019406FD3EF8C5AC
-- generatedChecksum: 41DD46EDB0424A257885833ACDE6F0FF
+- generatedChecksum: 8ADF373B2D7654753909F722B6C5655B
   logicalPath: config/default
   name: initialization.c
   physicalPath: ''
   security: NON_SECURE
   type: SOURCE
-  userChecksum: 41DD46EDB0424A257885833ACDE6F0FF
-- generatedChecksum: 029D17606447A690C2FA8401511516D5
+  userChecksum: 8ADF373B2D7654753909F722B6C5655B
+- generatedChecksum: 49EC6892BCF58D1A194BDCD093800A0F
   logicalPath: config/default
   name: interrupts.c
   physicalPath: ''
   security: NON_SECURE
   type: SOURCE
-  userChecksum: 029D17606447A690C2FA8401511516D5
-- generatedChecksum: 16897BA671D653C0F6C01B11C2C19A40
+  userChecksum: 49EC6892BCF58D1A194BDCD093800A0F
+- generatedChecksum: 7920ACB97E93DC16E212543349FD727B
   logicalPath: config/default
   name: interrupts_a.S
   physicalPath: ''
   security: NON_SECURE
   type: SOURCE
-  userChecksum: 16897BA671D653C0F6C01B11C2C19A40
+  userChecksum: 7920ACB97E93DC16E212543349FD727B
 - generatedChecksum: 2BE05452BD9BD4FE6D9A657DC71A2608
   logicalPath: config/default/library/tcpip/src
   name: ipv4.c
@@ -216,13 +230,13 @@ files:
   security: NON_SECURE
   type: SOURCE
   userChecksum: 2FEFEA0D4E94F5A5F3D76BAEC3D602E5
-- generatedChecksum: AD8C463C651406A9F596969953FC5C65
+- generatedChecksum: F827252C14A679B018E6C5BF4DA3711D
   logicalPath: config/default/peripheral/evic
   name: plib_evic.c
   physicalPath: peripheral/evic
   security: NON_SECURE
   type: SOURCE
-  userChecksum: AD8C463C651406A9F596969953FC5C65
+  userChecksum: F827252C14A679B018E6C5BF4DA3711D
 - generatedChecksum: E430775B7A885653691C116DF15803BE
   logicalPath: config/default/peripheral/gpio
   name: plib_gpio.c
@@ -342,13 +356,13 @@ files:
   security: NON_SECURE
   type: SOURCE
   userChecksum: F849420C740D2B32346B4B4D9F46C136
-- generatedChecksum: 43BEA5A503AB23ABC288A76AAFC565B5
+- generatedChecksum: 4506D597696EA5D10D66127E130DC293
   logicalPath: config/default
   name: tasks.c
   physicalPath: ''
   security: NON_SECURE
   type: SOURCE
-  userChecksum: 43BEA5A503AB23ABC288A76AAFC565B5
+  userChecksum: 4506D597696EA5D10D66127E130DC293
 - generatedChecksum: 0911DB28A8AA8D2EDEC039BD1BA1CED1
   logicalPath: config/default/library/tcpip/src
   name: tcpip_heap_alloc.c
@@ -426,13 +440,13 @@ files:
   security: NON_SECURE
   type: HEADER
   userChecksum: BCDC1865B923B79D6B4BB4A6606CB111
-- generatedChecksum: 0592C8C1484F8189FDEBFB61F9C31B7C
+- generatedChecksum: C5E7228FC9233F1BDDA952AA77AAE7C9
   logicalPath: config/default
   name: FreeRTOSConfig.h
   physicalPath: ''
   security: NON_SECURE
   type: HEADER
-  userChecksum: 0592C8C1484F8189FDEBFB61F9C31B7C
+  userChecksum: C5E7228FC9233F1BDDA952AA77AAE7C9
 - generatedChecksum: 6AA4FBA4B9ED4676357BCC3B10E0A6D5
   logicalPath: FreeRTOS/Source/portable/MPLAB/PIC32MZ
   name: ISR_Support.h
@@ -449,7 +463,21 @@ files:
   userChecksum: 21400130ED39C298F9049C6BA5C6FD68
 - generatedChecksum: null
   logicalPath: ''
+  name: app_amak_parser_task.h
+  physicalPath: ../..
+  security: NON_SECURE
+  type: HEADER
+  userChecksum: null
+- generatedChecksum: null
+  logicalPath: ''
   name: app_service_uart_task.h
+  physicalPath: ../..
+  security: NON_SECURE
+  type: HEADER
+  userChecksum: null
+- generatedChecksum: null
+  logicalPath: ''
+  name: app_shdsl_task.h
   physicalPath: ../..
   security: NON_SECURE
   type: HEADER
@@ -531,13 +559,13 @@ files:
   security: NON_SECURE
   type: HEADER
   userChecksum: 7959E2B94CEE186632B984636D40C252
-- generatedChecksum: 16060F756C77BD511CAEE3B84136557B
+- generatedChecksum: 4FEA3FAE1486FE699193A6DC31271F88
   logicalPath: config/default
   name: definitions.h
   physicalPath: ''
   security: NON_SECURE
   type: HEADER
-  userChecksum: 16060F756C77BD511CAEE3B84136557B
+  userChecksum: 4FEA3FAE1486FE699193A6DC31271F88
 - generatedChecksum: A87B8720A7388B92787B15BFE92911FB
   logicalPath: FreeRTOS/Source/include
   name: deprecated_definitions.h

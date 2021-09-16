@@ -97,6 +97,10 @@ void ETHERNET_Handler (void)
     ETHERNET_InterruptHandler();
 }
 
+void FLASH_CONTROL_Handler (void)
+{
+}
+
 
 
 

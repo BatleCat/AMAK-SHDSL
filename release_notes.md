@@ -1,4 +1,13 @@
-# Test Projects with Microchip MPLAB Harmony 3 Release Notes
+# AMAK-SHDSL Projects with Microchip MPLAB Harmony 3 Release Notes
+
+## AMAK-SHDSL_pic32mz_FreeRTOS Release v0.0.1 (16/09/2021)
+### NEW FEATURES
+
+- **Important functionality update**
+
+The overall project design implemented.
+Udp packet transmission has started.
+
 ## AMAK-SHDSL_pic32mz_FreeRTOS Release v0.0.0
 ### NEW FEATURES
 - **New part support** - N/A

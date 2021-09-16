@@ -1651,6 +1651,13 @@ children:
       - type: Dynamic
         attributes: {id: core, value: ETHERNET_InterruptHandler}
   - type: Boolean
+    attributes: {id: EVIC_167_ENABLE}
+    children:
+    - type: Values
+      children:
+      - type: User
+        attributes: {value: 'true'}
+  - type: Boolean
     attributes: {id: EVIC_1_ENABLE}
     children:
     - type: Values
@@ -1829,6 +1836,13 @@ children:
         attributes: {id: core, value: AUTO}
   - type: Boolean
     attributes: {id: EVIC_SRS_ENABLE}
+    children:
+    - type: Values
+      children:
+      - type: Dynamic
+        attributes: {id: core, value: 'false'}
+  - type: Boolean
+    attributes: {id: FLASH_CONTROL_INTERRUPT_ENABLE_UPDATE}
     children:
     - type: Values
       children:

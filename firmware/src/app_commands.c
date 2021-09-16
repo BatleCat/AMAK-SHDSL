@@ -329,6 +329,12 @@ static void _APP_Commands_GetMACStatistics(SYS_CMD_DEVICE_NODE* pCmdIO, int argc
             SYS_CONSOLE_MESSAGE("---------------------------------------\r\n");
         #endif
     }
+    #ifdef ENABLE_CONSOLE_MESSAGE
+        TCPIP_STACK_HEAP_TYPE heapType = TCPIP_STACK_HEAP_TYPE_INTERNAL_HEAP;
+        TCPIP_STACK_HEAP_HANDLE heapH = TCPIP_STACK_HeapHandleGet( heapType, 0 );
+        size_t heap_watermark = TCPIP_STACK_HEAP_HighWatermark( heapH );
+        SYS_CONSOLE_PRINT   (" APP_UDP_TASK: heap high watermark: %d \r\n", heap_watermark);
+    #endif
     switch (DRV_MIIM_Status(sysObj.drvMiim))
     {
         case (SYS_STATUS)SYS_STATUS_READY:

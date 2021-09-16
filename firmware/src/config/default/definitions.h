@@ -71,6 +71,8 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "app_udp_task.h"
+#include "app_shdsl_task.h"
+#include "app_amak_parser_task.h"
 #include "app_service_uart_task.h"
 
 

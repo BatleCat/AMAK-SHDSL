@@ -493,6 +493,8 @@ SYS_ASSERT(sysObj.tcpip != SYS_MODULE_OBJ_INVALID, "TCPIP_STACK_Init Failed" );
 
 
     APP_UDP_TASK_Initialize();
+    APP_SHDSL_TASK_Initialize();
+    APP_AMAK_PARSER_TASK_Initialize();
     APP_SERVICE_UART_TASK_Initialize();
 
 
