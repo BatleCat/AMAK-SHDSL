@@ -207,7 +207,7 @@ void APP_UDP_TASK_Tasks ( void )
                     // Get the number of bytes of free space available in the transmit buffer.
                     nFreeSpace = SYS_CONSOLE_WriteFreeBufferCountGet(myConsoleHandle);
                     // wait console bufer empty
-                    while ( ( nFreeSpace < 1000 ) && ( nFreeSpace != -1 ) ) 
+                    while ( ( nFreeSpace < (SYS_CONSOLE_PRINT_BUFFER_SIZE - 20) ) && ( nFreeSpace != -1 ) ) 
                     {
                         taskYIELD();
                         nFreeSpace = SYS_CONSOLE_WriteFreeBufferCountGet(myConsoleHandle);
@@ -260,7 +260,7 @@ void APP_UDP_TASK_Tasks ( void )
                     // Get the number of bytes of free space available in the transmit buffer.
                     nFreeSpace = SYS_CONSOLE_WriteFreeBufferCountGet(myConsoleHandle);
                     // wait console bufer empty
-                    while ( ( nFreeSpace < 1000 ) && ( nFreeSpace != -1 ) ) 
+                    while ( ( nFreeSpace < (SYS_CONSOLE_PRINT_BUFFER_SIZE - 20) ) && ( nFreeSpace != -1 ) ) 
                     {
                         taskYIELD();
                         nFreeSpace = SYS_CONSOLE_WriteFreeBufferCountGet(myConsoleHandle);
@@ -422,79 +422,13 @@ void APP_UDP_TASK_Tasks ( void )
             }
                 
             const TCPIP_MAC_OBJECT* pEthMacObject = TCPIP_STACK_MACObjectGet(app_udp_taskData.netH);
-//            pEthMacObject->TCPIP_MAC_Tasks
-//                    pEthMacObject
             if(0 != pEthMacObject)
             {    // valid MAC object pointer
                 #ifdef ENABLE_CONSOLE_MESSAGE
                     SYS_CONSOLE_MESSAGE(" APP_UDP_TASK: Get MAC object: Ok \r\n");
                     SYS_CONSOLE_PRINT  (" APP_UDP_TASK: MAC name: %s \r\n", pEthMacObject->macName);
                 #endif
-                switch ( (*pEthMacObject->TCPIP_MAC_Status)(sysObj.tcpip) )
-                {
-                    case SYS_STATUS_READY:
-                        #ifdef ENABLE_CONSOLE_MESSAGE
-                            SYS_CONSOLE_MESSAGE(" APP_UDP_TASK: MAC status: Ready \r\n");
-                        #endif
-                        break;
-                    case SYS_STATUS_BUSY:
-                        #ifdef ENABLE_CONSOLE_MESSAGE
-                            SYS_CONSOLE_MESSAGE(" APP_UDP_TASK: MAC status: Busy \r\n");
-                        #endif
-                        break;
-                    case SYS_STATUS_ERROR:
-                        #ifdef ENABLE_CONSOLE_MESSAGE
-                            SYS_CONSOLE_MESSAGE(" APP_UDP_TASK: MAC status: Error! \r\n");
-                        #endif
-                        break;
-                    default:
-                        #ifdef ENABLE_CONSOLE_MESSAGE
-                            SYS_CONSOLE_MESSAGE(" APP_UDP_TASK: MAC status: unknown status \r\n");
-                        #endif
-                        break;
-                }
                     
-                DRV_HANDLE hMac = (*pEthMacObject->TCPIP_MAC_Open)(pEthMacObject->macId, DRV_IO_INTENT_READWRITE);
-                if(DRV_HANDLE_INVALID != hMac)
-                {   
-                    #ifdef ENABLE_CONSOLE_MESSAGE
-                        SYS_CONSOLE_MESSAGE(" APP_UDP_TASK: Open MAC object: Ok \r\n");
-                        SYS_CONSOLE_MESSAGE(" APP_UDP_TASK: MAC link check: ");
-                        if ( true == (*pEthMacObject->TCPIP_MAC_LinkCheck)(hMac) )
-                        {
-                            SYS_CONSOLE_MESSAGE("up \r\n");
-                        }
-                        else
-                        {
-                            SYS_CONSOLE_MESSAGE("down \r\n");
-                        }
-                    #endif
-
-                    // can use the MAC handle to access a MAC function
-//                    TCPIP_MAC_RX_STATISTICS rxStatistics;
-//                    TCPIP_MAC_TX_STATISTICS txStatistics;
-//                    TCPIP_MAC_RES macRes = (*pEthMacObject->TCPIP_MAC_StatisticsGet)(hMac, &rxStatistics, &txStatistics);
-        
-                    TCPIP_MAC_PARAMETERS MacParams;
-                    (*pEthMacObject->TCPIP_MAC_ParametersGet)(hMac, &MacParams);
-                    #ifdef ENABLE_CONSOLE_MESSAGE
-                        SYS_CONSOLE_MESSAGE (   " APP_UDP_TASK: MAC parameters get: Ok \r\n");
-                        SYS_CONSOLE_PRINT   (   "               MAC address = %.2X:%.2X:%.2X:%.2X:%.2X:%.2X \r\n", 
-                                                MacParams.ifPhyAddress.v[0], 
-                                                MacParams.ifPhyAddress.v[1], 
-                                                MacParams.ifPhyAddress.v[2],
-                                                MacParams.ifPhyAddress.v[3], 
-                                                MacParams.ifPhyAddress.v[4], 
-                                                MacParams.ifPhyAddress.v[5]
-                                            );
-                    #endif
-                }
-                else
-                {
-                    #ifdef ENABLE_CONSOLE_MESSAGE
-                        SYS_CONSOLE_MESSAGE(" APP_UDP_TASK: Open MAC object: Invalid handle. Error! \r\n");
-                    #endif
-                }
             }
             else
             {
@@ -502,20 +436,20 @@ void APP_UDP_TASK_Tasks ( void )
                     SYS_CONSOLE_MESSAGE(" APP_UDP_TASK: Get MAC object: Error! \r\n");
                 #endif
             }
-            //----------------------------------------------------------------
-//            TCPIP_MAC_Open(const SYS_MODULE_INDEX drvIndex,  const DRV_IO_INTENT intent);
-//            
+            //------------------------------------------------------------------
+            
+//            #ifdef ENABLE_CONSOLE_MESSAGE
+//                SYS_CONSOLE_MESSAGE(" APP_UDP_TASK: UDP_STATE_WAIT_SERVER_OPEN\r\n");
+//            #endif
+//            app_udp_taskData.state = APP_UDP_TASK_STATE_WAIT_SERVER_OPEN;
+//            app_udp_taskData.error = APP_UDP_TASK_ERROR_NO;
             
             #ifdef ENABLE_CONSOLE_MESSAGE
-                SYS_CONSOLE_MESSAGE(" APP_UDP_TASK: UDP_STATE_WAIT_SERVER_OPEN\r\n");
+                SYS_CONSOLE_MESSAGE(" APP_UDP_TASK: UDP_STATE_WAIT_CLIENT_OPEN\r\n");
             #endif
-            app_udp_taskData.state = APP_UDP_TASK_STATE_WAIT_SERVER_OPEN;
-//            #ifdef ENABLE_CONSOLE_MESSAGE
-//                SYS_CONSOLE_MESSAGE(" APP_UDP_TASK: State machine -> UDP_STATE_Error (for wait state)\r\n");
-//            #endif
-//            app_udp_taskData.state = APP_UDP_TASK_STATE_Error;
+            app_udp_taskData.state = APP_UDP_TASK_STATE_WAIT_CLIENT_OPEN;
             app_udp_taskData.error = APP_UDP_TASK_ERROR_NO;
-            
+
             taskYIELD();
             break;
         }
@@ -532,7 +466,7 @@ void APP_UDP_TASK_Tasks ( void )
                     // Get the number of bytes of free space available in the transmit buffer.
                     nFreeSpace = SYS_CONSOLE_WriteFreeBufferCountGet(myConsoleHandle);
                     // wait console bufer empty
-                    while ( ( nFreeSpace < 1000 ) && ( nFreeSpace != -1 ) ) 
+                    while ( ( nFreeSpace < (SYS_CONSOLE_PRINT_BUFFER_SIZE - 20) ) && ( nFreeSpace != -1 ) ) 
                     {
                         taskYIELD();
                         nFreeSpace = SYS_CONSOLE_WriteFreeBufferCountGet(myConsoleHandle);
@@ -561,13 +495,17 @@ void APP_UDP_TASK_Tasks ( void )
 //                        SYS_CONSOLE_MESSAGE(" APP_UDP_TASK: UDP bind: Ok \r\n");
 //                    #endif
 //                }
-                #ifdef ENABLE_CONSOLE_MESSAGE
-                    SYS_CONSOLE_MESSAGE(" APP_UDP_TASK: State machine -> UDP_STATE_WAIT_CLIENT_OPEN\r\n");
-                #endif
-                app_udp_taskData.state = APP_UDP_TASK_STATE_WAIT_CLIENT_OPEN;
-//                app_udp_taskData.state = APP_UDP_TASK_STATE_Rx;
-                app_udp_taskData.error = APP_UDP_TASK_ERROR_NO;
+//                #ifdef ENABLE_CONSOLE_MESSAGE
+//                    SYS_CONSOLE_MESSAGE(" APP_UDP_TASK: State machine -> UDP_STATE_WAIT_CLIENT_OPEN\r\n");
+//                #endif
+//                app_udp_taskData.state = APP_UDP_TASK_STATE_WAIT_CLIENT_OPEN;
+//                app_udp_taskData.error = APP_UDP_TASK_ERROR_NO;
 
+                #ifdef ENABLE_CONSOLE_MESSAGE
+                    SYS_CONSOLE_MESSAGE(" APP_UDP_TASK: State machine -> UDP_STATE_Rx\r\n");
+                #endif
+                app_udp_taskData.state = APP_UDP_TASK_STATE_Rx;
+                app_udp_taskData.error = APP_UDP_TASK_ERROR_NO;
             }
             //-----------------------------------------------------------------
             UDP_SOCKET_INFO socket_info;
@@ -614,7 +552,7 @@ void APP_UDP_TASK_Tasks ( void )
                     // Get the number of bytes of free space available in the transmit buffer.
                     nFreeSpace = SYS_CONSOLE_WriteFreeBufferCountGet(myConsoleHandle);
                     // wait console bufer empty
-                    while ( ( nFreeSpace < 1000 ) && ( nFreeSpace != -1 ) ) 
+                    while ( ( nFreeSpace < (SYS_CONSOLE_PRINT_BUFFER_SIZE - 20) ) && ( nFreeSpace != -1 ) ) 
                     {
                         taskYIELD();
                         nFreeSpace = SYS_CONSOLE_WriteFreeBufferCountGet(myConsoleHandle);
@@ -630,7 +568,8 @@ void APP_UDP_TASK_Tasks ( void )
                 #ifdef ENABLE_CONSOLE_MESSAGE
                     SYS_CONSOLE_MESSAGE(" APP_UDP_TASK: UDP client open: Ok \r\n");
                 #endif
-                if ( true == TCPIP_UDP_Bind( app_udp_taskData.udp_tx_socket, IP_ADDRESS_TYPE_IPV4, app_udp_taskData.local_port, &(app_udp_taskData.local_adr) ) )
+//                if ( true == TCPIP_UDP_Bind( app_udp_taskData.udp_tx_socket, IP_ADDRESS_TYPE_IPV4, app_udp_taskData.local_port, &(app_udp_taskData.local_adr) ) )
+                if ( true == TCPIP_UDP_Bind( app_udp_taskData.udp_tx_socket, IP_ADDRESS_TYPE_IPV4, 1501, &(app_udp_taskData.local_adr) ) )
 //                if ( true == TCPIP_UDP_RemoteBind( app_udp_taskData.udp_tx_socket, IP_ADDRESS_TYPE_IPV4, app_udp_taskData.dest_port, &(app_udp_taskData.dest_adr) ) )
                 {
                     #ifdef ENABLE_CONSOLE_MESSAGE
@@ -665,7 +604,7 @@ void APP_UDP_TASK_Tasks ( void )
                     // Get the number of bytes of free space available in the transmit buffer.
                     nFreeSpace = SYS_CONSOLE_WriteFreeBufferCountGet(myConsoleHandle);
                     // wait console bufer empty
-                    while ( ( nFreeSpace < 1000 ) && ( nFreeSpace != -1 ) ) 
+                    while ( ( nFreeSpace < (SYS_CONSOLE_PRINT_BUFFER_SIZE - 20) ) && ( nFreeSpace != -1 ) ) 
                     {
                         taskYIELD();
                         nFreeSpace = SYS_CONSOLE_WriteFreeBufferCountGet(myConsoleHandle);
@@ -681,21 +620,20 @@ void APP_UDP_TASK_Tasks ( void )
                 #ifdef ENABLE_CONSOLE_MESSAGE
                     SYS_CONSOLE_MESSAGE(" APP_UDP_TASK: TCPIP_UDP_IsConnected\r\n");
                 #endif
-                app_udp_taskData.state = APP_UDP_TASK_STATE_Rx;
                 //-----------------------------------------------------------------
-                if ( true == TCPIP_UDP_Bind( app_udp_taskData.udp_tx_socket, IP_ADDRESS_TYPE_IPV4, app_udp_taskData.local_port, &(app_udp_taskData.local_adr) ) )
-//                if ( true == TCPIP_UDP_RemoteBind( app_udp_taskData.udp_tx_socket, IP_ADDRESS_TYPE_IPV4, app_udp_taskData.dest_port, &(app_udp_taskData.dest_adr) ) )
-                {
-                    #ifdef ENABLE_CONSOLE_MESSAGE
-                        SYS_CONSOLE_MESSAGE(" APP_UDP_TASK: UDP bind: Ok \r\n");
-                    #endif
-                }
-                else
-                {
-                    #ifdef ENABLE_CONSOLE_MESSAGE
-                        SYS_CONSOLE_MESSAGE(" APP_UDP_TASK: UDP bind: Error! \r\n");
-                    #endif
-                }
+//                if ( true == TCPIP_UDP_Bind( app_udp_taskData.udp_tx_socket, IP_ADDRESS_TYPE_IPV4, app_udp_taskData.local_port, &(app_udp_taskData.local_adr) ) )
+////                if ( true == TCPIP_UDP_RemoteBind( app_udp_taskData.udp_tx_socket, IP_ADDRESS_TYPE_IPV4, app_udp_taskData.dest_port, &(app_udp_taskData.dest_adr) ) )
+//                {
+//                    #ifdef ENABLE_CONSOLE_MESSAGE
+//                        SYS_CONSOLE_MESSAGE(" APP_UDP_TASK: UDP bind: Ok \r\n");
+//                    #endif
+//                }
+//                else
+//                {
+//                    #ifdef ENABLE_CONSOLE_MESSAGE
+//                        SYS_CONSOLE_MESSAGE(" APP_UDP_TASK: UDP bind: Error! \r\n");
+//                    #endif
+//                }
                 //-----------------------------------------------------------------
                 UDP_SOCKET_INFO socket_info;
                 TCPIP_UDP_SocketInfoGet(app_udp_taskData.udp_tx_socket, &socket_info);
@@ -724,6 +662,17 @@ void APP_UDP_TASK_Tasks ( void )
                     SYS_CONSOLE_PRINT(">> ", socket_info.txSize);
                 #endif
                 //-----------------------------------------------------------------
+//                #ifdef ENABLE_CONSOLE_MESSAGE
+//                    SYS_CONSOLE_MESSAGE(" APP_UDP_TASK: UDP_STATE_Rx\r\n");
+//                #endif
+//                app_udp_taskData.state = APP_UDP_TASK_STATE_Rx;
+//                app_udp_taskData.error = APP_UDP_TASK_ERROR_NO;
+
+                #ifdef ENABLE_CONSOLE_MESSAGE
+                    SYS_CONSOLE_MESSAGE(" APP_UDP_TASK: UDP_STATE_WAIT_SERVER_OPEN\r\n");
+                #endif
+                app_udp_taskData.state = APP_UDP_TASK_STATE_WAIT_SERVER_OPEN;
+                app_udp_taskData.error = APP_UDP_TASK_ERROR_NO;
             }
             taskYIELD();
             break;
@@ -741,7 +690,7 @@ void APP_UDP_TASK_Tasks ( void )
                     // Get the number of bytes of free space available in the transmit buffer.
                     nFreeSpace = SYS_CONSOLE_WriteFreeBufferCountGet(myConsoleHandle);
                     // wait console bufer empty
-                    while ( ( nFreeSpace < 1000 ) && ( nFreeSpace != -1 ) ) 
+                    while ( ( nFreeSpace < (SYS_CONSOLE_PRINT_BUFFER_SIZE - 20) ) && ( nFreeSpace != -1 ) ) 
                     {
                         taskYIELD();
                         nFreeSpace = SYS_CONSOLE_WriteFreeBufferCountGet(myConsoleHandle);
@@ -764,15 +713,48 @@ void APP_UDP_TASK_Tasks ( void )
                 app_udp_taskData.event_info.data_len = TCPIP_UDP_ArrayGet(app_udp_taskData.udp_rx_socket, app_udp_taskData.event_info.pData, read_len);
                 app_udp_taskData.event_info.event_id = (ENUM_EVENT_TYPE)EVENT_TYPE_AMAK_UDP_POCKET;
                 
+                #ifdef ENABLE_CONSOLE_MESSAGE
+                {
+                    SYS_CONSOLE_MESSAGE(" APP_UDP_TASK: an UDP-packet receive\r\n");
+                    UDP_SOCKET_INFO socket_info;
+                    TCPIP_UDP_SocketInfoGet(app_udp_taskData.udp_rx_socket, &socket_info);
+                    
+                    TCPIP_NET_HANDLE    netH;
+                    const char          *netName;
+                    const char          *netBiosName;
+                    char                str_ip_adr[20];
+
+                    netH = socket_info.hNet;
+                    netName = TCPIP_STACK_NetNameGet(netH);
+                    netBiosName = TCPIP_STACK_NetBIOSName(netH);
+                    ipAddr.Val = TCPIP_STACK_NetAddress(netH);
+                    TCPIP_Helper_IPAddressToString( &ipAddr, str_ip_adr, sizeof(str_ip_adr) );
+
+                    SYS_CONSOLE_MESSAGE(" APP_UDP_TASK: --== Rx socket ==--\r\n");
+
+                    SYS_CONSOLE_PRINT("    Interface %s on host %s \r\n", netName, netBiosName);
+                    SYS_CONSOLE_PRINT(" IP Address: %s \r\n", str_ip_adr);
+                    TCPIP_Helper_IPAddressToString( &(socket_info.destIPaddress.v4Add), str_ip_adr, sizeof(str_ip_adr) );
+                    SYS_CONSOLE_PRINT("APP_UDP_TASK: Dest   IP %s \r\n", str_ip_adr);
+                    TCPIP_Helper_IPAddressToString( &(socket_info.sourceIPaddress.v4Add), str_ip_adr, sizeof(str_ip_adr) );
+                    SYS_CONSOLE_PRINT("APP_UDP_TASK: Source IP %s \r\n", str_ip_adr);
+                    TCPIP_Helper_IPAddressToString( &(socket_info.localIPaddress.v4Add), str_ip_adr, sizeof(str_ip_adr) );
+                    SYS_CONSOLE_PRINT("APP_UDP_TASK: Local  IP %s \r\n", str_ip_adr);
+                    TCPIP_Helper_IPAddressToString( &(socket_info.remoteIPaddress.v4Add), str_ip_adr, sizeof(str_ip_adr) );
+                    SYS_CONSOLE_PRINT("APP_UDP_TASK: Remote IP %s \r\n", str_ip_adr);
+                    SYS_CONSOLE_PRINT("APP_UDP_TASK: Local  port %d \r\n",  socket_info.localPort);
+                    SYS_CONSOLE_PRINT("APP_UDP_TASK: Remote port %d \r\n",  socket_info.remotePort);
+                    SYS_CONSOLE_PRINT("APP_UDP_TASK: rxQueue size %d \r\n", socket_info.rxQueueSize);
+                    SYS_CONSOLE_PRINT("APP_UDP_TASK: tx size %d \r\n", socket_info.txSize);
+                }
+                #endif
+                
                 TCPIP_UDP_Discard(app_udp_taskData.udp_rx_socket);
                 
                 free(app_udp_taskData.event_info.pData);
                 app_udp_taskData.event_info.data_len = 0;
 //                xQueueSend( eventQueue_app_amak_parser_task, (void*)&( app_udp_taskData.event_info ), 0 );//portMAX_DELAY); 
 
-              #ifdef ENABLE_CONSOLE_MESSAGE
-                  SYS_CONSOLE_MESSAGE(" APP_UDP_TASK: an UDP-packet receive\r\n");
-              #endif
             }
 
             taskYIELD();
@@ -807,7 +789,7 @@ void APP_UDP_TASK_Tasks ( void )
                         // Get the number of bytes of free space available in the transmit buffer.
                         nFreeSpace = SYS_CONSOLE_WriteFreeBufferCountGet(myConsoleHandle);
                         // wait console bufer empty
-                        while ( ( nFreeSpace < 1000 ) && ( nFreeSpace != -1 ) ) 
+                        while ( ( nFreeSpace < (SYS_CONSOLE_PRINT_BUFFER_SIZE - 20) ) && ( nFreeSpace != -1 ) ) 
                         {
                             taskYIELD();
                             nFreeSpace = SYS_CONSOLE_WriteFreeBufferCountGet(myConsoleHandle);
