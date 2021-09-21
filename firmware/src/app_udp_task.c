@@ -438,18 +438,18 @@ void APP_UDP_TASK_Tasks ( void )
             }
             //------------------------------------------------------------------
             
-//            #ifdef ENABLE_CONSOLE_MESSAGE
-//                SYS_CONSOLE_MESSAGE(" APP_UDP_TASK: UDP_STATE_WAIT_SERVER_OPEN\r\n");
-//            #endif
-//            app_udp_taskData.state = APP_UDP_TASK_STATE_WAIT_SERVER_OPEN;
-//            app_udp_taskData.error = APP_UDP_TASK_ERROR_NO;
-            
             #ifdef ENABLE_CONSOLE_MESSAGE
-                SYS_CONSOLE_MESSAGE(" APP_UDP_TASK: UDP_STATE_WAIT_CLIENT_OPEN\r\n");
+                SYS_CONSOLE_MESSAGE(" APP_UDP_TASK: UDP_STATE_WAIT_SERVER_OPEN\r\n");
             #endif
-            // first - client open, second - server open... else client open error
-            app_udp_taskData.state = APP_UDP_TASK_STATE_WAIT_CLIENT_OPEN;   
+            app_udp_taskData.state = APP_UDP_TASK_STATE_WAIT_SERVER_OPEN;
             app_udp_taskData.error = APP_UDP_TASK_ERROR_NO;
+            
+//            #ifdef ENABLE_CONSOLE_MESSAGE
+//                SYS_CONSOLE_MESSAGE(" APP_UDP_TASK: UDP_STATE_WAIT_CLIENT_OPEN\r\n");
+//            #endif
+//            // first - client open, second - server open... else client open error
+//            app_udp_taskData.state = APP_UDP_TASK_STATE_WAIT_CLIENT_OPEN;   
+//            app_udp_taskData.error = APP_UDP_TASK_ERROR_NO;
 
             taskYIELD();
             break;
@@ -476,7 +476,8 @@ void APP_UDP_TASK_Tasks ( void )
                 }
             #endif
             //------------------------------------------------------------------
-            app_udp_taskData.udp_rx_socket = TCPIP_UDP_ServerOpen( IP_ADDRESS_TYPE_IPV4, app_udp_taskData.local_port, &(app_udp_taskData.local_adr) );
+            app_udp_taskData.udp_rx_socket = TCPIP_UDP_ServerOpen( IP_ADDRESS_TYPE_IPV4, app_udp_taskData.local_port, 0 );
+//            app_udp_taskData.udp_rx_socket = TCPIP_UDP_ServerOpen( IP_ADDRESS_TYPE_IPV4, app_udp_taskData.local_port, &(app_udp_taskData.local_adr) );
             if (INVALID_SOCKET != app_udp_taskData.udp_rx_socket)
             {
                 #ifdef ENABLE_CONSOLE_MESSAGE
@@ -484,29 +485,38 @@ void APP_UDP_TASK_Tasks ( void )
                 #endif
 //                TCPIP_UDP_SourceIPAddressSet(app_udp_taskData.udp_rx_socket, IP_ADDRESS_TYPE_IPV4, &local_adr);
 //                TCPIP_UDP_DestinationIPAddressSet(app_udp_taskData.udp_rx_socket, IP_ADDRESS_TYPE_IPV4, &dest_adr);
-                if ( true == TCPIP_UDP_RemoteBind( app_udp_taskData.udp_rx_socket, IP_ADDRESS_TYPE_IPV4, app_udp_taskData.dest_port, &(app_udp_taskData.dest_adr) ) )
-                {
-                    #ifdef ENABLE_CONSOLE_MESSAGE
-                        SYS_CONSOLE_MESSAGE(" APP_UDP_TASK: UDP remote bind: Ok \r\n");
-                    #endif
-                }
+
+//                if ( true == TCPIP_UDP_RemoteBind( app_udp_taskData.udp_rx_socket, IP_ADDRESS_TYPE_IPV4, app_udp_taskData.dest_port, &(app_udp_taskData.dest_adr) ) )
+//                {
+//                    #ifdef ENABLE_CONSOLE_MESSAGE
+//                        SYS_CONSOLE_MESSAGE(" APP_UDP_TASK: UDP remote bind: Ok \r\n");
+//                    #endif
+//                }
+                    
 //                if ( true == TCPIP_UDP_Bind( app_udp_taskData.udp_rx_socket, IP_ADDRESS_TYPE_IPV4, app_udp_taskData.local_port, &(app_udp_taskData.local_adr) ) )
 //                {
 //                    #ifdef ENABLE_CONSOLE_MESSAGE
 //                        SYS_CONSOLE_MESSAGE(" APP_UDP_TASK: UDP bind: Ok \r\n");
 //                    #endif
 //                }
+                    
+                #ifdef ENABLE_CONSOLE_MESSAGE
+                    SYS_CONSOLE_MESSAGE(" APP_UDP_TASK: State machine -> UDP_STATE_WAIT_SERVER_LISTEN\r\n");
+                #endif
+                app_udp_taskData.state = APP_UDP_TASK_STATE_WAIT_SERVER_LISTEN;
+                app_udp_taskData.error = APP_UDP_TASK_ERROR_NO;
+
 //                #ifdef ENABLE_CONSOLE_MESSAGE
 //                    SYS_CONSOLE_MESSAGE(" APP_UDP_TASK: State machine -> UDP_STATE_WAIT_CLIENT_OPEN\r\n");
 //                #endif
 //                app_udp_taskData.state = APP_UDP_TASK_STATE_WAIT_CLIENT_OPEN;
 //                app_udp_taskData.error = APP_UDP_TASK_ERROR_NO;
 
-                #ifdef ENABLE_CONSOLE_MESSAGE
-                    SYS_CONSOLE_MESSAGE(" APP_UDP_TASK: State machine -> UDP_STATE_Rx\r\n");
-                #endif
-                app_udp_taskData.state = APP_UDP_TASK_STATE_Rx;
-                app_udp_taskData.error = APP_UDP_TASK_ERROR_NO;
+//                #ifdef ENABLE_CONSOLE_MESSAGE
+//                    SYS_CONSOLE_MESSAGE(" APP_UDP_TASK: State machine -> UDP_STATE_Rx\r\n");
+//                #endif
+//                app_udp_taskData.state = APP_UDP_TASK_STATE_Rx;
+//                app_udp_taskData.error = APP_UDP_TASK_ERROR_NO;
             }
             //-----------------------------------------------------------------
             UDP_SOCKET_INFO socket_info;
@@ -540,6 +550,101 @@ void APP_UDP_TASK_Tasks ( void )
             taskYIELD();
             break;
         }
+        //----------------------------------------------------------------------
+        case APP_UDP_TASK_STATE_WAIT_SERVER_LISTEN:
+        {
+            //------------------------------------------------------------------
+            uint16_t read_len;
+            //------------------------------------------------------------------
+            #ifdef ENABLE_CONSOLE_MESSAGE
+                ssize_t nFreeSpace;
+                SYS_CONSOLE_HANDLE myConsoleHandle;
+                myConsoleHandle = SYS_CONSOLE_HandleGet(SYS_CONSOLE_DEFAULT_INSTANCE);
+                if (SYS_CONSOLE_HANDLE_INVALID != myConsoleHandle)
+                {
+                    // Found a valid handle to the console instance
+                    // Get the number of bytes of free space available in the transmit buffer.
+                    nFreeSpace = SYS_CONSOLE_WriteFreeBufferCountGet(myConsoleHandle);
+                    // wait console bufer empty
+                    while ( ( nFreeSpace < (SYS_CONSOLE_PRINT_BUFFER_SIZE - 20) ) && ( nFreeSpace != -1 ) ) 
+                    {
+                        taskYIELD();
+                        nFreeSpace = SYS_CONSOLE_WriteFreeBufferCountGet(myConsoleHandle);
+
+                    }
+                }
+            #endif
+            //------------------------------------------------------------------
+            read_len = TCPIP_UDP_GetIsReady(app_udp_taskData.udp_rx_socket);
+
+            if (read_len > 0)
+            {
+                app_udp_taskData.state = APP_UDP_TASK_STATE_WAIT_CLIENT_OPEN;
+                
+                app_udp_taskData.event_info.pData = malloc(read_len);
+                configASSERT(app_udp_taskData.event_info.pData);
+                
+                app_udp_taskData.event_info.data_len = TCPIP_UDP_ArrayGet(app_udp_taskData.udp_rx_socket, app_udp_taskData.event_info.pData, read_len);
+                app_udp_taskData.event_info.event_id = (ENUM_EVENT_TYPE)EVENT_TYPE_AMAK_UDP_POCKET;
+                
+                UDP_SOCKET_INFO socket_info;
+                TCPIP_UDP_SocketInfoGet(app_udp_taskData.udp_rx_socket, &socket_info);
+                
+                #ifdef ENABLE_CONSOLE_MESSAGE
+                {
+                    SYS_CONSOLE_MESSAGE(" APP_UDP_TASK: an UDP-packet receive\r\n");
+                    
+                    TCPIP_NET_HANDLE    netH;
+                    const char          *netName;
+                    const char          *netBiosName;
+                    char                str_ip_adr[20];
+
+                    netH = socket_info.hNet;
+                    netName = TCPIP_STACK_NetNameGet(netH);
+                    netBiosName = TCPIP_STACK_NetBIOSName(netH);
+                    ipAddr.Val = TCPIP_STACK_NetAddress(netH);
+                    TCPIP_Helper_IPAddressToString( &ipAddr, str_ip_adr, sizeof(str_ip_adr) );
+
+                    SYS_CONSOLE_MESSAGE(" APP_UDP_TASK: --== Rx socket ==--\r\n");
+
+                    SYS_CONSOLE_PRINT("    Interface %s on host %s \r\n", netName, netBiosName);
+                    SYS_CONSOLE_PRINT(" IP Address: %s \r\n", str_ip_adr);
+                    TCPIP_Helper_IPAddressToString( &(socket_info.destIPaddress.v4Add), str_ip_adr, sizeof(str_ip_adr) );
+                    SYS_CONSOLE_PRINT("APP_UDP_TASK: Dest   IP %s \r\n", str_ip_adr);
+                    TCPIP_Helper_IPAddressToString( &(socket_info.sourceIPaddress.v4Add), str_ip_adr, sizeof(str_ip_adr) );
+                    SYS_CONSOLE_PRINT("APP_UDP_TASK: Source IP %s \r\n", str_ip_adr);
+                    TCPIP_Helper_IPAddressToString( &(socket_info.localIPaddress.v4Add), str_ip_adr, sizeof(str_ip_adr) );
+                    SYS_CONSOLE_PRINT("APP_UDP_TASK: Local  IP %s \r\n", str_ip_adr);
+                    TCPIP_Helper_IPAddressToString( &(socket_info.remoteIPaddress.v4Add), str_ip_adr, sizeof(str_ip_adr) );
+                    SYS_CONSOLE_PRINT("APP_UDP_TASK: Remote IP %s \r\n", str_ip_adr);
+                    SYS_CONSOLE_PRINT("APP_UDP_TASK: Local  port %d \r\n",  socket_info.localPort);
+                    SYS_CONSOLE_PRINT("APP_UDP_TASK: Remote port %d \r\n",  socket_info.remotePort);
+                    SYS_CONSOLE_PRINT("APP_UDP_TASK: rxQueue size %d \r\n", socket_info.rxQueueSize);
+                    SYS_CONSOLE_PRINT("APP_UDP_TASK: tx size %d \r\n", socket_info.txSize);
+                    
+                    
+                }
+                #endif
+
+                app_udp_taskData.dest_port = socket_info.remotePort;
+                app_udp_taskData.dest_adr.v4Add.Val = socket_info.sourceIPaddress.v4Add.Val;
+//                app_udp_taskData.dest_adr.v4Add.Val = socket_info.remoteIPaddress.v4Add.Val;
+                
+                TCPIP_UDP_Discard(app_udp_taskData.udp_rx_socket);
+                
+                free(app_udp_taskData.event_info.pData);
+                app_udp_taskData.event_info.data_len = 0;
+//                xQueueSend( eventQueue_app_amak_parser_task, (void*)&( app_udp_taskData.event_info ), 0 );//portMAX_DELAY); 
+
+            }
+            //------------------------------------------------------------------
+
+            taskYIELD();
+            
+            break;
+        }
+            
+        //----------------------------------------------------------------------
         case APP_UDP_TASK_STATE_WAIT_CLIENT_OPEN:
         {
             //------------------------------------------------------------------
@@ -592,6 +697,7 @@ void APP_UDP_TASK_Tasks ( void )
             taskYIELD();
             break;
         }
+        //----------------------------------------------------------------------
         case APP_UDP_TASK_STATE_WAIT_FOR_CONNECTION:
         {
             //------------------------------------------------------------------
@@ -649,21 +755,22 @@ void APP_UDP_TASK_Tasks ( void )
                     SYS_CONSOLE_PRINT(">> ", socket_info.txSize);
                 #endif
                 //-----------------------------------------------------------------
-//                #ifdef ENABLE_CONSOLE_MESSAGE
-//                    SYS_CONSOLE_MESSAGE(" APP_UDP_TASK: UDP_STATE_Rx\r\n");
-//                #endif
-//                app_udp_taskData.state = APP_UDP_TASK_STATE_Rx;
-//                app_udp_taskData.error = APP_UDP_TASK_ERROR_NO;
-
                 #ifdef ENABLE_CONSOLE_MESSAGE
-                    SYS_CONSOLE_MESSAGE(" APP_UDP_TASK: UDP_STATE_WAIT_SERVER_OPEN\r\n");
+                    SYS_CONSOLE_MESSAGE(" APP_UDP_TASK: UDP_STATE_Rx\r\n");
                 #endif
-                app_udp_taskData.state = APP_UDP_TASK_STATE_WAIT_SERVER_OPEN;
+                app_udp_taskData.state = APP_UDP_TASK_STATE_Rx;
                 app_udp_taskData.error = APP_UDP_TASK_ERROR_NO;
+
+//                #ifdef ENABLE_CONSOLE_MESSAGE
+//                    SYS_CONSOLE_MESSAGE(" APP_UDP_TASK: UDP_STATE_WAIT_SERVER_OPEN\r\n");
+//                #endif
+//                app_udp_taskData.state = APP_UDP_TASK_STATE_WAIT_SERVER_OPEN;
+//                app_udp_taskData.error = APP_UDP_TASK_ERROR_NO;
             }
             taskYIELD();
             break;
         }
+        //----------------------------------------------------------------------
         case APP_UDP_TASK_STATE_Rx:
         {
             //------------------------------------------------------------------
@@ -805,7 +912,7 @@ void APP_UDP_TASK_Tasks ( void )
             
             break;
         }
-        
+        //----------------------------------------------------------------------
         case APP_UDP_TASK_STATE_Tx:
         {
             app_udp_taskData.state = APP_UDP_TASK_STATE_Rx;
