@@ -447,7 +447,8 @@ void APP_UDP_TASK_Tasks ( void )
             #ifdef ENABLE_CONSOLE_MESSAGE
                 SYS_CONSOLE_MESSAGE(" APP_UDP_TASK: UDP_STATE_WAIT_CLIENT_OPEN\r\n");
             #endif
-            app_udp_taskData.state = APP_UDP_TASK_STATE_WAIT_CLIENT_OPEN;
+            // first - client open, second - server open... else client open error
+            app_udp_taskData.state = APP_UDP_TASK_STATE_WAIT_CLIENT_OPEN;   
             app_udp_taskData.error = APP_UDP_TASK_ERROR_NO;
 
             taskYIELD();
@@ -568,8 +569,8 @@ void APP_UDP_TASK_Tasks ( void )
                 #ifdef ENABLE_CONSOLE_MESSAGE
                     SYS_CONSOLE_MESSAGE(" APP_UDP_TASK: UDP client open: Ok \r\n");
                 #endif
-//                if ( true == TCPIP_UDP_Bind( app_udp_taskData.udp_tx_socket, IP_ADDRESS_TYPE_IPV4, app_udp_taskData.local_port, &(app_udp_taskData.local_adr) ) )
-                if ( true == TCPIP_UDP_Bind( app_udp_taskData.udp_tx_socket, IP_ADDRESS_TYPE_IPV4, 1501, &(app_udp_taskData.local_adr) ) )
+                if ( true == TCPIP_UDP_Bind( app_udp_taskData.udp_tx_socket, IP_ADDRESS_TYPE_IPV4, app_udp_taskData.local_port, &(app_udp_taskData.local_adr) ) )
+//                if ( true == TCPIP_UDP_Bind( app_udp_taskData.udp_tx_socket, IP_ADDRESS_TYPE_IPV4, 1501, &(app_udp_taskData.local_adr) ) )
 //                if ( true == TCPIP_UDP_RemoteBind( app_udp_taskData.udp_tx_socket, IP_ADDRESS_TYPE_IPV4, app_udp_taskData.dest_port, &(app_udp_taskData.dest_adr) ) )
                 {
                     #ifdef ENABLE_CONSOLE_MESSAGE
@@ -621,20 +622,6 @@ void APP_UDP_TASK_Tasks ( void )
                     SYS_CONSOLE_MESSAGE(" APP_UDP_TASK: TCPIP_UDP_IsConnected\r\n");
                 #endif
                 //-----------------------------------------------------------------
-//                if ( true == TCPIP_UDP_Bind( app_udp_taskData.udp_tx_socket, IP_ADDRESS_TYPE_IPV4, app_udp_taskData.local_port, &(app_udp_taskData.local_adr) ) )
-////                if ( true == TCPIP_UDP_RemoteBind( app_udp_taskData.udp_tx_socket, IP_ADDRESS_TYPE_IPV4, app_udp_taskData.dest_port, &(app_udp_taskData.dest_adr) ) )
-//                {
-//                    #ifdef ENABLE_CONSOLE_MESSAGE
-//                        SYS_CONSOLE_MESSAGE(" APP_UDP_TASK: UDP bind: Ok \r\n");
-//                    #endif
-//                }
-//                else
-//                {
-//                    #ifdef ENABLE_CONSOLE_MESSAGE
-//                        SYS_CONSOLE_MESSAGE(" APP_UDP_TASK: UDP bind: Error! \r\n");
-//                    #endif
-//                }
-                //-----------------------------------------------------------------
                 UDP_SOCKET_INFO socket_info;
                 TCPIP_UDP_SocketInfoGet(app_udp_taskData.udp_tx_socket, &socket_info);
                 #ifdef ENABLE_CONSOLE_MESSAGE
@@ -680,6 +667,8 @@ void APP_UDP_TASK_Tasks ( void )
         case APP_UDP_TASK_STATE_Rx:
         {
             //------------------------------------------------------------------
+            uint16_t read_len;
+            //------------------------------------------------------------------
             #ifdef ENABLE_CONSOLE_MESSAGE
                 ssize_t nFreeSpace;
                 SYS_CONSOLE_HANDLE myConsoleHandle;
@@ -699,11 +688,9 @@ void APP_UDP_TASK_Tasks ( void )
                 }
             #endif
             //------------------------------------------------------------------
-
             app_udp_taskData.state = APP_UDP_TASK_STATE_Tx;
-
             //------------------------------------------------------------------
-            uint16_t read_len = TCPIP_UDP_GetIsReady(app_udp_taskData.udp_rx_socket);
+            read_len = TCPIP_UDP_GetIsReady(app_udp_taskData.udp_rx_socket);
 
             if (read_len > 0)
             {
@@ -746,6 +733,7 @@ void APP_UDP_TASK_Tasks ( void )
                     SYS_CONSOLE_PRINT("APP_UDP_TASK: Remote port %d \r\n",  socket_info.remotePort);
                     SYS_CONSOLE_PRINT("APP_UDP_TASK: rxQueue size %d \r\n", socket_info.rxQueueSize);
                     SYS_CONSOLE_PRINT("APP_UDP_TASK: tx size %d \r\n", socket_info.txSize);
+                    
                 }
                 #endif
                 
@@ -756,6 +744,62 @@ void APP_UDP_TASK_Tasks ( void )
 //                xQueueSend( eventQueue_app_amak_parser_task, (void*)&( app_udp_taskData.event_info ), 0 );//portMAX_DELAY); 
 
             }
+            //------------------------------------------------------------------
+            read_len = TCPIP_UDP_GetIsReady(app_udp_taskData.udp_tx_socket);
+
+            if (read_len > 0)
+            {
+                app_udp_taskData.event_info.pData = malloc(read_len);
+                configASSERT(app_udp_taskData.event_info.pData);
+                
+                app_udp_taskData.event_info.data_len = TCPIP_UDP_ArrayGet(app_udp_taskData.udp_tx_socket, app_udp_taskData.event_info.pData, read_len);
+                app_udp_taskData.event_info.event_id = (ENUM_EVENT_TYPE)EVENT_TYPE_AMAK_UDP_POCKET;
+                
+                #ifdef ENABLE_CONSOLE_MESSAGE
+                {
+                    SYS_CONSOLE_MESSAGE(" APP_UDP_TASK: an UDP-packet receive\r\n");
+                    UDP_SOCKET_INFO socket_info;
+                    TCPIP_UDP_SocketInfoGet(app_udp_taskData.udp_tx_socket, &socket_info);
+                    
+                    TCPIP_NET_HANDLE    netH;
+                    const char          *netName;
+                    const char          *netBiosName;
+                    char                str_ip_adr[20];
+
+                    netH = socket_info.hNet;
+                    netName = TCPIP_STACK_NetNameGet(netH);
+                    netBiosName = TCPIP_STACK_NetBIOSName(netH);
+                    ipAddr.Val = TCPIP_STACK_NetAddress(netH);
+                    TCPIP_Helper_IPAddressToString( &ipAddr, str_ip_adr, sizeof(str_ip_adr) );
+
+                    SYS_CONSOLE_MESSAGE(" APP_UDP_TASK: --== Tx socket ==--\r\n");
+
+                    SYS_CONSOLE_PRINT("    Interface %s on host %s \r\n", netName, netBiosName);
+                    SYS_CONSOLE_PRINT(" IP Address: %s \r\n", str_ip_adr);
+                    TCPIP_Helper_IPAddressToString( &(socket_info.destIPaddress.v4Add), str_ip_adr, sizeof(str_ip_adr) );
+                    SYS_CONSOLE_PRINT("APP_UDP_TASK: Dest   IP %s \r\n", str_ip_adr);
+                    TCPIP_Helper_IPAddressToString( &(socket_info.sourceIPaddress.v4Add), str_ip_adr, sizeof(str_ip_adr) );
+                    SYS_CONSOLE_PRINT("APP_UDP_TASK: Source IP %s \r\n", str_ip_adr);
+                    TCPIP_Helper_IPAddressToString( &(socket_info.localIPaddress.v4Add), str_ip_adr, sizeof(str_ip_adr) );
+                    SYS_CONSOLE_PRINT("APP_UDP_TASK: Local  IP %s \r\n", str_ip_adr);
+                    TCPIP_Helper_IPAddressToString( &(socket_info.remoteIPaddress.v4Add), str_ip_adr, sizeof(str_ip_adr) );
+                    SYS_CONSOLE_PRINT("APP_UDP_TASK: Remote IP %s \r\n", str_ip_adr);
+                    SYS_CONSOLE_PRINT("APP_UDP_TASK: Local  port %d \r\n",  socket_info.localPort);
+                    SYS_CONSOLE_PRINT("APP_UDP_TASK: Remote port %d \r\n",  socket_info.remotePort);
+                    SYS_CONSOLE_PRINT("APP_UDP_TASK: rxQueue size %d \r\n", socket_info.rxQueueSize);
+                    SYS_CONSOLE_PRINT("APP_UDP_TASK: tx size %d \r\n", socket_info.txSize);
+                    
+                }
+                #endif
+                
+                TCPIP_UDP_Discard(app_udp_taskData.udp_tx_socket);
+                
+                free(app_udp_taskData.event_info.pData);
+                app_udp_taskData.event_info.data_len = 0;
+//                xQueueSend( eventQueue_app_amak_parser_task, (void*)&( app_udp_taskData.event_info ), 0 );//portMAX_DELAY); 
+
+            }
+            //------------------------------------------------------------------
 
             taskYIELD();
             
