@@ -66,6 +66,10 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 //char APP_Hostname_Buffer[MAX_URL_SIZE];
 //char APP_Port_Buffer[6];
 //char APP_Message_Buffer[MAX_URL_SIZE];
+static char buffer1[80];
+static char buffer2[80];
+static char buffer3[80];
+static char buffer4[80];
 bool APP_Send_Packet = false;
 bool APP_Stop_Packet = false;
 //-----------------------------------------------------------------------------
@@ -74,18 +78,25 @@ static void _APP_Commands_stopUDPtest(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, cha
 static void _APP_Commands_SetOptions (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv);
 static void _APP_Commands_GetOptions (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv);
 static void _APP_Commands_NetUp      (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv);
+
 static void _APP_Commands_GetNetInfo (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv);
 static void _APP_Commands_GetMACStatistics(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv);
+static void _APP_Commands_GetTCPIPHeapWatermark(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv);
+static void _APP_Commands_icmpEchoRequest(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv);
+static void _APP_Commands_ARPRequest(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv);
 //-----------------------------------------------------------------------------
 static const SYS_CMD_DESCRIPTOR    appCmdTbl[]=
 {
-    {"test",                    _APP_Commands_testAnswer,              ": Comand test is received"},
-    {"stop",                    _APP_Commands_stopUDPtest,             ": Comand stop is received"},
-    {"getudppacketoptions",     _APP_Commands_GetOptions,              ": Gets the hostname, port and message"},
-    {"setudppacketoptions",     _APP_Commands_SetOptions,              ": Sets the current hostname, port, and message"},
-    {"net_up",                  _APP_Commands_NetUp,                   ": Net up"},
-    {"get_net_info",            _APP_Commands_GetNetInfo,              ": Get current net info"},
-    {"get_mac_stat",            _APP_Commands_GetMACStatistics,        ": Get current net MAC statistics"},
+    {"test",                        _APP_Commands_testAnswer,              ": Comand test is received"},
+    {"stop",                        _APP_Commands_stopUDPtest,             ": Comand stop is received"},
+    {"getudppacketoptions",         _APP_Commands_GetOptions,              ": Gets the hostname, port and message"},
+    {"setudppacketoptions",         _APP_Commands_SetOptions,              ": Sets the current hostname, port, and message"},
+    {"net_up",                      _APP_Commands_NetUp,                   ": Net up"},
+    {"get_net_info",                _APP_Commands_GetNetInfo,              ": Get current net info"},
+    {"get_mac_stat",                _APP_Commands_GetMACStatistics,        ": Get current net MAC statistics"},
+    {"get_tcpip_heap_watermark",    _APP_Commands_GetTCPIPHeapWatermark,   ": Get TCPIP heap watermark"},
+    {"send_icmp",                   _APP_Commands_icmpEchoRequest,         ": Send ICMP echo request"},
+    {"send_arp",                    _APP_Commands_ARPRequest,              ": Send ARP request"},
 };
 //-----------------------------------------------------------------------------
 bool APP_Commands_Init()
@@ -101,7 +112,7 @@ bool APP_Commands_Init()
         return false;
     }
 #ifdef ENABLE_CONSOLE_MESSAGE
-        SYS_CONSOLE_MESSAGE("APP commands: Init compilte.\r\n");
+        SYS_CONSOLE_MESSAGE("APP commands: Init compilte\r\n");
 #endif
 //    strcpy(APP_Hostname_Buffer, "10.2.22.220");
 //    strcpy(APP_Port_Buffer, "1500");
@@ -115,16 +126,18 @@ bool APP_Commands_Init()
 void _APP_Commands_testAnswer(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv)
 {
 //    SYS_DEBUG_MESSAGE(SYS_ERROR_DEBUG, "APP commands: Test \r\n");
-#ifdef ENABLE_CONSOLE_MESSAGE
-    SYS_CONSOLE_MESSAGE("APP commands: Test \r\n");
-#endif
+    
+//#ifdef ENABLE_CONSOLE_MESSAGE
+//    SYS_CONSOLE_MESSAGE("APP commands: Test \r\n");
+//#endif
     
     const void* cmdIoParam = pCmdIO->cmdIoParam;
-
+    
+    (*pCmdIO->pCmdApi->msg)(cmdIoParam, "APP commands: Test \r\n");
     if (argc != 1)
     {
-        (*pCmdIO->pCmdApi->msg)(cmdIoParam, "Usage: test\r\n");
-        (*pCmdIO->pCmdApi->msg)(cmdIoParam, "Ex: test\r\n");
+        (*pCmdIO->pCmdApi->msg)(cmdIoParam, "       Usage: test\r\n");
+        (*pCmdIO->pCmdApi->msg)(cmdIoParam, "          Ex: test\r\n");
         return;
     }
 //    EVENT_INFO ev;
@@ -139,16 +152,19 @@ void _APP_Commands_testAnswer(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv
 static void _APP_Commands_stopUDPtest(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv)
 {
 //    SYS_DEBUG_MESSAGE(SYS_ERROR_DEBUG, "APP commands: Stop \r\n");
-#ifdef ENABLE_CONSOLE_MESSAGE
-    SYS_CONSOLE_MESSAGE("APP commands: Stop \r\n");
-#endif
+    
+//#ifdef ENABLE_CONSOLE_MESSAGE
+//    SYS_CONSOLE_MESSAGE("APP commands: Stop \r\n");
+//#endif
     
     const void* cmdIoParam = pCmdIO->cmdIoParam;
 
+    (*pCmdIO->pCmdApi->msg)(cmdIoParam, "APP commands: Stop \r\n");
+    
     if (argc != 1)
     {
-        (*pCmdIO->pCmdApi->msg)(cmdIoParam, "Usage: stop\r\n");
-        (*pCmdIO->pCmdApi->msg)(cmdIoParam, "Ex: stop\r\n");
+        (*pCmdIO->pCmdApi->msg)(cmdIoParam, "       Usage: stop\r\n");
+        (*pCmdIO->pCmdApi->msg)(cmdIoParam, "          Ex: stop\r\n");
         return;
     }
     LED2_Toggle();
@@ -159,16 +175,19 @@ static void _APP_Commands_stopUDPtest(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, cha
 static void _APP_Commands_SetOptions(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv)
 {
 //    SYS_DEBUG_MESSAGE(SYS_ERROR_DEBUG, "APP commands: Set options \r\n");
-#ifdef ENABLE_CONSOLE_MESSAGE
-    SYS_CONSOLE_MESSAGE("APP commands: Set options \r\n");
-#endif
+    
+//#ifdef ENABLE_CONSOLE_MESSAGE
+//    SYS_CONSOLE_MESSAGE("APP commands: Set options \r\n");
+//#endif
     
     const void* cmdIoParam = pCmdIO->cmdIoParam;
 
+    (*pCmdIO->pCmdApi->msg)(cmdIoParam, "APP commands: Set options \r\n");
+
     if (argc != 4)
     {
-        (*pCmdIO->pCmdApi->msg)(cmdIoParam, "Usage: setudppacketoptions <hostname> <port> <message>\r\n");
-        (*pCmdIO->pCmdApi->msg)(cmdIoParam, "Ex: setudppacketoptions 10.0.1.4 9760 Hello\r\n");
+        (*pCmdIO->pCmdApi->msg)(cmdIoParam, "       Usage: setudppacketoptions <hostname> <port> <message>\r\n");
+        (*pCmdIO->pCmdApi->msg)(cmdIoParam, "          Ex: setudppacketoptions 10.0.1.4 9760 Hello\r\n");
         return;
     }
     LED3_Toggle();
@@ -184,16 +203,19 @@ static void _APP_Commands_SetOptions(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char
 void _APP_Commands_GetOptions(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv)
 {
 //    SYS_DEBUG_MESSAGE(SYS_ERROR_DEBUG,"APP commands: Get options \r\n");
-#ifdef ENABLE_CONSOLE_MESSAGE
-    SYS_CONSOLE_MESSAGE("APP commands: Get options \r\n");
-#endif
+    
+//#ifdef ENABLE_CONSOLE_MESSAGE
+//    SYS_CONSOLE_MESSAGE("APP commands: Get options \r\n");
+//#endif
     
     const void* cmdIoParam = pCmdIO->cmdIoParam;
     
+    (*pCmdIO->pCmdApi->msg)(cmdIoParam, "APP commands: Get options \r\n");
+    
     if (argc != 1)
     {
-        (*pCmdIO->pCmdApi->msg)(cmdIoParam, "Usage: getudppacketoptions\r\n");
-        (*pCmdIO->pCmdApi->msg)(cmdIoParam, "Ex: getudppacketoptions\r\n");
+        (*pCmdIO->pCmdApi->msg)(cmdIoParam, "       Usage: getudppacketoptions\r\n");
+        (*pCmdIO->pCmdApi->msg)(cmdIoParam, "          Ex: getudppacketoptions\r\n");
         return;
     }
 /*
@@ -210,16 +232,18 @@ void _APP_Commands_GetOptions(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv
 //-----------------------------------------------------------------------------
 static void _APP_Commands_NetUp(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv)
 {
-#ifdef ENABLE_CONSOLE_MESSAGE
-    SYS_CONSOLE_MESSAGE("APP commands: net_up \r\n");
-#endif
+//#ifdef ENABLE_CONSOLE_MESSAGE
+//    SYS_CONSOLE_MESSAGE("APP commands: net_up \r\n");
+//#endif
     
     const void* cmdIoParam = pCmdIO->cmdIoParam;
     
+    (*pCmdIO->pCmdApi->msg)(cmdIoParam, "---------------------------------\r\n");
+    (*pCmdIO->pCmdApi->msg)(cmdIoParam, "APP commands: net_up \r\n");
     if (argc != 1)
     {
-        (*pCmdIO->pCmdApi->msg)(cmdIoParam, "Usage: net_up \r\n");
-        (*pCmdIO->pCmdApi->msg)(cmdIoParam, "Ex: net_up \r\n");
+        (*pCmdIO->pCmdApi->msg)(cmdIoParam, "       Usage: net_up \r\n");
+        (*pCmdIO->pCmdApi->msg)(cmdIoParam, "          Ex: net_up \r\n");
         return;
     }
 
@@ -243,37 +267,50 @@ static void _APP_Commands_NetUp(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** ar
         },
     };
     bool is_net_up = TCPIP_STACK_NetUp(netH, TCPIP_HOSTS_CONFIGURATION);
+    
+    if (is_net_up)
+    {
+        (*pCmdIO->pCmdApi->msg)(cmdIoParam, "              Net up: Ok \r\n");
+    }
+    else
+    {
+        (*pCmdIO->pCmdApi->msg)(cmdIoParam, "              Net up: Error! \r\n");
+    }
 
-    #ifdef ENABLE_CONSOLE_MESSAGE
-        SYS_CONSOLE_MESSAGE ("---------------------------------\r\n");
-        if (is_net_up)
-        {
-            SYS_CONSOLE_MESSAGE("    Net up: Ok \r\n");
-        }
-        else
-        {
-            SYS_CONSOLE_MESSAGE("    Net up: Error! \r\n");
-        }
-    #endif
+//    #ifdef ENABLE_CONSOLE_MESSAGE
+//        SYS_CONSOLE_MESSAGE ("---------------------------------\r\n");
+//        if (is_net_up)
+//        {
+//            SYS_CONSOLE_MESSAGE("    Net up: Ok \r\n");
+//        }
+//        else
+//        {
+//            SYS_CONSOLE_MESSAGE("    Net up: Error! \r\n");
+//        }
+//    #endif
 
     return;
 }
 //-----------------------------------------------------------------------------
 static void _APP_Commands_GetNetInfo(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv)
 {
-#ifdef ENABLE_CONSOLE_MESSAGE
-    SYS_CONSOLE_MESSAGE("APP commands: get_net_info \r\n");
-#endif
+//#ifdef ENABLE_CONSOLE_MESSAGE
+//    SYS_CONSOLE_MESSAGE("APP commands: get_net_info \r\n");
+//#endif
     
     const void* cmdIoParam = pCmdIO->cmdIoParam;
     
+    (*pCmdIO->pCmdApi->msg)(cmdIoParam, "---------------------------------\r\n");
+    (*pCmdIO->pCmdApi->msg)(cmdIoParam, "APP commands: get_net_info \r\n");
+
     if (argc != 1)
     {
-        (*pCmdIO->pCmdApi->msg)(cmdIoParam, "Usage: get_net_info \r\n");
-        (*pCmdIO->pCmdApi->msg)(cmdIoParam, "Ex: get_net_info \r\n");
+        (*pCmdIO->pCmdApi->msg)(cmdIoParam, "       Usage: get_net_info \r\n");
+        (*pCmdIO->pCmdApi->msg)(cmdIoParam, "          Ex: get_net_info \r\n");
         return;
     }
 
+//    TCPIP_NET_HANDLE netH = TCPIP_STACK_IndexToNet(0);
     TCPIP_NET_HANDLE netH = TCPIP_STACK_NetHandleGet("PIC32INT");
     IPV4_ADDR        ipAddr;
     ipAddr.Val = TCPIP_STACK_NetAddress(netH);
@@ -284,31 +321,42 @@ static void _APP_Commands_GetNetInfo(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char
 
     TCPIP_Helper_IPAddressToString( &ipAddr, str_ip_adr, sizeof(str_ip_adr) );
     TCPIP_Helper_MACAddressToString( pMACAddr, str_mac_adr, sizeof(str_mac_adr) );
-
-    #ifdef ENABLE_CONSOLE_MESSAGE
-        SYS_CONSOLE_MESSAGE ("---------------------------------\r\n");
-        SYS_CONSOLE_PRINT   ("    NetName:     %s \r\n", 
-                                TCPIP_STACK_NetNameGet(netH) );
-        SYS_CONSOLE_PRINT   ("    IP  address: %s \r\n", str_ip_adr);
-        SYS_CONSOLE_PRINT   ("    MAC address: %s \r\n", str_mac_adr);
-        SYS_CONSOLE_MESSAGE ("---------------------------------\r\n");
-    #endif
+//                   "APP commands: get_net_info \r\n"
+    sprintf(buffer1, "    NetName:     %s \r\n", TCPIP_STACK_NetNameGet(netH) );
+    sprintf(buffer2, "    IP  address: %s \r\n", str_ip_adr);
+    sprintf(buffer3, "    MAC address: %s \r\n", str_mac_adr);
+    (*pCmdIO->pCmdApi->msg)(cmdIoParam, buffer1);
+    (*pCmdIO->pCmdApi->msg)(cmdIoParam, buffer2);
+    (*pCmdIO->pCmdApi->msg)(cmdIoParam, buffer3);
+    (*pCmdIO->pCmdApi->msg)(cmdIoParam, "---------------------------------\r\n");
+    
+//    #ifdef ENABLE_CONSOLE_MESSAGE
+//        SYS_CONSOLE_MESSAGE ("---------------------------------\r\n");
+//        SYS_CONSOLE_PRINT   ("    NetName:     %s \r\n", 
+//                                TCPIP_STACK_NetNameGet(netH) );
+//        SYS_CONSOLE_PRINT   ("    IP  address: %s \r\n", str_ip_adr);
+//        SYS_CONSOLE_PRINT   ("    MAC address: %s \r\n", str_mac_adr);
+//        SYS_CONSOLE_MESSAGE ("---------------------------------\r\n");
+//    #endif
 
     return;
 }
 //-----------------------------------------------------------------------------
 static void _APP_Commands_GetMACStatistics(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv)
 {
-#ifdef ENABLE_CONSOLE_MESSAGE
-    SYS_CONSOLE_MESSAGE("APP commands: get_mac_stat \r\n");
-#endif
+//#ifdef ENABLE_CONSOLE_MESSAGE
+//    SYS_CONSOLE_MESSAGE("APP commands: get_mac_stat \r\n");
+//#endif
     
     const void* cmdIoParam = pCmdIO->cmdIoParam;
     
+    (*pCmdIO->pCmdApi->msg)(cmdIoParam, "---------------------------------\r\n");
+    (*pCmdIO->pCmdApi->msg)(cmdIoParam, "APP commands: get_mac_stat \r\n");
+    
     if (argc != 1)
     {
-        (*pCmdIO->pCmdApi->msg)(cmdIoParam, "Usage: get_mac_stat \r\n");
-        (*pCmdIO->pCmdApi->msg)(cmdIoParam, "Ex: get_mac_stat \r\n");
+        (*pCmdIO->pCmdApi->msg)(cmdIoParam, "       Usage: get_mac_stat \r\n");
+        (*pCmdIO->pCmdApi->msg)(cmdIoParam, "          Ex: get_mac_stat \r\n");
         return;
     }
     
@@ -317,45 +365,262 @@ static void _APP_Commands_GetMACStatistics(SYS_CMD_DEVICE_NODE* pCmdIO, int argc
     TCPIP_NET_HANDLE netH = TCPIP_STACK_NetHandleGet("PIC32INT");
 //    TCPIP_NET_HANDLE netH = TCPIP_STACK_IndexToNet(0);
     
-    if ( TCPIP_STACK_NetMACStatisticsGet(netH, &rxStatistics, &txStatistics) )
-    {
-        #ifdef ENABLE_CONSOLE_MESSAGE
-            SYS_CONSOLE_MESSAGE("---------------------------------------\r\n");
-            SYS_CONSOLE_MESSAGE("   Net MAC statistics: \r\n");
-            SYS_CONSOLE_PRINT  ("               Rx good packets = %d \r\n", rxStatistics.nRxOkPackets);
-            SYS_CONSOLE_PRINT  ("               Rx error packets = %d \r\n", rxStatistics.nRxErrorPackets);
-            SYS_CONSOLE_PRINT  ("               Tx good packets = %d \r\n", txStatistics.nTxOkPackets);
-            SYS_CONSOLE_PRINT  ("               Tx error packets = %d \r\n", txStatistics.nTxErrorPackets);
-            SYS_CONSOLE_MESSAGE("---------------------------------------\r\n");
-        #endif
+    const TCPIP_MAC_OBJECT* pEthMacObject = TCPIP_STACK_MACObjectGet(netH);
+    if(0 != pEthMacObject)
+    {    // valid MAC object pointer
+        (*pCmdIO->pCmdApi->msg)(cmdIoParam, "    Get MAC object: Ok \r\n");
+        sprintf(buffer1, "    MAC name: %s \r\n", pEthMacObject->macName);
+        (*pCmdIO->pCmdApi->msg)(cmdIoParam, buffer1);
+        
+        char str_mac_adr[25];
+        const TCPIP_MAC_ADDR* pMACAddr = (const TCPIP_MAC_ADDR*)TCPIP_STACK_NetAddressMac(netH);
+
+        TCPIP_Helper_MACAddressToString( pMACAddr, str_mac_adr, sizeof(str_mac_adr) );
+        sprintf(buffer3, "    MAC address: %s \r\n", str_mac_adr);
+        (*pCmdIO->pCmdApi->msg)(cmdIoParam, buffer3);
+
+        if ( TCPIP_STACK_NetMACStatisticsGet(netH, &rxStatistics, &txStatistics) )
+        {
+            (*pCmdIO->pCmdApi->msg)(cmdIoParam, "    Net MAC statistics: \r\n");
+            sprintf(buffer1, "    Rx good packets = %d \r\n", rxStatistics.nRxOkPackets);
+            (*pCmdIO->pCmdApi->msg)(cmdIoParam, buffer1);
+            sprintf(buffer2, "    Rx error packets = %d \r\n", rxStatistics.nRxErrorPackets);
+            (*pCmdIO->pCmdApi->msg)(cmdIoParam, buffer2);
+            sprintf(buffer3, "    Tx good packets = %d \r\n", txStatistics.nTxOkPackets);
+            (*pCmdIO->pCmdApi->msg)(cmdIoParam, buffer3);
+            sprintf(buffer4, "    Tx error packets = %d \r\n", txStatistics.nTxErrorPackets);
+            (*pCmdIO->pCmdApi->msg)(cmdIoParam, buffer4);
+
+    //        #ifdef ENABLE_CONSOLE_MESSAGE
+    //            SYS_CONSOLE_MESSAGE("---------------------------------------\r\n");
+    //            SYS_CONSOLE_MESSAGE("   Net MAC statistics: \r\n");
+    //            SYS_CONSOLE_PRINT  ("               Rx good packets = %d \r\n", rxStatistics.nRxOkPackets);
+    //            SYS_CONSOLE_PRINT  ("               Rx error packets = %d \r\n", rxStatistics.nRxErrorPackets);
+    //            SYS_CONSOLE_PRINT  ("               Tx good packets = %d \r\n", txStatistics.nTxOkPackets);
+    //            SYS_CONSOLE_PRINT  ("               Tx error packets = %d \r\n", txStatistics.nTxErrorPackets);
+    //            SYS_CONSOLE_MESSAGE("---------------------------------------\r\n");
+    //        #endif
+        }
     }
-    #ifdef ENABLE_CONSOLE_MESSAGE
-        TCPIP_STACK_HEAP_TYPE heapType = TCPIP_STACK_HEAP_TYPE_INTERNAL_HEAP;
-        TCPIP_STACK_HEAP_HANDLE heapH = TCPIP_STACK_HeapHandleGet( heapType, 0 );
-        size_t heap_watermark = TCPIP_STACK_HEAP_HighWatermark( heapH );
-        SYS_CONSOLE_PRINT   (" APP_UDP_TASK: heap high watermark: %d \r\n", heap_watermark);
-    #endif
+    else
+    {
+        (*pCmdIO->pCmdApi->msg)(cmdIoParam, "    Get MAC object: Error! \r\n");
+    }
+
     switch (DRV_MIIM_Status(sysObj.drvMiim))
     {
         case (SYS_STATUS)SYS_STATUS_READY:
-            #ifdef ENABLE_CONSOLE_MESSAGE
-                SYS_CONSOLE_MESSAGE("   Driver MIIM status: ready \r\n");
-            #endif
+                (*pCmdIO->pCmdApi->msg)(cmdIoParam, "    Driver MIIM status: ready \r\n");
             break;
         case (SYS_STATUS)SYS_STATUS_BUSY:
-            #ifdef ENABLE_CONSOLE_MESSAGE
-                SYS_CONSOLE_MESSAGE("   Driver MIIM status: busy \r\n");
-            #endif
+                (*pCmdIO->pCmdApi->msg)(cmdIoParam, "    Driver MIIM status: busy \r\n");
             break;
         case (SYS_STATUS)SYS_STATUS_ERROR:
-            #ifdef ENABLE_CONSOLE_MESSAGE
-                SYS_CONSOLE_MESSAGE("   Driver MIIM status: error! \r\n");
-            #endif
+                (*pCmdIO->pCmdApi->msg)(cmdIoParam, "    Driver MIIM status: error! \r\n");
             break;
         default:
             break;
     }
+    (*pCmdIO->pCmdApi->msg)(cmdIoParam, "---------------------------------------\r\n");
     return;
+}
+//-----------------------------------------------------------------------------
+static void _APP_Commands_GetTCPIPHeapWatermark(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv)
+{
+    const void* cmdIoParam = pCmdIO->cmdIoParam;
+
+    (*pCmdIO->pCmdApi->msg)(cmdIoParam, "-------------------------------------- \r\n");
+    (*pCmdIO->pCmdApi->msg)(cmdIoParam, "APP commands: get_tcpip_heap_watermark \r\n");
+    
+    if (argc != 1)
+    {
+        (*pCmdIO->pCmdApi->msg)(cmdIoParam, "       Usage: get_tcpip_heap_watermark \r\n");
+        (*pCmdIO->pCmdApi->msg)(cmdIoParam, "       Ex: get_tcpip_heap_watermark \r\n");
+        return;
+    }
+    
+//    #ifdef ENABLE_CONSOLE_MESSAGE
+//        SYS_CONSOLE_MESSAGE("APP commands: get_tcpip_heap_watermark \r\n");
+
+    TCPIP_STACK_HEAP_TYPE   heapType = TCPIP_STACK_HEAP_TYPE_INTERNAL_HEAP;
+    TCPIP_STACK_HEAP_HANDLE heapH    = TCPIP_STACK_HeapHandleGet( heapType, 0 );
+    size_t heap_watermark = TCPIP_STACK_HEAP_HighWatermark( heapH );
+
+    sprintf(buffer1, "    heap high watermark: %d \r\n", heap_watermark);
+    (*pCmdIO->pCmdApi->msg)(cmdIoParam, buffer1);
+     
+//        SYS_CONSOLE_PRINT   ("               heap high watermark: %d \r\n", heap_watermark);
+//    #endif
+}
+//-----------------------------------------------------------------------------
+static void _APP_Commands_icmpEchoRequest(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv)
+{
+    //--------------------------------------------------------------------------
+    const void* cmdIoParam = pCmdIO->cmdIoParam;
+    
+    (*pCmdIO->pCmdApi->msg)(cmdIoParam, "-------------------------------------- \r\n");
+    (*pCmdIO->pCmdApi->msg)(cmdIoParam, "APP commands: send_icmp \r\n");
+
+    if (argc != 2)
+    {
+        (*pCmdIO->pCmdApi->msg)(cmdIoParam, "       Usage: send_icmp <ip address> \r\n");
+        (*pCmdIO->pCmdApi->msg)(cmdIoParam, "          Ex: send_icmp 192.168.1.1 \r\n");
+        return;
+    }
+    //--------------------------------------------------------------------------
+    IPV4_ADDR remoteAddress = { .v = {10, 2, 22, 220} };
+    uint16_t  mySequenceNumber = 1;
+    uint16_t  myId = 0x1234;
+
+    if ( true == TCPIP_Helper_StringToIPAddress(argv[1], &remoteAddress) )
+    {
+        if ( TCPIP_ICMP_EchoRequestSend(0, &remoteAddress, mySequenceNumber, myId) == ICMP_ECHO_OK )
+        {
+            (*pCmdIO->pCmdApi->msg)(cmdIoParam, "    ICMP echo request send: Ok \r\n");
+        }
+        else
+        {
+            (*pCmdIO->pCmdApi->msg)(cmdIoParam, "    ICMP echo request send: Error! \r\n");
+        }
+    }
+    else
+    {
+        (*pCmdIO->pCmdApi->msg)(cmdIoParam, "    Error!!! Bad IP address! \r\n");
+    }
+
+//    #ifdef ENABLE_CONSOLE_MESSAGE
+//        IPV4_ADDR remoteAddress = { .v = {10, 2, 22, 220} };
+//        uint16_t mySequenceNumber = 1;
+//        uint16_t myId = 0x1234;
+//        
+//        bool TCPIP_Helper_StringToIPAddress(const char* str, IPV4_ADDR* IPAddress);
+//        
+//        if ( TCPIP_ICMP_EchoRequestSend(0, &remoteAddress, mySequenceNumber, myId) == ICMP_ECHO_OK )
+//        {
+//            SYS_CONSOLE_MESSAGE(" APP_UDP_TASK: ICMP echo request send: Ok \r\n");
+//        }
+//        else
+//        {
+//            SYS_CONSOLE_MESSAGE(" APP_UDP_TASK: ICMP echo request send: Error! \r\n");
+//        }
+//    #endif
+}
+//-----------------------------------------------------------------------------
+static void _APP_Commands_ARPRequest(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv)
+{
+    //--------------------------------------------------------------------------
+    const void* cmdIoParam = pCmdIO->cmdIoParam;
+    
+    (*pCmdIO->pCmdApi->msg)(cmdIoParam, "-------------------------------------- \r\n");
+    (*pCmdIO->pCmdApi->msg)(cmdIoParam, "APP commands: send_arp \r\n");
+
+    if (argc != 2)
+    {
+        (*pCmdIO->pCmdApi->msg)(cmdIoParam, "       Usage: send_arp <ip address> \r\n");
+        (*pCmdIO->pCmdApi->msg)(cmdIoParam, "          Ex: send_arp 192.168.1.1 \r\n");
+        return;
+    }
+    //--------------------------------------------------------------------------
+    IPV4_ADDR remoteAddress = { .v = {10, 2, 22, 220} };
+
+    if ( true == TCPIP_Helper_StringToIPAddress(argv[1], &remoteAddress) )
+    {
+        //------------------------------------------------------------------
+//        TCPIP_NET_HANDLE netH = TCPIP_STACK_IndexToNet(0);
+        TCPIP_NET_HANDLE netH = TCPIP_STACK_NetHandleGet("PIC32INT");
+        TCPIP_ARP_RESULT arp_res;
+        
+        (*pCmdIO->pCmdApi->msg)(cmdIoParam, "    ARP resolve: ");
+        //----------------------------------------------------------------------
+        arp_res = TCPIP_ARP_Resolve(netH, &(remoteAddress) );
+
+        switch (arp_res)
+        {
+            case ARP_RES_OK:
+                (*pCmdIO->pCmdApi->msg)(cmdIoParam, "operation succeeded \r\n");
+                break;
+            case ARP_RES_ENTRY_NEW:
+                (*pCmdIO->pCmdApi->msg)(cmdIoParam, "operation succeeded and a new entry was added \r\n");
+                break;
+            case ARP_RES_ENTRY_SOLVED:
+                (*pCmdIO->pCmdApi->msg)(cmdIoParam, "the required entry is already solved \r\n");
+                break;
+            case ARP_RES_ENTRY_QUEUED:
+                (*pCmdIO->pCmdApi->msg)(cmdIoParam, "the required entry was already queued \r\n");
+                break;
+            case ARP_RES_ENTRY_EXIST:
+                (*pCmdIO->pCmdApi->msg)(cmdIoParam, "the required entry was already cached \r\n");
+                break;
+            case ARP_RES_PERM_QUOTA_EXCEED:
+                (*pCmdIO->pCmdApi->msg)(cmdIoParam, "info: the quota of permanent entries was exceeded \r\n");
+                break;
+            case ARP_RES_PROBE_OK:
+                (*pCmdIO->pCmdApi->msg)(cmdIoParam, "requested probe sent \r\n");
+                break;
+            case ARP_RES_NO_ENTRY:
+                (*pCmdIO->pCmdApi->msg)(cmdIoParam, "no such entry exists \r\n");
+                break;
+            case ARP_RES_CACHE_FULL:
+                (*pCmdIO->pCmdApi->msg)(cmdIoParam, "the cache is full and no entry could be removed to make room \r\n");
+                break;
+            case ARP_RES_TX_FAILED:
+                (*pCmdIO->pCmdApi->msg)(cmdIoParam, "failed to transmit an ARP message \r\n");
+                break;
+            case ARP_RES_BAD_INDEX:
+                (*pCmdIO->pCmdApi->msg)(cmdIoParam, "bad query index \r\n");
+                break;
+            case ARP_RES_BAD_ADDRESS:
+                (*pCmdIO->pCmdApi->msg)(cmdIoParam, "bad IP address specified \r\n");
+                break;
+            case ARP_RES_NO_INTERFACE:
+                (*pCmdIO->pCmdApi->msg)(cmdIoParam, "no such interface exists \r\n");
+                break;
+            case ARP_RES_BAD_TYPE:
+                (*pCmdIO->pCmdApi->msg)(cmdIoParam, "no such type is valid/exists \r\n");
+                break;
+            case ARP_RES_CONFIGURE_ERR:
+                (*pCmdIO->pCmdApi->msg)(cmdIoParam, "interface is configuring now, no ARP probes \r\n");
+                break;
+            case ARP_RES_PROBE_FAILED:
+                (*pCmdIO->pCmdApi->msg)(cmdIoParam, "requested probe failed \r\n");
+                break;
+            default:
+                (*pCmdIO->pCmdApi->msg)(cmdIoParam, "unknown error!!! \r\n");
+                break;
+        }
+        //----------------------------------------------------------------------
+        TCPIP_MAC_ADDR MACAddr;
+        int dog_time = 100;
+        (*pCmdIO->pCmdApi->msg)(cmdIoParam, "    ARP resolve MAC address: ");
+        while ( true != TCPIP_ARP_IsResolved(netH, &(remoteAddress), &MACAddr) )
+        {
+            (*pCmdIO->pCmdApi->msg)(cmdIoParam, ".");
+            dog_time--;
+            if (0 == dog_time)
+            {
+                (*pCmdIO->pCmdApi->msg)(cmdIoParam, "\r\n    ARP resolve MAC address: Time out! \r\n ");
+                break;
+            }
+            taskYIELD();
+        }
+        (*pCmdIO->pCmdApi->msg)(cmdIoParam, " \r\n");
+        if ( true == TCPIP_ARP_IsResolved(netH, &(remoteAddress), &MACAddr) )
+        {
+            (*pCmdIO->pCmdApi->msg)(cmdIoParam, "    ARP resolve MAC address: Ok  \r\n" );
+            sprintf(buffer1, "    MAC address = %.2X:%.2X:%.2X:%.2X:%.2X:%.2X \r\n", 
+                    MACAddr.v[0], MACAddr.v[1], MACAddr.v[2], MACAddr.v[3], MACAddr.v[4], MACAddr.v[5]);
+            (*pCmdIO->pCmdApi->msg)(cmdIoParam, buffer1);
+        }
+        else
+        {
+            (*pCmdIO->pCmdApi->msg)(cmdIoParam, "    ARP resolve MAC address: NOT success! \r\n");
+        }
+        //----------------------------------------------------------------------
+    }
+    else
+    {
+        (*pCmdIO->pCmdApi->msg)(cmdIoParam, "    Error!!! Bad IP address! \r\n");
+    }
 }
 //-----------------------------------------------------------------------------
 #undef ENABLE_CONSOLE_MESSAGE

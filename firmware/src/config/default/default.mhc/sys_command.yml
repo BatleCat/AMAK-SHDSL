@@ -5,6 +5,13 @@ children:
 - type: Symbols
   children:
   - type: Integer
+    attributes: {id: SYS_COMMAND_PRINT_BUFFER_SIZE}
+    children:
+    - type: Values
+      children:
+      - type: User
+        attributes: {value: '1024'}
+  - type: Integer
     attributes: {id: SYS_COMMAND_RTOS_DELAY}
     children:
     - type: Attributes
