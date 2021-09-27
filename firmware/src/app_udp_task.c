@@ -197,6 +197,7 @@ void APP_UDP_TASK_Tasks ( void )
         case APP_UDP_TASK_STATE_Start:
         {
             //------------------------------------------------------------------
+            // <editor-fold defaultstate="collapsed" desc="Wait until Console Buffer come free">
             #ifdef ENABLE_CONSOLE_MESSAGE
                 ssize_t nFreeSpace;
                 SYS_CONSOLE_HANDLE myConsoleHandle;
@@ -215,6 +216,7 @@ void APP_UDP_TASK_Tasks ( void )
                     }
                 }
             #endif
+            // </editor-fold>
             //------------------------------------------------------------------
             SYS_STATUS tcpipStat = TCPIP_STACK_Status(sysObj.tcpip);
             if(tcpipStat < 0)
@@ -251,6 +253,7 @@ void APP_UDP_TASK_Tasks ( void )
         case APP_UDP_TASK_STATE_WAIT_FOR_IP:
         {
             //------------------------------------------------------------------
+            // <editor-fold defaultstate="collapsed" desc="Wait until Console Buffer come free">
             #ifdef ENABLE_CONSOLE_MESSAGE
                 ssize_t nFreeSpace;
                 SYS_CONSOLE_HANDLE myConsoleHandle;
@@ -269,6 +272,7 @@ void APP_UDP_TASK_Tasks ( void )
                     }
                 }
             #endif
+            // </editor-fold>
             //------------------------------------------------------------------
             if( false == TCPIP_STACK_NetIsReady(app_udp_taskData.netH) )
             {
@@ -320,6 +324,7 @@ void APP_UDP_TASK_Tasks ( void )
         case APP_UDP_TASK_STATE_WAIT_SERVER_OPEN:
         {
             //------------------------------------------------------------------
+            // <editor-fold defaultstate="collapsed" desc="Wait until Console Buffer come free">
             #ifdef ENABLE_CONSOLE_MESSAGE
                 ssize_t nFreeSpace;
                 SYS_CONSOLE_HANDLE myConsoleHandle;
@@ -338,6 +343,7 @@ void APP_UDP_TASK_Tasks ( void )
                     }
                 }
             #endif
+            // </editor-fold>
             //------------------------------------------------------------------
             app_udp_taskData.udp_rx_socket = TCPIP_UDP_ServerOpen( IP_ADDRESS_TYPE_IPV4, app_udp_taskData.local_port, 0 );
 //            app_udp_taskData.udp_rx_socket = TCPIP_UDP_ServerOpen( IP_ADDRESS_TYPE_IPV4, app_udp_taskData.local_port, &(app_udp_taskData.local_adr) );
@@ -453,6 +459,7 @@ void APP_UDP_TASK_Tasks ( void )
             //------------------------------------------------------------------
             uint16_t read_len;
             //------------------------------------------------------------------
+            // <editor-fold defaultstate="collapsed" desc="Wait until Console Buffer come free">
             #ifdef ENABLE_CONSOLE_MESSAGE
                 ssize_t nFreeSpace;
                 SYS_CONSOLE_HANDLE myConsoleHandle;
@@ -471,6 +478,7 @@ void APP_UDP_TASK_Tasks ( void )
                     }
                 }
             #endif
+            // </editor-fold>
             //------------------------------------------------------------------
             read_len = TCPIP_UDP_GetIsReady(app_udp_taskData.udp_rx_socket);
 
@@ -547,6 +555,7 @@ void APP_UDP_TASK_Tasks ( void )
         case APP_UDP_TASK_STATE_WAIT_CLIENT_OPEN:
         {
             //------------------------------------------------------------------
+            // <editor-fold defaultstate="collapsed" desc="Wait until Console Buffer come free">
             #ifdef ENABLE_CONSOLE_MESSAGE
                 ssize_t nFreeSpace;
                 SYS_CONSOLE_HANDLE myConsoleHandle;
@@ -565,6 +574,7 @@ void APP_UDP_TASK_Tasks ( void )
                     }
                 }
             #endif
+            // </editor-fold>
             //------------------------------------------------------------------
             app_udp_taskData.udp_tx_socket = TCPIP_UDP_ClientOpen( IP_ADDRESS_TYPE_IPV4, app_udp_taskData.dest_port, &(app_udp_taskData.dest_adr) );
             if (INVALID_SOCKET != app_udp_taskData.udp_tx_socket)
@@ -623,6 +633,7 @@ void APP_UDP_TASK_Tasks ( void )
         case APP_UDP_TASK_STATE_WAIT_FOR_CONNECTION:
         {
             //------------------------------------------------------------------
+            // <editor-fold defaultstate="collapsed" desc="Wait until Console Buffer come free">
             #ifdef ENABLE_CONSOLE_MESSAGE
                 ssize_t nFreeSpace;
                 SYS_CONSOLE_HANDLE myConsoleHandle;
@@ -641,6 +652,7 @@ void APP_UDP_TASK_Tasks ( void )
                     }
                 }
             #endif
+            // </editor-fold>
             //------------------------------------------------------------------
             if ( true == TCPIP_UDP_IsConnected(app_udp_taskData.udp_tx_socket) )
 //            if (TCPIP_UDP_IsConnected(app_udp_taskData.udp_rx_socket))
@@ -731,6 +743,7 @@ void APP_UDP_TASK_Tasks ( void )
             //------------------------------------------------------------------
             uint16_t read_len;
             //------------------------------------------------------------------
+            // <editor-fold defaultstate="collapsed" desc="Wait until Console Buffer come free">
             #ifdef ENABLE_CONSOLE_MESSAGE
                 ssize_t nFreeSpace;
                 SYS_CONSOLE_HANDLE myConsoleHandle;
@@ -749,6 +762,7 @@ void APP_UDP_TASK_Tasks ( void )
                     }
                 }
             #endif
+            // </editor-fold>
             //------------------------------------------------------------------
             app_udp_taskData.state = APP_UDP_TASK_STATE_Tx;
             //------------------------------------------------------------------
@@ -884,6 +898,7 @@ void APP_UDP_TASK_Tasks ( void )
                  ( (ENUM_EVENT_TYPE)EVENT_TYPE_UART_SERVICE_POCKET == app_udp_taskData.event_info.event_id ) )
             {
                 //------------------------------------------------------------------
+                // <editor-fold defaultstate="collapsed" desc="Wait until Console Buffer come free">
                 #ifdef ENABLE_CONSOLE_MESSAGE
                     ssize_t nFreeSpace;
                     SYS_CONSOLE_HANDLE myConsoleHandle;
@@ -902,6 +917,7 @@ void APP_UDP_TASK_Tasks ( void )
                         }
                     }
                 #endif
+                // </editor-fold>
                 //------------------------------------------------------------------
                 #ifdef ENABLE_CONSOLE_MESSAGE
                     SYS_CONSOLE_MESSAGE(" APP_UDP_TASK: UDP-packet send start\r\n");
