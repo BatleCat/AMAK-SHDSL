@@ -216,13 +216,13 @@ files:
   security: NON_SECURE
   type: SOURCE
   userChecksum: 8FDD6248506F28B32C4F5FD9AA0D9C6F
-- generatedChecksum: 11E619CF65C66D03A9086FC9EFB84487
+- generatedChecksum: 892F3BDCCB05A4AE0436A770A12C996F
   logicalPath: config/default/peripheral/clk
   name: plib_clk.c
   physicalPath: peripheral/clk
   security: NON_SECURE
   type: SOURCE
-  userChecksum: 11E619CF65C66D03A9086FC9EFB84487
+  userChecksum: 892F3BDCCB05A4AE0436A770A12C996F
 - generatedChecksum: 2FEFEA0D4E94F5A5F3D76BAEC3D602E5
   logicalPath: config/default/peripheral/coretimer
   name: plib_coretimer.c
@@ -279,13 +279,13 @@ files:
   security: NON_SECURE
   type: SOURCE
   userChecksum: 162BBB1DB328D27F935CE22203D6A5BA
-- generatedChecksum: B272B2EB06FC4376B9EEB88671E27D74
+- generatedChecksum: 844B5535563F8399C03E2105085D14EB
   logicalPath: config/default/system/command
   name: sys_command.c
   physicalPath: system/command/src
   security: NON_SECURE
   type: SOURCE
-  userChecksum: B272B2EB06FC4376B9EEB88671E27D74
+  userChecksum: 844B5535563F8399C03E2105085D14EB
 - generatedChecksum: 20C22A19D5DC74DEBFC4CCCA83B6F603
   logicalPath: config/default/system/console
   name: sys_console.c
@@ -440,13 +440,13 @@ files:
   security: NON_SECURE
   type: HEADER
   userChecksum: BCDC1865B923B79D6B4BB4A6606CB111
-- generatedChecksum: C5E7228FC9233F1BDDA952AA77AAE7C9
+- generatedChecksum: D6845B020C59860A028A5AAB3B3E2348
   logicalPath: config/default
   name: FreeRTOSConfig.h
   physicalPath: ''
   security: NON_SECURE
   type: HEADER
-  userChecksum: C5E7228FC9233F1BDDA952AA77AAE7C9
+  userChecksum: D6845B020C59860A028A5AAB3B3E2348
 - generatedChecksum: 6AA4FBA4B9ED4676357BCC3B10E0A6D5
   logicalPath: FreeRTOS/Source/portable/MPLAB/PIC32MZ
   name: ISR_Support.h
@@ -531,13 +531,13 @@ files:
   security: NON_SECURE
   type: HEADER
   userChecksum: C7339BAAFE16E4F0DA1B8B27795504DB
-- generatedChecksum: EE6C79D86E2FF9AF0ACA40536E5DC0B3
+- generatedChecksum: 3DE03F6B9E755E39FC0ED8853CA4A4F8
   logicalPath: config/default
   name: configuration.h
   physicalPath: ''
   security: NON_SECURE
   type: HEADER
-  userChecksum: EE6C79D86E2FF9AF0ACA40536E5DC0B3
+  userChecksum: A07DCBD478C37497C35A4A27C6A9342D
 - generatedChecksum: 799499D320508B137A1F38041909EE57
   logicalPath: FreeRTOS/Source/include
   name: croutine.h
@@ -1161,13 +1161,13 @@ files:
   security: NON_SECURE
   type: HEADER
   userChecksum: 3C465EE2268CD765C11300F75C6560CC
-- generatedChecksum: 33368571C6B8516B6FE5A473D8CA82A5
+- generatedChecksum: 25AE4C5438508036077281E41BA153F8
   logicalPath: config/default/peripheral/gpio
   name: plib_gpio.h
   physicalPath: peripheral/gpio
   security: NON_SECURE
   type: HEADER
-  userChecksum: 33368571C6B8516B6FE5A473D8CA82A5
+  userChecksum: 25AE4C5438508036077281E41BA153F8
 - generatedChecksum: 86D499749C924875389705AA3D0C9FD7
   logicalPath: config/default/peripheral/uart
   name: plib_uart2.h
@@ -1336,13 +1336,13 @@ files:
   security: NON_SECURE
   type: HEADER
   userChecksum: 6972608768DDBE6E37A2D81B83DF490B
-- generatedChecksum: 4A7FFAD7ACF8378CEC16FBF2BC2368BE
+- generatedChecksum: 45C173FBC598D95FA76B147486A15177
   logicalPath: config/default/system/dma
   name: sys_dma.h
   physicalPath: system/dma
   security: NON_SECURE
   type: HEADER
-  userChecksum: 4A7FFAD7ACF8378CEC16FBF2BC2368BE
+  userChecksum: 45C173FBC598D95FA76B147486A15177
 - generatedChecksum: 42E557EFE638D7A736FB88AA84F085F1
   logicalPath: config/default/system/dma
   name: sys_dma_mapping.h
@@ -1714,13 +1714,13 @@ files:
   security: NON_SECURE
   type: HEADER
   userChecksum: EE770378EC56991F295EF9771AEBE6DA
-- generatedChecksum: FA212DEAE39D4E86EF4E6CB440610FE9
+- generatedChecksum: CAC44960D20AEC03CF4B325A1CD2877C
   logicalPath: config/default
   name: toolchain_specifics.h
   physicalPath: ''
   security: NON_SECURE
   type: HEADER
-  userChecksum: FA212DEAE39D4E86EF4E6CB440610FE9
+  userChecksum: CAC44960D20AEC03CF4B325A1CD2877C
 - generatedChecksum: 23248DE45F9EC71D5484DF1895031B07
   logicalPath: config/default/library/tcpip
   name: udp.h
@@ -1811,7 +1811,7 @@ settings:
   delimiter: ;
   key: extra-include-directories
   security: NON_SECURE
-  value: ../src;../src/config/default;../src/packs/PIC32MZ2048EFH144_DFP;
+  value: ../src;../src/config/default;
 - append: false
   category: C32
   delimiter: ''
@@ -1859,7 +1859,7 @@ settings:
   delimiter: ;
   key: extra-include-directories
   security: NON_SECURE
-  value: ../src;../src/config/default;../src/packs/PIC32MZ2048EFH144_DFP;
+  value: ../src;../src/config/default;
 - append: false
   category: C32CPP
   delimiter: ''

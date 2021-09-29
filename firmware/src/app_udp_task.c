@@ -92,9 +92,34 @@ QueueHandle_t eventQueue_app_udp_task = NULL;
 //------------------------------------------------------------------------------
 // Section: Application Local Functions
 //------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
+  Function:
+    void wait_console_buffer_free ( void )
 
-/* TODO:  Add any necessary callback functions.
+  Summary:
+    
+
+  Description:
+    This function wait until Sys Console write buffer become empty.
+
+  Precondition:
+    None.
+
+  Parameters:
+    None.
+
+  Returns:
+    None.
+
+  Example:
+    <code>
+    wait_console_buffer_free();
+    </code>
+
+  Remarks:
+    None.
 */
+void wait_console_buffer_free(void);
 
 //------------------------------------------------------------------------------
 // Section: Application Initialization and State Machine Functions
@@ -197,25 +222,8 @@ void APP_UDP_TASK_Tasks ( void )
         case APP_UDP_TASK_STATE_Start:
         {
             //------------------------------------------------------------------
-            // <editor-fold defaultstate="collapsed" desc="Wait until Console Buffer come free">
-            #ifdef ENABLE_CONSOLE_MESSAGE
-                ssize_t nFreeSpace;
-                SYS_CONSOLE_HANDLE myConsoleHandle;
-                myConsoleHandle = SYS_CONSOLE_HandleGet(SYS_CONSOLE_DEFAULT_INSTANCE);
-                if (SYS_CONSOLE_HANDLE_INVALID != myConsoleHandle)
-                {
-                    // Found a valid handle to the console instance
-                    // Get the number of bytes of free space available in the transmit buffer.
-                    nFreeSpace = SYS_CONSOLE_WriteFreeBufferCountGet(myConsoleHandle);
-                    // wait console bufer empty
-                    while ( ( nFreeSpace < (SYS_CONSOLE_PRINT_BUFFER_SIZE - 1) ) && ( nFreeSpace != -1 ) ) 
-                    {
-                        taskYIELD();
-                        nFreeSpace = SYS_CONSOLE_WriteFreeBufferCountGet(myConsoleHandle);
-
-                    }
-                }
-            #endif
+            // <editor-fold defaultstate="collapsed" desc="Wait until Console Buffer become free">
+            wait_console_buffer_free();
             // </editor-fold>
             //------------------------------------------------------------------
             SYS_STATUS tcpipStat = TCPIP_STACK_Status(sysObj.tcpip);
@@ -253,25 +261,8 @@ void APP_UDP_TASK_Tasks ( void )
         case APP_UDP_TASK_STATE_WAIT_FOR_IP:
         {
             //------------------------------------------------------------------
-            // <editor-fold defaultstate="collapsed" desc="Wait until Console Buffer come free">
-            #ifdef ENABLE_CONSOLE_MESSAGE
-                ssize_t nFreeSpace;
-                SYS_CONSOLE_HANDLE myConsoleHandle;
-                myConsoleHandle = SYS_CONSOLE_HandleGet(SYS_CONSOLE_DEFAULT_INSTANCE);
-                if (SYS_CONSOLE_HANDLE_INVALID != myConsoleHandle)
-                {
-                    // Found a valid handle to the console instance
-                    // Get the number of bytes of free space available in the transmit buffer.
-                    nFreeSpace = SYS_CONSOLE_WriteFreeBufferCountGet(myConsoleHandle);
-                    // wait console bufer empty
-                    while ( ( nFreeSpace < (SYS_CONSOLE_PRINT_BUFFER_SIZE - 1) ) && ( nFreeSpace != -1 ) ) 
-                    {
-                        taskYIELD();
-                        nFreeSpace = SYS_CONSOLE_WriteFreeBufferCountGet(myConsoleHandle);
-
-                    }
-                }
-            #endif
+            // <editor-fold defaultstate="collapsed" desc="Wait until Console Buffer become free">
+            wait_console_buffer_free();
             // </editor-fold>
             //------------------------------------------------------------------
             if( false == TCPIP_STACK_NetIsReady(app_udp_taskData.netH) )
@@ -324,25 +315,8 @@ void APP_UDP_TASK_Tasks ( void )
         case APP_UDP_TASK_STATE_WAIT_SERVER_OPEN:
         {
             //------------------------------------------------------------------
-            // <editor-fold defaultstate="collapsed" desc="Wait until Console Buffer come free">
-            #ifdef ENABLE_CONSOLE_MESSAGE
-                ssize_t nFreeSpace;
-                SYS_CONSOLE_HANDLE myConsoleHandle;
-                myConsoleHandle = SYS_CONSOLE_HandleGet(SYS_CONSOLE_DEFAULT_INSTANCE);
-                if (SYS_CONSOLE_HANDLE_INVALID != myConsoleHandle)
-                {
-                    // Found a valid handle to the console instance
-                    // Get the number of bytes of free space available in the transmit buffer.
-                    nFreeSpace = SYS_CONSOLE_WriteFreeBufferCountGet(myConsoleHandle);
-                    // wait console bufer empty
-                    while ( ( nFreeSpace < (SYS_CONSOLE_PRINT_BUFFER_SIZE - 1) ) && ( nFreeSpace != -1 ) ) 
-                    {
-                        taskYIELD();
-                        nFreeSpace = SYS_CONSOLE_WriteFreeBufferCountGet(myConsoleHandle);
-
-                    }
-                }
-            #endif
+            // <editor-fold defaultstate="collapsed" desc="Wait until Console Buffer become free">
+            wait_console_buffer_free();
             // </editor-fold>
             //------------------------------------------------------------------
             app_udp_taskData.udp_rx_socket = TCPIP_UDP_ServerOpen( IP_ADDRESS_TYPE_IPV4, app_udp_taskData.local_port, 0 );
@@ -459,25 +433,8 @@ void APP_UDP_TASK_Tasks ( void )
             //------------------------------------------------------------------
             uint16_t read_len;
             //------------------------------------------------------------------
-            // <editor-fold defaultstate="collapsed" desc="Wait until Console Buffer come free">
-            #ifdef ENABLE_CONSOLE_MESSAGE
-                ssize_t nFreeSpace;
-                SYS_CONSOLE_HANDLE myConsoleHandle;
-                myConsoleHandle = SYS_CONSOLE_HandleGet(SYS_CONSOLE_DEFAULT_INSTANCE);
-                if (SYS_CONSOLE_HANDLE_INVALID != myConsoleHandle)
-                {
-                    // Found a valid handle to the console instance
-                    // Get the number of bytes of free space available in the transmit buffer.
-                    nFreeSpace = SYS_CONSOLE_WriteFreeBufferCountGet(myConsoleHandle);
-                    // wait console bufer empty
-                    while ( ( nFreeSpace < (SYS_CONSOLE_PRINT_BUFFER_SIZE - 1) ) && ( nFreeSpace != -1 ) ) 
-                    {
-                        taskYIELD();
-                        nFreeSpace = SYS_CONSOLE_WriteFreeBufferCountGet(myConsoleHandle);
-
-                    }
-                }
-            #endif
+            // <editor-fold defaultstate="collapsed" desc="Wait until Console Buffer become free">
+            wait_console_buffer_free();
             // </editor-fold>
             //------------------------------------------------------------------
             read_len = TCPIP_UDP_GetIsReady(app_udp_taskData.udp_rx_socket);
@@ -555,25 +512,8 @@ void APP_UDP_TASK_Tasks ( void )
         case APP_UDP_TASK_STATE_WAIT_CLIENT_OPEN:
         {
             //------------------------------------------------------------------
-            // <editor-fold defaultstate="collapsed" desc="Wait until Console Buffer come free">
-            #ifdef ENABLE_CONSOLE_MESSAGE
-                ssize_t nFreeSpace;
-                SYS_CONSOLE_HANDLE myConsoleHandle;
-                myConsoleHandle = SYS_CONSOLE_HandleGet(SYS_CONSOLE_DEFAULT_INSTANCE);
-                if (SYS_CONSOLE_HANDLE_INVALID != myConsoleHandle)
-                {
-                    // Found a valid handle to the console instance
-                    // Get the number of bytes of free space available in the transmit buffer.
-                    nFreeSpace = SYS_CONSOLE_WriteFreeBufferCountGet(myConsoleHandle);
-                    // wait console bufer empty
-                    while ( ( nFreeSpace < (SYS_CONSOLE_PRINT_BUFFER_SIZE - 1) ) && ( nFreeSpace != -1 ) ) 
-                    {
-                        taskYIELD();
-                        nFreeSpace = SYS_CONSOLE_WriteFreeBufferCountGet(myConsoleHandle);
-
-                    }
-                }
-            #endif
+            // <editor-fold defaultstate="collapsed" desc="Wait until Console Buffer become free">
+            wait_console_buffer_free();
             // </editor-fold>
             //------------------------------------------------------------------
             app_udp_taskData.udp_tx_socket = TCPIP_UDP_ClientOpen( IP_ADDRESS_TYPE_IPV4, app_udp_taskData.dest_port, &(app_udp_taskData.dest_adr) );
@@ -633,25 +573,8 @@ void APP_UDP_TASK_Tasks ( void )
         case APP_UDP_TASK_STATE_WAIT_FOR_CONNECTION:
         {
             //------------------------------------------------------------------
-            // <editor-fold defaultstate="collapsed" desc="Wait until Console Buffer come free">
-            #ifdef ENABLE_CONSOLE_MESSAGE
-                ssize_t nFreeSpace;
-                SYS_CONSOLE_HANDLE myConsoleHandle;
-                myConsoleHandle = SYS_CONSOLE_HandleGet(SYS_CONSOLE_DEFAULT_INSTANCE);
-                if (SYS_CONSOLE_HANDLE_INVALID != myConsoleHandle)
-                {
-                    // Found a valid handle to the console instance
-                    // Get the number of bytes of free space available in the transmit buffer.
-                    nFreeSpace = SYS_CONSOLE_WriteFreeBufferCountGet(myConsoleHandle);
-                    // wait console bufer empty
-                    while ( ( nFreeSpace < (SYS_CONSOLE_PRINT_BUFFER_SIZE - 1) ) && ( nFreeSpace != -1 ) ) 
-                    {
-                        taskYIELD();
-                        nFreeSpace = SYS_CONSOLE_WriteFreeBufferCountGet(myConsoleHandle);
-
-                    }
-                }
-            #endif
+            // <editor-fold defaultstate="collapsed" desc="Wait until Console Buffer become free">
+            wait_console_buffer_free();
             // </editor-fold>
             //------------------------------------------------------------------
             if ( true == TCPIP_UDP_IsConnected(app_udp_taskData.udp_tx_socket) )
@@ -743,25 +666,8 @@ void APP_UDP_TASK_Tasks ( void )
             //------------------------------------------------------------------
             uint16_t read_len;
             //------------------------------------------------------------------
-            // <editor-fold defaultstate="collapsed" desc="Wait until Console Buffer come free">
-            #ifdef ENABLE_CONSOLE_MESSAGE
-                ssize_t nFreeSpace;
-                SYS_CONSOLE_HANDLE myConsoleHandle;
-                myConsoleHandle = SYS_CONSOLE_HandleGet(SYS_CONSOLE_DEFAULT_INSTANCE);
-                if (SYS_CONSOLE_HANDLE_INVALID != myConsoleHandle)
-                {
-                    // Found a valid handle to the console instance
-                    // Get the number of bytes of free space available in the transmit buffer.
-                    nFreeSpace = SYS_CONSOLE_WriteFreeBufferCountGet(myConsoleHandle);
-                    // wait console bufer empty
-                    while ( ( nFreeSpace < (SYS_CONSOLE_PRINT_BUFFER_SIZE - 1) ) && ( nFreeSpace != -1 ) ) 
-                    {
-                        taskYIELD();
-                        nFreeSpace = SYS_CONSOLE_WriteFreeBufferCountGet(myConsoleHandle);
-
-                    }
-                }
-            #endif
+            // <editor-fold defaultstate="collapsed" desc="Wait until Console Buffer become free">
+            wait_console_buffer_free();
             // </editor-fold>
             //------------------------------------------------------------------
             app_udp_taskData.state = APP_UDP_TASK_STATE_Tx;
@@ -898,25 +804,8 @@ void APP_UDP_TASK_Tasks ( void )
                  ( (ENUM_EVENT_TYPE)EVENT_TYPE_UART_SERVICE_POCKET == app_udp_taskData.event_info.event_id ) )
             {
                 //------------------------------------------------------------------
-                // <editor-fold defaultstate="collapsed" desc="Wait until Console Buffer come free">
-                #ifdef ENABLE_CONSOLE_MESSAGE
-                    ssize_t nFreeSpace;
-                    SYS_CONSOLE_HANDLE myConsoleHandle;
-                    myConsoleHandle = SYS_CONSOLE_HandleGet(SYS_CONSOLE_DEFAULT_INSTANCE);
-                    if (SYS_CONSOLE_HANDLE_INVALID != myConsoleHandle)
-                    {
-                        // Found a valid handle to the console instance
-                        // Get the number of bytes of free space available in the transmit buffer.
-                        nFreeSpace = SYS_CONSOLE_WriteFreeBufferCountGet(myConsoleHandle);
-                        // wait console bufer empty
-                        while ( ( nFreeSpace < (SYS_CONSOLE_PRINT_BUFFER_SIZE - 1) ) && ( nFreeSpace != -1 ) ) 
-                        {
-                            taskYIELD();
-                            nFreeSpace = SYS_CONSOLE_WriteFreeBufferCountGet(myConsoleHandle);
-                            
-                        }
-                    }
-                #endif
+                // <editor-fold defaultstate="collapsed" desc="Wait until Console Buffer become free">
+                wait_console_buffer_free();
                 // </editor-fold>
                 //------------------------------------------------------------------
                 #ifdef ENABLE_CONSOLE_MESSAGE
@@ -1025,6 +914,28 @@ void APP_UDP_TASK_Tasks ( void )
         }
     }
 
+}
+//------------------------------------------------------------------------------
+void wait_console_buffer_free(void)
+{
+    #ifdef ENABLE_CONSOLE_MESSAGE
+        ssize_t nFreeSpace;
+        SYS_CONSOLE_HANDLE myConsoleHandle;
+        myConsoleHandle = SYS_CONSOLE_HandleGet(SYS_CONSOLE_DEFAULT_INSTANCE);
+        if (SYS_CONSOLE_HANDLE_INVALID != myConsoleHandle)
+        {
+            // Found a valid handle to the console instance
+            // Get the number of bytes of free space available in the transmit buffer.
+            nFreeSpace = SYS_CONSOLE_WriteFreeBufferCountGet(myConsoleHandle);
+            // wait console bufer empty
+            while ( ( nFreeSpace < (SYS_CONSOLE_PRINT_BUFFER_SIZE - 1) ) && ( nFreeSpace != -1 ) ) 
+            {
+                taskYIELD();
+                nFreeSpace = SYS_CONSOLE_WriteFreeBufferCountGet(myConsoleHandle);
+
+            }
+        }
+    #endif
 }
 //------------------------------------------------------------------------------
 // End of File

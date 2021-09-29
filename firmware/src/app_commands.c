@@ -70,6 +70,14 @@ static char buffer1[80];
 static char buffer2[80];
 static char buffer3[80];
 static char buffer4[80];
+static char buffer5[80];
+static char buffer6[80];
+static char buffer7[80];
+static char buffer8[80];
+static char buffer9[80];
+static char buffer10[80];
+static char buffer11[80];
+static char buffer12[80];
 bool APP_Send_Packet = false;
 bool APP_Stop_Packet = false;
 //-----------------------------------------------------------------------------
@@ -365,41 +373,75 @@ static void _APP_Commands_GetMACStatistics(SYS_CMD_DEVICE_NODE* pCmdIO, int argc
     TCPIP_NET_HANDLE netH = TCPIP_STACK_NetHandleGet("PIC32INT");
 //    TCPIP_NET_HANDLE netH = TCPIP_STACK_IndexToNet(0);
     
+    char str_mac_adr[25];
+    const TCPIP_MAC_ADDR* pMACAddr = (const TCPIP_MAC_ADDR*)TCPIP_STACK_NetAddressMac(netH);
+
+    TCPIP_Helper_MACAddressToString( pMACAddr, str_mac_adr, sizeof(str_mac_adr) );
+    sprintf(buffer1, "    MAC address: %s \r\n", str_mac_adr);
+    (*pCmdIO->pCmdApi->msg)(cmdIoParam, buffer1);
+    
+    if ( TCPIP_STACK_NetMACStatisticsGet(netH, &rxStatistics, &txStatistics) )
+    {
+        (*pCmdIO->pCmdApi->msg)(cmdIoParam, "    Net MAC statistics: \r\n");
+        sprintf(buffer2, "    Rx good packets = %d \r\n", rxStatistics.nRxOkPackets);
+        (*pCmdIO->pCmdApi->msg)(cmdIoParam, buffer2);
+        sprintf(buffer3, "    Rx error packets = %d \r\n", rxStatistics.nRxErrorPackets);
+        (*pCmdIO->pCmdApi->msg)(cmdIoParam, buffer3);
+        sprintf(buffer4, "    Tx good packets = %d \r\n", txStatistics.nTxOkPackets);
+        (*pCmdIO->pCmdApi->msg)(cmdIoParam, buffer4);
+        sprintf(buffer5, "    Tx error packets = %d \r\n", txStatistics.nTxErrorPackets);
+        (*pCmdIO->pCmdApi->msg)(cmdIoParam, buffer5);
+
+//        #ifdef ENABLE_CONSOLE_MESSAGE
+//            SYS_CONSOLE_MESSAGE("---------------------------------------\r\n");
+//            SYS_CONSOLE_MESSAGE("   Net MAC statistics: \r\n");
+//            SYS_CONSOLE_PRINT  ("               Rx good packets = %d \r\n", rxStatistics.nRxOkPackets);
+//            SYS_CONSOLE_PRINT  ("               Rx error packets = %d \r\n", rxStatistics.nRxErrorPackets);
+//            SYS_CONSOLE_PRINT  ("               Tx good packets = %d \r\n", txStatistics.nTxOkPackets);
+//            SYS_CONSOLE_PRINT  ("               Tx error packets = %d \r\n", txStatistics.nTxErrorPackets);
+//            SYS_CONSOLE_MESSAGE("---------------------------------------\r\n");
+//        #endif
+    }
+
     const TCPIP_MAC_OBJECT* pEthMacObject = TCPIP_STACK_MACObjectGet(netH);
     if(0 != pEthMacObject)
     {    // valid MAC object pointer
         (*pCmdIO->pCmdApi->msg)(cmdIoParam, "    Get MAC object: Ok \r\n");
-        sprintf(buffer1, "    MAC name: %s \r\n", pEthMacObject->macName);
-        (*pCmdIO->pCmdApi->msg)(cmdIoParam, buffer1);
-        
-        char str_mac_adr[25];
-        const TCPIP_MAC_ADDR* pMACAddr = (const TCPIP_MAC_ADDR*)TCPIP_STACK_NetAddressMac(netH);
+        sprintf(buffer6, "    MAC name: %s \r\n", pEthMacObject->macName);
+        (*pCmdIO->pCmdApi->msg)(cmdIoParam, buffer6);
 
-        TCPIP_Helper_MACAddressToString( pMACAddr, str_mac_adr, sizeof(str_mac_adr) );
-        sprintf(buffer3, "    MAC address: %s \r\n", str_mac_adr);
-        (*pCmdIO->pCmdApi->msg)(cmdIoParam, buffer3);
+        //  DRV_ETHMAC_CLIENTS_NUMBER has to be > 1
+        DRV_HANDLE hMac = (*pEthMacObject->TCPIP_MAC_Open)(pEthMacObject->macId, DRV_IO_INTENT_READWRITE);
+        if(hMac != DRV_HANDLE_INVALID)
+        {   // can use the MAC handle to access a MAC function
+            TCPIP_MAC_RES macRes;
+            TCPIP_MAC_PARAMETERS macParams;
+            
+            (*pCmdIO->pCmdApi->msg)(cmdIoParam, "    TCPTP_MAC_Open: Success \r\n");
 
-        if ( TCPIP_STACK_NetMACStatisticsGet(netH, &rxStatistics, &txStatistics) )
-        {
+            macRes = (*pEthMacObject->TCPIP_MAC_ParametersGet)(hMac, &macParams);
+            TCPIP_Helper_MACAddressToString( &(macParams.ifPhyAddress), str_mac_adr, sizeof(str_mac_adr) );
+            sprintf(buffer7, "    MAC address: %s \r\n", str_mac_adr);
+            (*pCmdIO->pCmdApi->msg)(cmdIoParam, buffer7);
+            
+            macRes = (*pEthMacObject->TCPIP_MAC_StatisticsGet)(hMac, &rxStatistics, &txStatistics);
+
+            sprintf(buffer8, "    TCPIP_MAC_StatisticsGet result = %d \r\n", macRes);
+            (*pCmdIO->pCmdApi->msg)(cmdIoParam, buffer8);
+            
             (*pCmdIO->pCmdApi->msg)(cmdIoParam, "    Net MAC statistics: \r\n");
-            sprintf(buffer1, "    Rx good packets = %d \r\n", rxStatistics.nRxOkPackets);
-            (*pCmdIO->pCmdApi->msg)(cmdIoParam, buffer1);
-            sprintf(buffer2, "    Rx error packets = %d \r\n", rxStatistics.nRxErrorPackets);
-            (*pCmdIO->pCmdApi->msg)(cmdIoParam, buffer2);
-            sprintf(buffer3, "    Tx good packets = %d \r\n", txStatistics.nTxOkPackets);
-            (*pCmdIO->pCmdApi->msg)(cmdIoParam, buffer3);
-            sprintf(buffer4, "    Tx error packets = %d \r\n", txStatistics.nTxErrorPackets);
-            (*pCmdIO->pCmdApi->msg)(cmdIoParam, buffer4);
-
-    //        #ifdef ENABLE_CONSOLE_MESSAGE
-    //            SYS_CONSOLE_MESSAGE("---------------------------------------\r\n");
-    //            SYS_CONSOLE_MESSAGE("   Net MAC statistics: \r\n");
-    //            SYS_CONSOLE_PRINT  ("               Rx good packets = %d \r\n", rxStatistics.nRxOkPackets);
-    //            SYS_CONSOLE_PRINT  ("               Rx error packets = %d \r\n", rxStatistics.nRxErrorPackets);
-    //            SYS_CONSOLE_PRINT  ("               Tx good packets = %d \r\n", txStatistics.nTxOkPackets);
-    //            SYS_CONSOLE_PRINT  ("               Tx error packets = %d \r\n", txStatistics.nTxErrorPackets);
-    //            SYS_CONSOLE_MESSAGE("---------------------------------------\r\n");
-    //        #endif
+            sprintf(buffer9, "    Rx good packets = %d \r\n", rxStatistics.nRxOkPackets);
+            (*pCmdIO->pCmdApi->msg)(cmdIoParam, buffer9);
+            sprintf(buffer10, "    Rx error packets = %d \r\n", rxStatistics.nRxErrorPackets);
+            (*pCmdIO->pCmdApi->msg)(cmdIoParam, buffer10);
+            sprintf(buffer11, "    Tx good packets = %d \r\n", txStatistics.nTxOkPackets);
+            (*pCmdIO->pCmdApi->msg)(cmdIoParam, buffer11);
+            sprintf(buffer12, "    Tx error packets = %d \r\n", txStatistics.nTxErrorPackets);
+            (*pCmdIO->pCmdApi->msg)(cmdIoParam, buffer12);
+        }
+        else
+        {
+            (*pCmdIO->pCmdApi->msg)(cmdIoParam, "    TCPTP_MAC_Open: Error! \r\n");
         }
     }
     else

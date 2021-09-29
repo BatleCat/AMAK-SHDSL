@@ -56,7 +56,7 @@
 */
 
 #include "user.h"
-#include "toolchain_specifics.h"
+#include "device.h"
 
 // DOM-IGNORE-BEGIN
 #ifdef __cplusplus  // Provide C++ Compatibility
@@ -122,7 +122,7 @@ extern "C" {
 #define DRV_MIIM_ETH_MODULE_ID              _ETH_BASE_ADDRESS
 #define DRV_MIIM_INSTANCES_NUMBER           1
 #define DRV_MIIM_INSTANCE_OPERATIONS        4
-#define DRV_MIIM_INSTANCE_CLIENTS           2
+#define DRV_MIIM_INSTANCE_CLIENTS           1
 #define DRV_MIIM_CLIENT_OP_PROTECTION   false
 #define DRV_MIIM_COMMANDS   false
 #define DRV_MIIM_DRIVER_OBJECT              DRV_MIIM_OBJECT_BASE_Default
@@ -205,7 +205,7 @@ extern "C" {
 #define TCPIP_INTMAC_PERIPHERAL_CLK  				100000000
 
 #define DRV_ETHMAC_INTERRUPT_SOURCE				_ETHERNET_VECTOR
-
+#define DRV_ETHMAC_CLIENTS_NUMBER                   2
 #define DRV_ETHMAC_INTERRUPT_MODE        			true
 
 #define TCPIP_EMAC_AUTO_FLOW_CONTROL_ENABLE        	true
