@@ -35,6 +35,7 @@
 
 #include "config/default/library/tcpip/tcp.h"
 #include "config/default/library/tcpip/udp.h"
+#include "config/default/library/tcpip/tcpip_manager.h"
 #include "config/default/library/tcpip/icmp.h"
 #include "config/default/library/tcpip/tcpip_mac.h"
 #include "third_party/rtos/FreeRTOS/Source/include/FreeRTOS.h"
@@ -82,12 +83,38 @@ APP_UDP_TASK_DATA app_udp_taskData;
 //------------------------------------------------------------------------------
 QueueHandle_t eventQueue_app_udp_task = NULL;
 
+TCPIP_UDP_PROCESS_HANDLE amak_shdsl_pktHandle;
 //------------------------------------------------------------------------------
 // Section: Application Callback Functions
 //------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
+  Function:
+    static bool amak_shdsl_udp_packet_handler(TCPIP_NET_HANDLE hNet, TCPIP_MAC_PACKET* pRxPkt, const void* hParam)
 
-/* TODO:  Add any necessary callback functions.
+  Summary:
+    
+
+  Description:
+    This function 
+
+  Precondition:
+    None.
+
+  Parameters:
+    None.
+
+  Returns:
+    None.
+
+  Example:
+    <code>
+    
+    </code>
+
+  Remarks:
+    None.
 */
+static bool amak_shdsl_udp_packet_handler(TCPIP_NET_HANDLE hNet, TCPIP_MAC_PACKET* pRxPkt, const void* hParam);
 
 //------------------------------------------------------------------------------
 // Section: Application Local Functions
@@ -297,10 +324,17 @@ void APP_UDP_TASK_Tasks ( void )
             }
             //------------------------------------------------------------------
             #ifdef ENABLE_CONSOLE_MESSAGE
-                SYS_CONSOLE_MESSAGE(" APP_UDP_TASK: State machine -> UDP_STATE_WAIT_SERVER_OPEN\r\n");
+                SYS_CONSOLE_MESSAGE(" APP_UDP_TASK: State machine -> UDP_STATE_REGISTER_AMAK_SHDSL_UDP_HANDLER\r\n");
             #endif
-            app_udp_taskData.state = APP_UDP_TASK_STATE_WAIT_SERVER_OPEN;
+            app_udp_taskData.state = APP_UDP_TASK_STATE_REGISTER_AMAK_SHDSL_UDP_HANDLER;
             app_udp_taskData.error = APP_UDP_TASK_ERROR_NO;
+            
+            //------------------------------------------------------------------
+//            #ifdef ENABLE_CONSOLE_MESSAGE
+//                SYS_CONSOLE_MESSAGE(" APP_UDP_TASK: State machine -> UDP_STATE_WAIT_SERVER_OPEN\r\n");
+//            #endif
+//            app_udp_taskData.state = APP_UDP_TASK_STATE_WAIT_SERVER_OPEN;
+//            app_udp_taskData.error = APP_UDP_TASK_ERROR_NO;
             
 //            #ifdef ENABLE_CONSOLE_MESSAGE
 //                SYS_CONSOLE_MESSAGE(" APP_UDP_TASK: State machine -> UDP_STATE_WAIT_CLIENT_OPEN\r\n");
@@ -309,6 +343,24 @@ void APP_UDP_TASK_Tasks ( void )
 //            app_udp_taskData.state = APP_UDP_TASK_STATE_WAIT_CLIENT_OPEN;   
 //            app_udp_taskData.error = APP_UDP_TASK_ERROR_NO;
 
+            taskYIELD();
+            break;
+        }
+        case APP_UDP_TASK_STATE_REGISTER_AMAK_SHDSL_UDP_HANDLER:
+        {
+           //------------------------------------------------------------------
+            // <editor-fold defaultstate="collapsed" desc="Wait until Console Buffer become free">
+            wait_console_buffer_free();
+            // </editor-fold>
+            //------------------------------------------------------------------
+            amak_shdsl_pktHandle = TCPIP_UDP_PacketHandlerRegister( amak_shdsl_udp_packet_handler, NULL );
+            //------------------------------------------------------------------
+            #ifdef ENABLE_CONSOLE_MESSAGE
+                SYS_CONSOLE_MESSAGE(" APP_UDP_TASK: State machine -> UDP_STATE_WAIT_SERVER_OPEN\r\n");
+            #endif
+            app_udp_taskData.state = APP_UDP_TASK_STATE_WAIT_SERVER_OPEN;
+            app_udp_taskData.error = APP_UDP_TASK_ERROR_NO;
+            
             taskYIELD();
             break;
         }
@@ -937,6 +989,203 @@ void wait_console_buffer_free(void)
         }
     #endif
 }
+//------------------------------------------------------------------------------
+// *****************************************************************************
+/* UDP packet handler Pointer
+
+  Function:
+    bool <FunctionName> (TCPIP_NET_HANDLE hNet, struct _tag_TCPIP_MAC_PACKET* rxPkt, const void* hParam);
+
+  Summary:
+    Pointer to a function(handler) that will get called to process an incoming UDP packet.
+
+  Description:
+    Pointer to a function that will be called by the UDP module
+    when a RX packet is available.
+
+  Precondition:
+    None
+
+  Parameters:
+    hNet        - network handle on which the packet has arrived
+    rxPkt       - pointer to incoming packet
+    hParam      - user passed parameter when handler was registered
+
+  Returns:
+    true - if the packet is processed by the external handler.
+           In this case the UDP module will no longer process the packet
+    false - the packet needs to be processed internally by the UDP as usual           
+
+  Remarks:
+    The packet handler is called in the UDP context.
+    The handler should be kept as short as possible as it affects the processing of all the other
+    UDP RX traffic.
+
+    Before calling the external packet handler 
+    - the rxPkt->pktFlags has the bit 9 (value 0x0200) set for an IPv6 packet, cleared for IPv4
+    - the rxPkt->pTransportLayer points to an UDP_HEADER data structure.
+    - the rxPkt->pNetLayer points to an IPV4_HEADER/IPV6_HEADER data structure.
+    - the rxPkt->pktIf points to the interface receiving the packet
+    - the first data segment segLen is adjusted to store the size of the UDP data 
+
+    Important!
+    When the packet handler returns true, once it's done processing the packet,
+    it needs to acknowledge it, i.e. return to the owner,
+    which is the MAC driver serving the network interface!
+    This means that the packet acknowledge function needs to be called,
+    with a proper acknowledge parameter and the QUEUED flag needs to be cleared, if needed:
+    if((*rxPkt->ackFunc)(rxPkt, rxPkt->ackParam))
+    {
+           rxPkt->pktFlags &= ~TCPIP_MAC_PKT_FLAG_QUEUED;
+    }
+    Failure to do that will result in memory leaks and starvation of the MAC driver.
+    See the tcpip_mac.h for details.
+    
+ */
+static bool amak_shdsl_udp_packet_handler(TCPIP_NET_HANDLE hNet, TCPIP_MAC_PACKET* pRxPkt, const void* hParam)
+{
+    UDP_HEADER*		 pUDPHdr;
+//    UDP_SOCKET_DCPT* pSkt;
+    uint16_t         udpTotLength;
+    const IPV4_ADDR* pPktSrcAdd;
+    const IPV4_ADDR* pPktDstAdd;
+//    TCPIP_UDP_SIGNAL_FUNCTION sigHandler;
+//    const void*      sigParam;
+//    TCPIP_MAC_PKT_ACK_RES ackRes;
+    
+    pUDPHdr = (UDP_HEADER*)pRxPkt->pTransportLayer;
+    udpTotLength = TCPIP_Helper_ntohs(pUDPHdr->Length);
+
+#if (_TCPIP_IPV4_FRAGMENTATION == 0)
+    if(udpTotLength != pRxPkt->totTransportLen)
+    {   // discard suspect packet
+        return false; //TCPIP_MAC_PKT_ACK_STRUCT_ERR;
+    }
+#endif  // (_TCPIP_IPV4_FRAGMENTATION != 0)
+
+    pPktSrcAdd = TCPIP_IPV4_PacketGetSourceAddress(pRxPkt);
+    pPktDstAdd = TCPIP_IPV4_PacketGetDestAddress(pRxPkt);
+	// See if we need to validate the checksum field (0x0000 is disabled)
+#ifdef TCPIP_UDP_USE_RX_CHECKSUM
+	if((pUDPHdr->Checksum != 0))
+	{
+        IPV4_PSEUDO_HEADER  pseudoHdr;
+        uint16_t            calcChkSum;
+	    // Calculate IP pseudoheader checksum.
+	    pseudoHdr.SourceAddress.Val = pPktSrcAdd->Val;
+	    pseudoHdr.DestAddress.Val = pPktDstAdd->Val;
+	    pseudoHdr.Zero	= 0;
+	    pseudoHdr.Protocol = IP_PROT_UDP;
+	    pseudoHdr.Length = pUDPHdr->Length;
+
+	    calcChkSum = ~TCPIP_Helper_CalcIPChecksum((uint8_t*)&pseudoHdr, sizeof(pseudoHdr), 0);
+#if (_TCPIP_IPV4_FRAGMENTATION != 0)
+        TCPIP_MAC_PACKET* pFragPkt;
+        uint16_t totCalcUdpLen = 0;
+        for(pFragPkt = pRxPkt; pFragPkt != 0; pFragPkt = pFragPkt->pkt_next)
+        {
+            calcChkSum = ~TCPIP_Helper_PacketChecksum(pFragPkt, pFragPkt->pTransportLayer, pFragPkt->totTransportLen, calcChkSum);
+            totCalcUdpLen += pFragPkt->totTransportLen;
+        }
+        calcChkSum = ~calcChkSum;
+
+        if(udpTotLength != totCalcUdpLen)
+        {   // discard suspect packet
+            return false; //TCPIP_MAC_PKT_ACK_STRUCT_ERR;
+        }
+#else
+        if((pRxPkt->pktFlags & TCPIP_MAC_PKT_FLAG_SPLIT) != 0)
+        {
+            calcChkSum = TCPIP_Helper_PacketChecksum(pRxPkt, (uint8_t*)pUDPHdr, udpTotLength, calcChkSum);
+        }
+        else
+        {
+            calcChkSum = TCPIP_Helper_CalcIPChecksum((uint8_t*)pUDPHdr, udpTotLength, calcChkSum);
+        }
+#endif  // (_TCPIP_IPV4_FRAGMENTATION != 0)
+
+        if(calcChkSum != 0)
+        {   // discard packet
+            return false; //TCPIP_MAC_PKT_ACK_CHKSUM_ERR;
+        }
+	}
+#endif // TCPIP_UDP_USE_RX_CHECKSUM
+
+    pUDPHdr->SourcePort = TCPIP_Helper_ntohs(pUDPHdr->SourcePort);
+    pUDPHdr->DestinationPort = TCPIP_Helper_ntohs(pUDPHdr->DestinationPort);
+    
+    if ( (1500 == pUDPHdr->SourcePort) && (1500 == pUDPHdr->DestinationPort) )
+    {
+        app_udp_taskData.event_info.data_len = udpTotLength;
+        app_udp_taskData.event_info.pData = (uint8_t*)pRxPkt->pTransportLayer;
+        app_udp_taskData.event_info.event_id = (ENUM_EVENT_TYPE)EVENT_TYPE_AMAK_UDP_POCKET;
+        
+        xQueueSend( eventQueue_app_amak_parser_task, (void*)&( app_udp_taskData.event_info ), 0 );//portMAX_DELAY); 
+        
+        return true;
+    }
+    
+    return false;
+/*
+    pUDPHdr->Length = udpTotLength - sizeof(UDP_HEADER);    
+
+    while(true)
+    {
+        pSkt = _UDPFindMatchingSocket(pRxPkt, pUDPHdr, IP_ADDRESS_TYPE_IPV4);
+        if(pSkt == 0)
+        {
+            // If there is no matching socket, There is no one to handle
+            // this data.  Discard it.
+            ackRes = TCPIP_MAC_PKT_ACK_PROTO_DEST_ERR;
+            break;
+        }
+
+#if defined(TCPIP_STACK_USE_IGMP)    
+        if(pSkt->extFlags.mcastSkipCheck == 0)
+        {   // don't skip check multicast traffic
+            if(TCPIP_Helper_IsMcastAddress(pPktDstAdd))
+            {   // need to check
+                if(!TCPIP_IGMP_IsMcastEnabled(pSkt->sktIx, pRxPkt->pktIf, *pPktDstAdd, *pPktSrcAdd))
+                {   // don't let it through
+                    ackRes = TCPIP_MAC_PKT_ACK_PROTO_DEST_ERR;
+                    break;
+                }
+            }
+        }
+#endif  // defined(TCPIP_STACK_USE_IGMP)    
+    
+        if(pSkt->extFlags.mcastOnly != 0)
+        {   // let through multicast traffic only
+            if(!TCPIP_Helper_IsMcastAddress(pPktDstAdd))
+            {   // don't let it through
+                ackRes = TCPIP_MAC_PKT_ACK_PROTO_DEST_ERR;
+                break;
+            }
+        }
+
+        // insert valid packet in the RX queue
+        sigHandler = _RxSktQueueAddLocked(pSkt, pRxPkt, &sigParam);
+        if(sigHandler)
+        {   // notify socket user
+            (*sigHandler)(pSkt->sktIx, pRxPkt->pktIf, TCPIP_UDP_SIGNAL_RX_DATA, sigParam);
+        }
+
+        // everything OK, pass to user
+        ackRes = TCPIP_MAC_PKT_ACK_NONE;
+        break;
+    }
+
+
+    // log 
+#if (TCPIP_PACKET_LOG_ENABLE)
+    uint32_t logPort = (pSkt != 0) ? ((uint32_t)pSkt->localPort << 16) | pSkt->remotePort : ((uint32_t)pUDPHdr->DestinationPort << 16) | pUDPHdr->SourcePort;
+    TCPIP_PKT_FlightLogRxSkt(pRxPkt, TCPIP_MODULE_LAYER3, logPort, pSkt != 0 ? pSkt->sktIx: 0xffff);
+#endif  // (TCPIP_PACKET_LOG_ENABLE)
+
+    return ackRes;
+*/
+}
+
 //------------------------------------------------------------------------------
 // End of File
 //------------------------------------------------------------------------------
