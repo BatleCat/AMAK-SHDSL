@@ -205,7 +205,7 @@ extern "C" {
 #define TCPIP_INTMAC_PERIPHERAL_CLK  				100000000
 
 #define DRV_ETHMAC_INTERRUPT_SOURCE				_ETHERNET_VECTOR
-#define DRV_ETHMAC_CLIENTS_NUMBER                   2
+
 #define DRV_ETHMAC_INTERRUPT_MODE        			true
 
 #define TCPIP_EMAC_AUTO_FLOW_CONTROL_ENABLE        	true
@@ -250,7 +250,7 @@ extern "C" {
 
 /* Network Configuration Index 0 */
 #define TCPIP_NETWORK_DEFAULT_INTERFACE_NAME_IDX0	"ETHMAC"
-#define TCPIP_IF_PIC32MZW_ETHMAC	
+#define TCPIP_IF_ETHMAC
 
 #define TCPIP_NETWORK_DEFAULT_HOST_NAME_IDX0				"MCHPBOARD_E"
 #define TCPIP_NETWORK_DEFAULT_MAC_ADDR_IDX0				0
@@ -270,7 +270,7 @@ extern "C" {
 
 /*** IPv4 Configuration ***/
 #define TCPIP_IPV4_ARP_SLOTS                        10
-#define TCPIP_IPV4_EXTERN_PACKET_PROCESS   false
+#define TCPIP_IPV4_EXTERN_PACKET_PROCESS   true
 
 #define TCPIP_IPV4_COMMANDS false
 
@@ -329,7 +329,7 @@ extern "C" {
 #define TCPIP_STACK_MAC_DOWN_OPERATION  true
 #define TCPIP_STACK_INTERFACE_CHANGE_SIGNALING   false
 #define TCPIP_STACK_CONFIGURATION_SAVE_RESTORE   true
-#define TCPIP_STACK_EXTERN_PACKET_PROCESS   false
+#define TCPIP_STACK_EXTERN_PACKET_PROCESS   true
 
 
 

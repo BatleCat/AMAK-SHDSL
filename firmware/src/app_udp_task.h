@@ -84,14 +84,13 @@ typedef enum
 } APP_UDP_TASK_STATES;
 
 /*------------------------------------------------------------------------------
- Application states
+ Application errors
 
   Summary:
-    Application states enumeration
+    Application errors enumeration
 
   Description:
-    This enumeration defines the valid application states.  These states
-    determine the behavior of the application at various times.
+    This enumeration defines the application errors code.
 */
 //------------------------------------------------------------------------------
 typedef enum
