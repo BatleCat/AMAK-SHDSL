@@ -417,7 +417,7 @@ static void _APP_Commands_GetMACStatistics(SYS_CMD_DEVICE_NODE* pCmdIO, int argc
             TCPIP_MAC_RES macRes;
             TCPIP_MAC_PARAMETERS macParams;
             
-            (*pCmdIO->pCmdApi->msg)(cmdIoParam, "    TCPTP_MAC_Open: Success \r\n");
+            (*pCmdIO->pCmdApi->msg)(cmdIoParam, "    TCPIP_MAC_Open: Success \r\n");
 
             macRes = (*pEthMacObject->TCPIP_MAC_ParametersGet)(hMac, &macParams);
             TCPIP_Helper_MACAddressToString( &(macParams.ifPhyAddress), str_mac_adr, sizeof(str_mac_adr) );
@@ -441,7 +441,7 @@ static void _APP_Commands_GetMACStatistics(SYS_CMD_DEVICE_NODE* pCmdIO, int argc
         }
         else
         {
-            (*pCmdIO->pCmdApi->msg)(cmdIoParam, "    TCPTP_MAC_Open: Error! \r\n");
+            (*pCmdIO->pCmdApi->msg)(cmdIoParam, "    TCPIP_MAC_Open: Error! \r\n");
         }
     }
     else
