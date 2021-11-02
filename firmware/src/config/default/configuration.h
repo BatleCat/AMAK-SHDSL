@@ -100,7 +100,7 @@ extern "C" {
 #define SYS_CMD_BUFFER_DMA_READY
 
 /* Command System Service RTOS Configurations*/
-#define SYS_CMD_RTOS_STACK_SIZE                256
+#define SYS_CMD_RTOS_STACK_SIZE                1024
 #define SYS_CMD_RTOS_TASK_PRIORITY             1
 
 #define SYS_CONSOLE_DEVICE_MAX_INSTANCES   			1
@@ -270,7 +270,7 @@ extern "C" {
 
 /*** IPv4 Configuration ***/
 #define TCPIP_IPV4_ARP_SLOTS                        10
-#define TCPIP_IPV4_EXTERN_PACKET_PROCESS   true
+#define TCPIP_IPV4_EXTERN_PACKET_PROCESS   false
 
 #define TCPIP_IPV4_COMMANDS false
 
@@ -329,7 +329,7 @@ extern "C" {
 #define TCPIP_STACK_MAC_DOWN_OPERATION  true
 #define TCPIP_STACK_INTERFACE_CHANGE_SIGNALING   false
 #define TCPIP_STACK_CONFIGURATION_SAVE_RESTORE   true
-#define TCPIP_STACK_EXTERN_PACKET_PROCESS   true
+#define TCPIP_STACK_EXTERN_PACKET_PROCESS   false
 
 
 
