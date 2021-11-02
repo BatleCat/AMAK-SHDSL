@@ -224,7 +224,7 @@ APP_UDP_TASK_STATES app_udp_task_init(void);
     None.
 */
 //</editor-fold>
-APP_UDP_TASK_STATES app_udp_task_sart(void);
+APP_UDP_TASK_STATES app_udp_task_start(void);
 
 /*------------------------------------------------------------------------------
 <editor-fold defaultstate="collapsed" desc="//-----------------------------------------------------------------------------">
@@ -619,7 +619,7 @@ void APP_UDP_TASK_Tasks ( void )
         //----------------------------------------------------------------------
         case APP_UDP_TASK_STATE_Start:
         {
-            app_udp_taskData.state = app_udp_task_sart();
+            app_udp_taskData.state = app_udp_task_start();
             taskYIELD();
             break;
         }
@@ -757,7 +757,7 @@ APP_UDP_TASK_STATES app_udp_task_init(void)
     return result;
 }
 //------------------------------------------------------------------------------
-APP_UDP_TASK_STATES app_udp_task_sart(void)
+APP_UDP_TASK_STATES app_udp_task_start(void)
 {
     APP_UDP_TASK_STATES result = app_udp_taskData.state;
     //------------------------------------------------------------------
