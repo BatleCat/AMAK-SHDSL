@@ -151,6 +151,37 @@ typedef struct
 /* These routines are called by drivers when certain events occur.
 */
 
+/*------------------------------------------------------------------------------
+<editor-fold defaultstate="collapsed" desc="Description function: wait_console_buffer_free()">
+  Function:
+    void wait_console_buffer_free ( void )
+
+  Summary:
+    
+
+  Description:
+    This function wait until Sys Console write buffer become empty.
+
+  Precondition:
+    None.
+
+  Parameters:
+    None.
+
+  Returns:
+    None.
+
+  Example:
+    <code>
+    wait_console_buffer_free();
+    </code>
+
+  Remarks:
+    None.
+*/
+// </editor-fold>
+void wait_console_buffer_free(void);
+
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 // Section: Application Initialization and State Machine Functions
