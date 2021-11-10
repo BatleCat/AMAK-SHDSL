@@ -453,6 +453,7 @@ APP_AMAK_PARSER_TASK_STATES app_amak_parser_task_service_tasks(void)
 //------------------------------------------------------------------------------
 void app_amak_parse_shdsl_data_pocket(void)
 {
+/*
     pSHDSL_POCKET shdsl_pocket = (pSHDSL_POCKET)app_amak_parser_taskData.event_info.pData;
     configASSERT(shdsl_pocket);
 
@@ -552,6 +553,7 @@ void app_amak_parse_shdsl_data_pocket(void)
     // освобождаю память по указателю данных из события
     //--------------------------------------------------------------
     free(shdsl_pocket->data);
+*/
 }
 //------------------------------------------------------------------------------
 void app_amak_parse_shdsl_state_pocket(void)
@@ -574,7 +576,14 @@ void app_amak_parse_udp_pocket(void)
     uint16_t rx_udp_len = app_amak_parser_taskData.event_info.data_len;
 
     #ifdef ENABLE_CONSOLE_MESSAGE
-        SYS_CONSOLE_PRINT   ("    Rx UDP length = %d \r\n", rx_udp_len);
+        SYS_CONSOLE_PRINT("    Rx UDP length = %d \r\n", rx_udp_len);
+        SYS_CONSOLE_PRINT("%2X %2X %2X %2X %2X %2X \r\n",   
+                app_amak_parser_taskData.event_info.pData[0], 
+                app_amak_parser_taskData.event_info.pData[1], 
+                app_amak_parser_taskData.event_info.pData[2],
+                app_amak_parser_taskData.event_info.pData[3], 
+                app_amak_parser_taskData.event_info.pData[4], 
+                app_amak_parser_taskData.event_info.pData[5]);
         wait_console_buffer_free();
     #endif
 
@@ -583,6 +592,19 @@ void app_amak_parse_udp_pocket(void)
     //--------------------------------------------------------------
     memset((void*)&amak2shdsl_frame, 0, AMAK_UDP_POCKET_SIZE);
     memcpy((void*)&amak2shdsl_frame, app_amak_parser_taskData.event_info.pData, app_amak_parser_taskData.event_info.data_len);
+
+    #ifdef ENABLE_CONSOLE_MESSAGE
+        SYS_CONSOLE_PRINT("    Rx UDP length = %d \r\n", rx_udp_len);
+        SYS_CONSOLE_PRINT("%2X %2X %2X %2X %2X %2X \r\n",   
+                amak2shdsl_frame.udp_pocket[0], 
+                amak2shdsl_frame.udp_pocket[1], 
+                amak2shdsl_frame.udp_pocket[2],
+                amak2shdsl_frame.udp_pocket[3], 
+                amak2shdsl_frame.udp_pocket[4], 
+                amak2shdsl_frame.udp_pocket[5]);
+        wait_console_buffer_free();
+    #endif
+
     //--------------------------------------------------------------
     // освобождаю память по указателю данных из события
     //--------------------------------------------------------------
@@ -590,8 +612,8 @@ void app_amak_parse_udp_pocket(void)
 
     //--------------------------------------------------------------
     //--------------------------------------------------------------
-    app_amak_parser_taskData.event_info.event_id = (ENUM_EVENT_TYPE)EVENT_TYPE_SHDSL_DATA_POCKET;
-    app_amak_parser_taskData.event_info.data_len = SHDSL_POCKET_SIZE;
+//    app_amak_parser_taskData.event_info.event_id = (ENUM_EVENT_TYPE)EVENT_TYPE_SHDSL_DATA_POCKET;
+//    app_amak_parser_taskData.event_info.data_len = SHDSL_POCKET_SIZE;
 
     //--------------------------------------------------------------
     //--------------------------------------------------------------

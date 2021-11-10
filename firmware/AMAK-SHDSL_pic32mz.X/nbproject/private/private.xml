@@ -3,16 +3,14 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/D:/Andrey/2021/myprog/microchip/MPLabX/AMAK-SHDSL/firmware/src/config/default/library/tcpip/src/icmp.c</file>
             <file>file:/D:/Andrey/2021/myprog/microchip/MPLabX/AMAK-SHDSL/firmware/src/config/default/library/tcpip/tcpip_mac.h</file>
-            <file>file:/D:/Andrey/2021/myprog/microchip/MPLabX/AMAK-SHDSL/firmware/src/config/default/library/tcpip/src/udp_manager.h</file>
+            <file>file:/D:/Andrey/2021/myprog/microchip/MPLabX/AMAK-SHDSL/firmware/src/AMAK_SHDSL_Queue.h</file>
             <file>file:/D:/Andrey/2021/myprog/microchip/MPLabX/AMAK-SHDSL/firmware/src/app_amak_parser_task.h</file>
+            <file>file:/D:/Andrey/2021/myprog/microchip/MPLabX/AMAK-SHDSL/firmware/src/config/default/library/tcpip/src/udp.c</file>
             <file>file:/D:/Andrey/2021/myprog/microchip/MPLabX/AMAK-SHDSL/firmware/src/app_udp_task.c</file>
             <file>file:/D:/Andrey/2021/myprog/microchip/MPLabX/AMAK-SHDSL/firmware/src/app_udp_task.h</file>
             <file>file:/D:/Andrey/2021/myprog/microchip/MPLabX/AMAK-SHDSL/firmware/src/app_amak_parser_task.c</file>
-            <file>file:/D:/Andrey/2021/myprog/microchip/MPLabX/AMAK-SHDSL/firmware/src/config/default/library/tcpip/src/tcpip_manager_control.h</file>
             <file>file:/D:/Andrey/2021/myprog/microchip/MPLabX/AMAK-SHDSL/firmware/src/app_commands.c</file>
-            <file>file:/D:/Andrey/2021/myprog/microchip/MPLabX/AMAK-SHDSL/firmware/src/config/default/library/tcpip/src/ipv4_manager.h</file>
         </group>
     </open-files>
 </project-private>

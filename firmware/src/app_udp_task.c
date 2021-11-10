@@ -131,36 +131,36 @@ static bool amak_shdsl_udp_packet_handler(TCPIP_NET_HANDLE hNet, TCPIP_MAC_PACKE
 // Section: Application Local Functions
 //------------------------------------------------------------------------------
 
-/*------------------------------------------------------------------------------
-<editor-fold defaultstate="collapsed" desc="Description function: wait_console_buffer_free()">
-  Function:
-    void wait_console_buffer_free ( void )
-
-  Summary:
-    
-
-  Description:
-    This function wait until Sys Console write buffer become empty.
-
-  Precondition:
-    None.
-
-  Parameters:
-    None.
-
-  Returns:
-    None.
-
-  Example:
-    <code>
-    wait_console_buffer_free();
-    </code>
-
-  Remarks:
-    None.
-*/
-// </editor-fold>
-void wait_console_buffer_free(void);
+///*------------------------------------------------------------------------------
+//<editor-fold defaultstate="collapsed" desc="Description function: wait_console_buffer_free()">
+//  Function:
+//    void wait_console_buffer_free ( void )
+//
+//  Summary:
+//    
+//
+//  Description:
+//    This function wait until Sys Console write buffer become empty.
+//
+//  Precondition:
+//    None.
+//
+//  Parameters:
+//    None.
+//
+//  Returns:
+//    None.
+//
+//  Example:
+//    <code>
+//    wait_console_buffer_free();
+//    </code>
+//
+//  Remarks:
+//    None.
+//*/
+//// </editor-fold>
+//void wait_console_buffer_free(void);
 
 /*------------------------------------------------------------------------------
 <editor-fold defaultstate="collapsed" desc="Description function: app_udp_task_init()">
@@ -1601,10 +1601,19 @@ static bool amak_shdsl_udp_packet_handler(TCPIP_NET_HANDLE hNet, TCPIP_MAC_PACKE
     if ( (1500 == pUDPHdr->SourcePort) && (1500 == pUDPHdr->DestinationPort) )
     {
         app_udp_taskData.event_info.data_len = udpTotLength;
-        app_udp_taskData.event_info.pData = (uint8_t*)pRxPkt->pTransportLayer;
+
+        app_udp_taskData.event_info.pData = malloc(udpTotLength);
+        configASSERT(app_udp_taskData.event_info.pData);
+        memcpy((uint8_t*)app_udp_taskData.event_info.pData, (uint8_t*)pRxPkt->pTransportLayer, udpTotLength);
+        
         app_udp_taskData.event_info.event_id = (ENUM_EVENT_TYPE)EVENT_TYPE_AMAK_UDP_POCKET;
         
         xQueueSend( eventQueue_app_amak_parser_task, (void*)&( app_udp_taskData.event_info ), 0 );//portMAX_DELAY); 
+        
+        if( (*pRxPkt->ackFunc)(pRxPkt, pRxPkt->ackParam) )
+        {
+               pRxPkt->pktFlags &= ~TCPIP_MAC_PKT_FLAG_QUEUED;
+        }
         
         return true;
     }
