@@ -95,6 +95,7 @@ TCPIP_UDP_PROCESS_HANDLE amak_shdsl_pktHandle;
 //------------------------------------------------------------------------------
 // Section: Application Callback Functions
 //------------------------------------------------------------------------------
+bool is_necessary_port(UDP_HEADER* pUDPHdr);
 
 /*------------------------------------------------------------------------------
 <editor-fold defaultstate="collapsed" desc="Description function: amak_shdsl_udp_packet_handler()">
@@ -745,6 +746,9 @@ APP_UDP_TASK_STATES app_udp_task_init(void)
 
         app_udp_taskData.local_adr = (IP_MULTI_ADDRESS){ .v4Add.v = {10, 2, 22, 245} };
         app_udp_taskData.local_port = 1500;
+
+        app_udp_taskData.necessary_src_port  = TCPIP_Helper_htons(NECESSARY_SRC_PORT);
+        app_udp_taskData.necessary_dest_port = TCPIP_Helper_htons(NECESSARY_DEST_PORT);
 
         app_udp_taskData.error = APP_UDP_TASK_ERROR_NO;
         result = APP_UDP_TASK_STATE_Start;
@@ -1472,7 +1476,12 @@ APP_UDP_TASK_STATES app_udp_task_error(void)
     return result;
 }
 //------------------------------------------------------------------------------
-
+bool is_necessary_port(UDP_HEADER* pUDPHdr)
+{
+    return ( (app_udp_taskData.necessary_src_port  == pUDPHdr->SourcePort) 
+          && (app_udp_taskData.necessary_dest_port == pUDPHdr->DestinationPort) 
+           );
+}
 /* UDP packet handler Pointer
 <editor-fold defaultstate="collapsed" desc="//-----------------------------------------------------------------------------">
 
@@ -1529,156 +1538,102 @@ APP_UDP_TASK_STATES app_udp_task_error(void)
 static bool amak_shdsl_udp_packet_handler(TCPIP_NET_HANDLE hNet, TCPIP_MAC_PACKET* pRxPkt, const void* hParam)
 {
     UDP_HEADER*		 pUDPHdr;
-//    UDP_SOCKET_DCPT* pSkt;
     uint16_t         udpTotLength;
     const IPV4_ADDR* pPktSrcAdd;
     const IPV4_ADDR* pPktDstAdd;
-//    TCPIP_UDP_SIGNAL_FUNCTION sigHandler;
-//    const void*      sigParam;
-//    TCPIP_MAC_PKT_ACK_RES ackRes;
     
     pUDPHdr = (UDP_HEADER*)pRxPkt->pTransportLayer;
-    udpTotLength = TCPIP_Helper_ntohs(pUDPHdr->Length);
 
-#if (_TCPIP_IPV4_FRAGMENTATION == 0)
-    if(udpTotLength != pRxPkt->totTransportLen)
-    {   // discard suspect packet
-        return false; //TCPIP_MAC_PKT_ACK_STRUCT_ERR;
-    }
-#endif  // (_TCPIP_IPV4_FRAGMENTATION != 0)
-
-    pPktSrcAdd = TCPIP_IPV4_PacketGetSourceAddress(pRxPkt);
-    pPktDstAdd = TCPIP_IPV4_PacketGetDestAddress(pRxPkt);
-	// See if we need to validate the checksum field (0x0000 is disabled)
-#ifdef TCPIP_UDP_USE_RX_CHECKSUM
-	if((pUDPHdr->Checksum != 0))
-	{
-        IPV4_PSEUDO_HEADER  pseudoHdr;
-        uint16_t            calcChkSum;
-	    // Calculate IP pseudoheader checksum.
-	    pseudoHdr.SourceAddress.Val = pPktSrcAdd->Val;
-	    pseudoHdr.DestAddress.Val = pPktDstAdd->Val;
-	    pseudoHdr.Zero	= 0;
-	    pseudoHdr.Protocol = IP_PROT_UDP;
-	    pseudoHdr.Length = pUDPHdr->Length;
-
-	    calcChkSum = ~TCPIP_Helper_CalcIPChecksum((uint8_t*)&pseudoHdr, sizeof(pseudoHdr), 0);
-#if (_TCPIP_IPV4_FRAGMENTATION != 0)
-        TCPIP_MAC_PACKET* pFragPkt;
-        uint16_t totCalcUdpLen = 0;
-        for(pFragPkt = pRxPkt; pFragPkt != 0; pFragPkt = pFragPkt->pkt_next)
-        {
-            calcChkSum = ~TCPIP_Helper_PacketChecksum(pFragPkt, pFragPkt->pTransportLayer, pFragPkt->totTransportLen, calcChkSum);
-            totCalcUdpLen += pFragPkt->totTransportLen;
-        }
-        calcChkSum = ~calcChkSum;
-
-        if(udpTotLength != totCalcUdpLen)
-        {   // discard suspect packet
-            return false; //TCPIP_MAC_PKT_ACK_STRUCT_ERR;
-        }
-#else
-        if((pRxPkt->pktFlags & TCPIP_MAC_PKT_FLAG_SPLIT) != 0)
-        {
-            calcChkSum = TCPIP_Helper_PacketChecksum(pRxPkt, (uint8_t*)pUDPHdr, udpTotLength, calcChkSum);
-        }
-        else
-        {
-            calcChkSum = TCPIP_Helper_CalcIPChecksum((uint8_t*)pUDPHdr, udpTotLength, calcChkSum);
-        }
-#endif  // (_TCPIP_IPV4_FRAGMENTATION != 0)
-
-        if(calcChkSum != 0)
-        {   // discard packet
-            return false; //TCPIP_MAC_PKT_ACK_CHKSUM_ERR;
-        }
-	}
-#endif // TCPIP_UDP_USE_RX_CHECKSUM
-
-    pUDPHdr->SourcePort = TCPIP_Helper_ntohs(pUDPHdr->SourcePort);
-    pUDPHdr->DestinationPort = TCPIP_Helper_ntohs(pUDPHdr->DestinationPort);
-    
-    if ( (1500 == pUDPHdr->SourcePort) && (1500 == pUDPHdr->DestinationPort) )
+    if ( is_necessary_port(pUDPHdr) )
     {
+        //----------------------------------------------------------------------
+        udpTotLength = TCPIP_Helper_ntohs(pUDPHdr->Length);
+        //----------------------------------------------------------------------
+        #if (_TCPIP_IPV4_FRAGMENTATION == 0)
+            if(udpTotLength != pRxPkt->totTransportLen)
+            {   // discard suspect packet
+                return false; //TCPIP_MAC_PKT_ACK_STRUCT_ERR;
+            }
+        #endif  // (_TCPIP_IPV4_FRAGMENTATION != 0)
+        //----------------------------------------------------------------------
+        pPktSrcAdd = TCPIP_IPV4_PacketGetSourceAddress(pRxPkt);
+        pPktDstAdd = TCPIP_IPV4_PacketGetDestAddress(pRxPkt);
+        //----------------------------------------------------------------------
+        // See if we need to validate the checksum field (0x0000 is disabled)
+        #ifdef TCPIP_UDP_USE_RX_CHECKSUM
+            if((pUDPHdr->Checksum != 0))
+            {
+                IPV4_PSEUDO_HEADER  pseudoHdr;
+                uint16_t            calcChkSum;
+                
+                // Calculate IP pseudoheader checksum.
+                pseudoHdr.SourceAddress.Val = pPktSrcAdd->Val;
+                pseudoHdr.DestAddress.Val = pPktDstAdd->Val;
+                pseudoHdr.Zero	= 0;
+                pseudoHdr.Protocol = IP_PROT_UDP;
+                pseudoHdr.Length = pUDPHdr->Length;
+                //--------------------------------------------------------------
+                calcChkSum = ~TCPIP_Helper_CalcIPChecksum((uint8_t*)&pseudoHdr, sizeof(pseudoHdr), 0);
+                //--------------------------------------------------------------
+                
+            #if (_TCPIP_IPV4_FRAGMENTATION != 0)
+                TCPIP_MAC_PACKET* pFragPkt;
+                uint16_t totCalcUdpLen = 0;
+                //--------------------------------------------------------------
+                for(pFragPkt = pRxPkt; pFragPkt != 0; pFragPkt = pFragPkt->pkt_next)
+                {
+                    calcChkSum = ~TCPIP_Helper_PacketChecksum(pFragPkt, pFragPkt->pTransportLayer, pFragPkt->totTransportLen, calcChkSum);
+                    totCalcUdpLen += pFragPkt->totTransportLen;
+                }
+                //--------------------------------------------------------------
+                calcChkSum = ~calcChkSum;
+                //--------------------------------------------------------------
+                if(udpTotLength != totCalcUdpLen)
+                {   // discard suspect packet
+                    return false; //TCPIP_MAC_PKT_ACK_STRUCT_ERR;
+                }
+                //--------------------------------------------------------------
+               
+            #else
+                if((pRxPkt->pktFlags & TCPIP_MAC_PKT_FLAG_SPLIT) != 0)
+                {
+                    calcChkSum = TCPIP_Helper_PacketChecksum(pRxPkt, (uint8_t*)pUDPHdr, udpTotLength, calcChkSum);
+                }
+                else
+                {
+                    calcChkSum = TCPIP_Helper_CalcIPChecksum((uint8_t*)pUDPHdr, udpTotLength, calcChkSum);
+                }
+            #endif  // (_TCPIP_IPV4_FRAGMENTATION != 0)
+                //--------------------------------------------------------------
+                if(calcChkSum != 0)
+                {   // discard packet
+                    return false; //TCPIP_MAC_PKT_ACK_CHKSUM_ERR;
+                }
+                //--------------------------------------------------------------
+            }
+        #endif // TCPIP_UDP_USE_RX_CHECKSUM
+        //----------------------------------------------------------------------
         app_udp_taskData.event_info.data_len = udpTotLength;
-
+        //----------------------------------------------------------------------
         app_udp_taskData.event_info.pData = malloc(udpTotLength);
         configASSERT(app_udp_taskData.event_info.pData);
         memcpy((uint8_t*)app_udp_taskData.event_info.pData, (uint8_t*)pRxPkt->pTransportLayer, udpTotLength);
-        
+        //----------------------------------------------------------------------
         app_udp_taskData.event_info.event_id = (ENUM_EVENT_TYPE)EVENT_TYPE_AMAK_UDP_POCKET;
-        
+        //----------------------------------------------------------------------
         xQueueSend( eventQueue_app_amak_parser_task, (void*)&( app_udp_taskData.event_info ), 0 );//portMAX_DELAY); 
-        
+        //----------------------------------------------------------------------
         if( (*pRxPkt->ackFunc)(pRxPkt, pRxPkt->ackParam) )
         {
                pRxPkt->pktFlags &= ~TCPIP_MAC_PKT_FLAG_QUEUED;
         }
-        
+        //----------------------------------------------------------------------
         return true;
+        //----------------------------------------------------------------------
     }
     
     return false;
-/*
-    pUDPHdr->Length = udpTotLength - sizeof(UDP_HEADER);    
-
-    while(true)
-    {
-        pSkt = _UDPFindMatchingSocket(pRxPkt, pUDPHdr, IP_ADDRESS_TYPE_IPV4);
-        if(pSkt == 0)
-        {
-            // If there is no matching socket, There is no one to handle
-            // this data.  Discard it.
-            ackRes = TCPIP_MAC_PKT_ACK_PROTO_DEST_ERR;
-            break;
-        }
-
-#if defined(TCPIP_STACK_USE_IGMP)    
-        if(pSkt->extFlags.mcastSkipCheck == 0)
-        {   // don't skip check multicast traffic
-            if(TCPIP_Helper_IsMcastAddress(pPktDstAdd))
-            {   // need to check
-                if(!TCPIP_IGMP_IsMcastEnabled(pSkt->sktIx, pRxPkt->pktIf, *pPktDstAdd, *pPktSrcAdd))
-                {   // don't let it through
-                    ackRes = TCPIP_MAC_PKT_ACK_PROTO_DEST_ERR;
-                    break;
-                }
-            }
-        }
-#endif  // defined(TCPIP_STACK_USE_IGMP)    
-    
-        if(pSkt->extFlags.mcastOnly != 0)
-        {   // let through multicast traffic only
-            if(!TCPIP_Helper_IsMcastAddress(pPktDstAdd))
-            {   // don't let it through
-                ackRes = TCPIP_MAC_PKT_ACK_PROTO_DEST_ERR;
-                break;
-            }
-        }
-
-        // insert valid packet in the RX queue
-        sigHandler = _RxSktQueueAddLocked(pSkt, pRxPkt, &sigParam);
-        if(sigHandler)
-        {   // notify socket user
-            (*sigHandler)(pSkt->sktIx, pRxPkt->pktIf, TCPIP_UDP_SIGNAL_RX_DATA, sigParam);
-        }
-
-        // everything OK, pass to user
-        ackRes = TCPIP_MAC_PKT_ACK_NONE;
-        break;
-    }
-
-
-    // log 
-#if (TCPIP_PACKET_LOG_ENABLE)
-    uint32_t logPort = (pSkt != 0) ? ((uint32_t)pSkt->localPort << 16) | pSkt->remotePort : ((uint32_t)pUDPHdr->DestinationPort << 16) | pUDPHdr->SourcePort;
-    TCPIP_PKT_FlightLogRxSkt(pRxPkt, TCPIP_MODULE_LAYER3, logPort, pSkt != 0 ? pSkt->sktIx: 0xffff);
-#endif  // (TCPIP_PACKET_LOG_ENABLE)
-
-    return ackRes;
-*/
 }
-
 //------------------------------------------------------------------------------
 // End of File
 //------------------------------------------------------------------------------

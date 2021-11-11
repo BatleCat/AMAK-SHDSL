@@ -141,7 +141,13 @@ typedef struct
     IP_MULTI_ADDRESS    local_adr;
     UDP_PORT            local_port;
     
+    UDP_PORT            necessary_src_port;
+    UDP_PORT            necessary_dest_port;
+    
 } APP_UDP_TASK_DATA;
+//------------------------------------------------------------------------------
+#define NECESSARY_SRC_PORT  1500
+#define NECESSARY_DEST_PORT 1500
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
