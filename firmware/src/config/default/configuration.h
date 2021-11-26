@@ -100,7 +100,7 @@ extern "C" {
 #define SYS_CMD_BUFFER_DMA_READY
 
 /* Command System Service RTOS Configurations*/
-#define SYS_CMD_RTOS_STACK_SIZE                1024
+#define SYS_CMD_RTOS_STACK_SIZE                256
 #define SYS_CMD_RTOS_TASK_PRIORITY             1
 
 #define SYS_CONSOLE_DEVICE_MAX_INSTANCES   			1
@@ -282,7 +282,7 @@ extern "C" {
 
 /*** TCPIP Heap Configuration ***/
 #define TCPIP_STACK_USE_INTERNAL_HEAP
-#define TCPIP_STACK_DRAM_SIZE                       40000
+#define TCPIP_STACK_DRAM_SIZE                       50000
 #define TCPIP_STACK_DRAM_RUN_LIMIT                  2048
 
 #define TCPIP_STACK_MALLOC_FUNC                     malloc
@@ -329,7 +329,7 @@ extern "C" {
 #define TCPIP_STACK_MAC_DOWN_OPERATION  true
 #define TCPIP_STACK_INTERFACE_CHANGE_SIGNALING   false
 #define TCPIP_STACK_CONFIGURATION_SAVE_RESTORE   true
-#define TCPIP_STACK_EXTERN_PACKET_PROCESS   false
+#define TCPIP_STACK_EXTERN_PACKET_PROCESS   true
 
 
 
@@ -349,7 +349,7 @@ extern "C" {
 #define TCPIP_UDP_USE_TX_CHECKSUM             			true
 #define TCPIP_UDP_USE_RX_CHECKSUM             			true
 #define TCPIP_UDP_COMMANDS   false
-#define TCPIP_UDP_EXTERN_PACKET_PROCESS   true
+#define TCPIP_UDP_EXTERN_PACKET_PROCESS   false
 
 
                                                   

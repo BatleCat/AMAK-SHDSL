@@ -4,6 +4,13 @@ attributes: {id: tcpipStack}
 children:
 - type: Symbols
   children:
+  - type: Integer
+    attributes: {id: TCPIP_RTOS_TASK_STACK_SIZE}
+    children:
+    - type: Values
+      children:
+      - type: User
+        attributes: {value: '4096'}
   - type: Boolean
     attributes: {id: TCPIP_STACK_DRAM_DEBUG_ENABLE}
     children:
@@ -24,7 +31,7 @@ children:
     - type: Values
       children:
       - type: User
-        attributes: {value: '40000'}
+        attributes: {value: '50000'}
   - type: Boolean
     attributes: {id: TCPIP_STACK_DRAM_TRACE_ENABLE}
     children:
@@ -53,7 +60,7 @@ children:
     - type: Values
       children:
       - type: User
-        attributes: {value: 'false'}
+        attributes: {value: 'true'}
   - type: String
     attributes: {id: TCPIP_STACK_FREE_FUNC}
     children:

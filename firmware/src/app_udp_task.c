@@ -35,6 +35,7 @@
 
 #include "config/default/library/tcpip/tcp.h"
 #include "config/default/library/tcpip/udp.h"
+#include "config/default/library/tcpip/src/tcpip_packet.h"
 #include "config/default/library/tcpip/src/tcpip_manager_control.h"
 #include "config/default/library/tcpip/src/ipv4_manager.h"
 #include "config/default/library/tcpip/tcpip_manager.h"
@@ -95,7 +96,195 @@ TCPIP_UDP_PROCESS_HANDLE amak_shdsl_pktHandle;
 //------------------------------------------------------------------------------
 // Section: Application Callback Functions
 //------------------------------------------------------------------------------
-bool is_necessary_port(UDP_HEADER* pUDPHdr);
+/*------------------------------------------------------------------------------
+<editor-fold defaultstate="collapsed" desc="Description function: amak_shdsl_mac_packet_handler()">
+  Function:
+    static bool amak_shdsl_mac_packet_handler(TCPIP_NET_HANDLE hNet, TCPIP_MAC_PACKET* rxPkt, uint16_t frameType, const void* hParam)
+
+  Summary:
+    
+
+  Description:
+    This function 
+
+  Precondition:
+    None.
+
+  Parameters:
+    None.
+
+  Returns:
+    None.
+
+  Example:
+    <code>
+    
+    </code>
+
+  Remarks:
+    None.
+*/
+// </editor-fold>
+static bool amak_shdsl_mac_packet_handler(TCPIP_NET_HANDLE hNet, TCPIP_MAC_PACKET* pRxPkt, uint16_t frameType, const void* hParam);
+
+/*------------------------------------------------------------------------------
+<editor-fold defaultstate="collapsed" desc="Description function: amak_shdsl_arp_packet_handler()">
+ 
+   Function:
+    bool <FunctionName> (TCPIP_NET_HANDLE hNet, struct _tag_TCPIP_MAC_PACKET* rxPkt, const void* hParam);
+
+  Summary:
+    Pointer to a function(handler) that will get called to process an incoming ARP packet.
+
+  Description:
+    Function that will be called by the amak_shdsl_mac_packet_handler()
+    when a RX ARP-packet is available.
+
+  Precondition:
+    None
+
+  Parameters:
+    hNet        - network handle on which the packet has arrived
+    rxPkt       - pointer to incoming packet
+    hParam      - user passed parameter when handler was registered
+
+  Returns:
+    true - if the packet is processed by the external handler.
+           In this case the IPv4 module will no longer process the packet
+    false - the packet needs to be processed internally by the IPv4 as usual           
+
+  Remarks:
+    The packet handler is called in the IPv4 context.
+    The handler should be kept as short as possible as it affects the processing of all the other
+    IPv4 RX traffic.
+
+    Before calling the external packet handler 
+    - the rxPkt->pNetLayer points to an IPV4_HEADER data structure.
+    - the rxPkt->pktIf points to the interface receiving the packet
+    - no other checks are done! (checksum, versions, etc.)
+
+    Important!
+    When the packet handler returns true, once it's done processing the packet,
+    it needs to acknowledge it, i.e. return to the owner,
+    which is the MAC driver serving the network interface!
+    This means that the packet acknowledge function needs to be called,
+    with a proper acknowledge parameter and the QUEUED flag needs to be cleared, if needed:
+    if((*rxPkt->ackFunc)(rxPkt, rxPkt->ackParam))
+    {
+           rxPkt->pktFlags &= ~TCPIP_MAC_PKT_FLAG_QUEUED;
+    }
+    Failure to do that will result in memory leaks and starvation of the MAC driver.
+    See the tcpip_mac.h for details.
+    
+ */
+//</editor-fold>
+static bool amak_shdsl_arp_packet_handler(TCPIP_NET_HANDLE hNet, TCPIP_MAC_PACKET* pRxPkt, const void* hParam);
+
+/*------------------------------------------------------------------------------
+<editor-fold defaultstate="collapsed" desc="Description function: amak_shdsl_ip_packet_handler()">
+ IPv4 packet handler Pointer
+
+   Function:
+    bool <FunctionName> (TCPIP_NET_HANDLE hNet, struct _tag_TCPIP_MAC_PACKET* rxPkt, const void* hParam);
+
+  Summary:
+    Pointer to a function(handler) that will get called to process an incoming IPv4 packet.
+
+  Description:
+    Pointer to a function that will be called by the IPv4 module
+    when a RX packet is available.
+
+  Precondition:
+    None
+
+  Parameters:
+    hNet        - network handle on which the packet has arrived
+    rxPkt       - pointer to incoming packet
+    hParam      - user passed parameter when handler was registered
+
+  Returns:
+    true - if the packet is processed by the external handler.
+           In this case the IPv4 module will no longer process the packet
+    false - the packet needs to be processed internally by the IPv4 as usual           
+
+  Remarks:
+    The packet handler is called in the IPv4 context.
+    The handler should be kept as short as possible as it affects the processing of all the other
+    IPv4 RX traffic.
+
+    Before calling the external packet handler 
+    - the rxPkt->pNetLayer points to an IPV4_HEADER data structure.
+    - the rxPkt->pktIf points to the interface receiving the packet
+    - no other checks are done! (checksum, versions, etc.)
+
+    Important!
+    When the packet handler returns true, once it's done processing the packet,
+    it needs to acknowledge it, i.e. return to the owner,
+    which is the MAC driver serving the network interface!
+    This means that the packet acknowledge function needs to be called,
+    with a proper acknowledge parameter and the QUEUED flag needs to be cleared, if needed:
+    if((*rxPkt->ackFunc)(rxPkt, rxPkt->ackParam))
+    {
+           rxPkt->pktFlags &= ~TCPIP_MAC_PKT_FLAG_QUEUED;
+    }
+    Failure to do that will result in memory leaks and starvation of the MAC driver.
+    See the tcpip_mac.h for details.
+    
+ */
+//</editor-fold>
+static bool amak_shdsl_ip_packet_handler(TCPIP_NET_HANDLE hNet, TCPIP_MAC_PACKET* pRxPkt, const void* hParam);
+
+/*<editor-fold defaultstate="collapsed" desc="Description function: amak_shdsl_icmp_packet_handler()">
+
+   Function:
+    bool <FunctionName> (TCPIP_NET_HANDLE hNet, struct _tag_TCPIP_MAC_PACKET* rxPkt, const void* hParam);
+
+  Summary:
+    Pointer to a function(handler) that will get called to process an incoming ICMP packet.
+
+  Description:
+    Function that will be called by the amak_shdsl_ip_packet_handler()
+    when a RX ICMP-packet is available.
+
+  Precondition:
+    None
+
+  Parameters:
+    hNet        - network handle on which the packet has arrived
+    rxPkt       - pointer to incoming packet
+    hParam      - user passed parameter when handler was registered
+
+  Returns:
+    true - if the packet is processed by the external handler.
+           In this case the IPv4 module will no longer process the packet
+    false - the packet needs to be processed internally by the IPv4 as usual           
+
+  Remarks:
+    The packet handler is called in the IPv4 context.
+    The handler should be kept as short as possible as it affects the processing of all the other
+    IPv4 RX traffic.
+
+    Before calling the external packet handler 
+    - the rxPkt->pNetLayer points to an IPV4_HEADER data structure.
+    - the rxPkt->pktIf points to the interface receiving the packet
+    - no other checks are done! (checksum, versions, etc.)
+
+    Important!
+    When the packet handler returns true, once it's done processing the packet,
+    it needs to acknowledge it, i.e. return to the owner,
+    which is the MAC driver serving the network interface!
+    This means that the packet acknowledge function needs to be called,
+    with a proper acknowledge parameter and the QUEUED flag needs to be cleared, if needed:
+    if((*rxPkt->ackFunc)(rxPkt, rxPkt->ackParam))
+    {
+           rxPkt->pktFlags &= ~TCPIP_MAC_PKT_FLAG_QUEUED;
+    }
+    Failure to do that will result in memory leaks and starvation of the MAC driver.
+    See the tcpip_mac.h for details.
+    
+ */
+//</editor-fold>
+static bool amak_shdsl_icmp_packet_handler(TCPIP_NET_HANDLE hNet, TCPIP_MAC_PACKET* pRxPkt, const void* hParam);
 
 /*------------------------------------------------------------------------------
 <editor-fold defaultstate="collapsed" desc="Description function: amak_shdsl_udp_packet_handler()">
@@ -131,6 +320,11 @@ static bool amak_shdsl_udp_packet_handler(TCPIP_NET_HANDLE hNet, TCPIP_MAC_PACKE
 //------------------------------------------------------------------------------
 // Section: Application Local Functions
 //------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+inline bool is_necessary_port(const UDP_HEADER* const pUDPHdr);
+
+inline void send_packet_2_amak_parser(TCPIP_MAC_PACKET* pRxPkt, const uint8_t* packet, const uint16_t len);
 
 ///*------------------------------------------------------------------------------
 //<editor-fold defaultstate="collapsed" desc="Description function: wait_console_buffer_free()">
@@ -866,6 +1060,23 @@ APP_UDP_TASK_STATES app_udp_task_wait_for_ip(void)
     return result;
 }
 //------------------------------------------------------------------------------
+//APP_UDP_TASK_STATES app_udp_task_register_amak_shdsl_ip_handler(void)
+//{
+//    //------------------------------------------------------------------
+//    // <editor-fold defaultstate="collapsed" desc="Wait until Console Buffer become free">
+//    wait_console_buffer_free();
+//    // </editor-fold>
+//    //------------------------------------------------------------------
+//    amak_shdsl_pktHandle = TCPIP_IPV4_PacketHandlerRegister( amak_shdsl_ip_packet_handler, NULL);
+//    //------------------------------------------------------------------
+//    #ifdef ENABLE_CONSOLE_MESSAGE
+//        SYS_CONSOLE_MESSAGE(" APP_UDP_TASK: State machine -> UDP_STATE_WAIT_SERVER_OPEN\r\n");
+//    #endif
+//    app_udp_taskData.error = APP_UDP_TASK_ERROR_NO;
+//    
+//    return APP_UDP_TASK_STATE_WAIT_SERVER_OPEN;
+//}
+//------------------------------------------------------------------------------
 APP_UDP_TASK_STATES app_udp_task_register_amak_shdsl_udp_handler(void)
 {
     //------------------------------------------------------------------
@@ -873,7 +1084,9 @@ APP_UDP_TASK_STATES app_udp_task_register_amak_shdsl_udp_handler(void)
     wait_console_buffer_free();
     // </editor-fold>
     //------------------------------------------------------------------
-    amak_shdsl_pktHandle = TCPIP_UDP_PacketHandlerRegister( amak_shdsl_udp_packet_handler, NULL );
+//    amak_shdsl_pktHandle = TCPIP_UDP_PacketHandlerRegister( amak_shdsl_udp_packet_handler, NULL );
+//    amak_shdsl_pktHandle = TCPIP_IPV4_PacketHandlerRegister( amak_shdsl_ip_packet_handler, NULL);
+    amak_shdsl_pktHandle = TCPIP_STACK_PacketHandlerRegister(app_udp_taskData.netH, amak_shdsl_mac_packet_handler, NULL);
     //------------------------------------------------------------------
     #ifdef ENABLE_CONSOLE_MESSAGE
         SYS_CONSOLE_MESSAGE(" APP_UDP_TASK: State machine -> UDP_STATE_WAIT_SERVER_OPEN\r\n");
@@ -1476,12 +1689,306 @@ APP_UDP_TASK_STATES app_udp_task_error(void)
     return result;
 }
 //------------------------------------------------------------------------------
-bool is_necessary_port(UDP_HEADER* pUDPHdr)
+
+/*------------------------------------------------------------------------------
+<editor-fold defaultstate="collapsed" desc="//-----------------------------------------------------------------------------">
+
+  Function:
+    bool <FunctionName> (TCPIP_NET_HANDLE hNet, struct _tag_TCPIP_MAC_PACKET* rxPkt, uint16_t frameType, const void* hParam);
+
+  Summary:
+    Pointer to a function(handler) that will get called to process an incoming packet.
+
+  Description:
+    Pointer to a function that will be called by the TCP/IP manager
+    when a RX packet is available.
+
+  Precondition:
+    None
+
+  Parameters:
+    hNet        - network handle on which the packet has arrived
+    rxPkt       - pointer to incoming packet
+    frameType   - type of packet being processed
+                  Note: value is converted to host endianess!
+                  Standard Ethernet frame value: 0x0800 - IPV4, 0x86DD - IPv6, 0x0806 - ARP, etc. 
+    hParam      - user passed parameter when handler was registered
+
+  Returns:
+    true - if the packet is processed by the external handler.
+           In this case the TCP/IP manager will no longer process the packet
+    false - the packet needs to be processed internally by the stack as usual           
+
+  Remarks:
+    The packet handler is called in the TCP/IP stack manager context.
+    The handler should be kept as short as possible as it affects the processing of all the other
+    RX traffic.
+
+    Before calling the external packet handler 
+    - the rxPkt->pktIf points to the interface receiving the packet
+    - no other processing/checks are done!
+
+    Important!
+    When the packet handler returns true, once it's done processing the packet,
+    it needs to acknowledge it, i.e. return to the owner,
+    which is the MAC driver serving the network interface!
+    This means that the packet acknowledge function needs to be called,
+    with a proper acknowledge parameter and the QUEUED flag needs to be cleared, if needed:
+    if((*rxPkt->ackFunc)(rxPkt, rxPkt->ackParam))
+    {
+           rxPkt->pktFlags &= ~TCPIP_MAC_PKT_FLAG_QUEUED;
+    }
+    Failure to do that will result in memory leaks and starvation of the MAC driver.
+    See the tcpip_mac.h for details.
+    
+*/
+// </editor-fold>
+static bool amak_shdsl_mac_packet_handler(TCPIP_NET_HANDLE hNet, TCPIP_MAC_PACKET* pRxPkt, uint16_t frameType, const void* hParam)
 {
-    return ( (app_udp_taskData.necessary_src_port  == pUDPHdr->SourcePort) 
-          && (app_udp_taskData.necessary_dest_port == pUDPHdr->DestinationPort) 
-           );
+    bool res;
+    
+//    switch ( TCPIP_Helper_ntohs(frameType) )
+    switch ( frameType )
+    {
+        case TCPIP_ETHER_TYPE_IPV4:    // IP (v4)  protocol
+        {
+            res = amak_shdsl_ip_packet_handler(hNet, pRxPkt, hParam);
+            break;
+        }
+        case TCPIP_ETHER_TYPE_ARP:    // ARP protocol
+        {
+            res = amak_shdsl_arp_packet_handler(hNet, pRxPkt, hParam);
+            break;
+        }
+        default:
+        {
+            res = false;
+        }
+    }
+    return res;
 }
+
+/*<editor-fold defaultstate="collapsed" desc="//-----------------------------------------------------------------------------">
+
+   Function:
+    bool <FunctionName> (TCPIP_NET_HANDLE hNet, struct _tag_TCPIP_MAC_PACKET* rxPkt, const void* hParam);
+
+  Summary:
+    Pointer to a function(handler) that will get called to process an incoming ARP packet.
+
+  Description:
+    Function that will be called by the amak_shdsl_mac_packet_handler()
+    when a RX ARP-packet is available.
+
+  Precondition:
+    None
+
+  Parameters:
+    hNet        - network handle on which the packet has arrived
+    rxPkt       - pointer to incoming packet
+    hParam      - user passed parameter when handler was registered
+
+  Returns:
+    true - if the packet is processed by the external handler.
+           In this case the IPv4 module will no longer process the packet
+    false - the packet needs to be processed internally by the IPv4 as usual           
+
+  Remarks:
+    The packet handler is called in the IPv4 context.
+    The handler should be kept as short as possible as it affects the processing of all the other
+    IPv4 RX traffic.
+
+    Before calling the external packet handler 
+    - the rxPkt->pNetLayer points to an IPV4_HEADER data structure.
+    - the rxPkt->pktIf points to the interface receiving the packet
+    - no other checks are done! (checksum, versions, etc.)
+
+    Important!
+    When the packet handler returns true, once it's done processing the packet,
+    it needs to acknowledge it, i.e. return to the owner,
+    which is the MAC driver serving the network interface!
+    This means that the packet acknowledge function needs to be called,
+    with a proper acknowledge parameter and the QUEUED flag needs to be cleared, if needed:
+    if((*rxPkt->ackFunc)(rxPkt, rxPkt->ackParam))
+    {
+           rxPkt->pktFlags &= ~TCPIP_MAC_PKT_FLAG_QUEUED;
+    }
+    Failure to do that will result in memory leaks and starvation of the MAC driver.
+    See the tcpip_mac.h for details.
+    
+ */
+//</editor-fold>
+static bool amak_shdsl_arp_packet_handler(TCPIP_NET_HANDLE hNet, TCPIP_MAC_PACKET* pRxPkt, const void* hParam)
+{
+//    #ifdef ENABLE_CONSOLE_MESSAGE
+//        SYS_CONSOLE_PRINT("   ARP packet\r\n");
+//    #endif
+
+//    pRxPkt->pktFlags &= ~TCPIP_MAC_PKT_FLAG_TYPE_MASK;
+//    pRxPkt->pktFlags |= TCPIP_MAC_PKT_FLAG_ARP;
+
+    return false;
+}
+
+/*------------------------------------------------------------------------------
+<editor-fold defaultstate="collapsed" desc="//-----------------------------------------------------------------------------">
+ IPv4 packet handler Pointer
+
+   Function:
+    bool <FunctionName> (TCPIP_NET_HANDLE hNet, struct _tag_TCPIP_MAC_PACKET* rxPkt, const void* hParam);
+
+  Summary:
+    Pointer to a function(handler) that will get called to process an incoming IPv4 packet.
+
+  Description:
+    Pointer to a function that will be called by the IPv4 module
+    when a RX packet is available.
+
+  Precondition:
+    None
+
+  Parameters:
+    hNet        - network handle on which the packet has arrived
+    rxPkt       - pointer to incoming packet
+    hParam      - user passed parameter when handler was registered
+
+  Returns:
+    true - if the packet is processed by the external handler.
+           In this case the IPv4 module will no longer process the packet
+    false - the packet needs to be processed internally by the IPv4 as usual           
+
+  Remarks:
+    The packet handler is called in the IPv4 context.
+    The handler should be kept as short as possible as it affects the processing of all the other
+    IPv4 RX traffic.
+
+    Before calling the external packet handler 
+    - the rxPkt->pNetLayer points to an IPV4_HEADER data structure.
+    - the rxPkt->pktIf points to the interface receiving the packet
+    - no other checks are done! (checksum, versions, etc.)
+
+    Important!
+    When the packet handler returns true, once it's done processing the packet,
+    it needs to acknowledge it, i.e. return to the owner,
+    which is the MAC driver serving the network interface!
+    This means that the packet acknowledge function needs to be called,
+    with a proper acknowledge parameter and the QUEUED flag needs to be cleared, if needed:
+    if((*rxPkt->ackFunc)(rxPkt, rxPkt->ackParam))
+    {
+           rxPkt->pktFlags &= ~TCPIP_MAC_PKT_FLAG_QUEUED;
+    }
+    Failure to do that will result in memory leaks and starvation of the MAC driver.
+    See the tcpip_mac.h for details.
+    
+ */
+//</editor-fold>
+static bool amak_shdsl_ip_packet_handler(TCPIP_NET_HANDLE hNet, TCPIP_MAC_PACKET* pRxPkt, const void* hParam)
+{
+    IPV4_HEADER*    p_ip_hdr;
+    bool            res;
+    
+    #ifdef ENABLE_CONSOLE_MESSAGE
+        SYS_CONSOLE_PRINT("   IP packet\r\n");
+    #endif
+
+    p_ip_hdr = (IPV4_HEADER*)pRxPkt->pNetLayer;
+    
+    switch ( (IPV4_HEADER_TYPE)(p_ip_hdr->Protocol) )
+    {
+        case ( IP_PROT_ICMP ):
+        {
+            res = amak_shdsl_icmp_packet_handler(hNet, pRxPkt, hParam);
+            break;
+        }
+        case ( IP_PROT_UDP):
+        {
+            res = amak_shdsl_udp_packet_handler(hNet, pRxPkt, hParam);
+            break;
+        }
+        default:
+        {
+            res = false;
+            break;
+        }
+    }
+    
+    return res;
+}
+
+/*<editor-fold defaultstate="collapsed" desc="//-----------------------------------------------------------------------------">
+
+   Function:
+    bool <FunctionName> (TCPIP_NET_HANDLE hNet, struct _tag_TCPIP_MAC_PACKET* rxPkt, const void* hParam);
+
+  Summary:
+    Pointer to a function(handler) that will get called to process an incoming ICMP packet.
+
+  Description:
+    Function that will be called by the amak_shdsl_ip_packet_handler()
+    when a RX ICMP-packet is available.
+
+  Precondition:
+    None
+
+  Parameters:
+    hNet        - network handle on which the packet has arrived
+    rxPkt       - pointer to incoming packet
+    hParam      - user passed parameter when handler was registered
+
+  Returns:
+    true - if the packet is processed by the external handler.
+           In this case the IPv4 module will no longer process the packet
+    false - the packet needs to be processed internally by the IPv4 as usual           
+
+  Remarks:
+    The packet handler is called in the IPv4 context.
+    The handler should be kept as short as possible as it affects the processing of all the other
+    IPv4 RX traffic.
+
+    Before calling the external packet handler 
+    - the rxPkt->pNetLayer points to an IPV4_HEADER data structure.
+    - the rxPkt->pktIf points to the interface receiving the packet
+    - no other checks are done! (checksum, versions, etc.)
+
+    Important!
+    When the packet handler returns true, once it's done processing the packet,
+    it needs to acknowledge it, i.e. return to the owner,
+    which is the MAC driver serving the network interface!
+    This means that the packet acknowledge function needs to be called,
+    with a proper acknowledge parameter and the QUEUED flag needs to be cleared, if needed:
+    if((*rxPkt->ackFunc)(rxPkt, rxPkt->ackParam))
+    {
+           rxPkt->pktFlags &= ~TCPIP_MAC_PKT_FLAG_QUEUED;
+    }
+    Failure to do that will result in memory leaks and starvation of the MAC driver.
+    See the tcpip_mac.h for details.
+    
+ */
+//</editor-fold>
+static bool amak_shdsl_icmp_packet_handler(TCPIP_NET_HANDLE hNet, TCPIP_MAC_PACKET* pRxPkt, const void* hParam)
+{
+//    #ifdef ENABLE_CONSOLE_MESSAGE
+//        SYS_CONSOLE_PRINT("   ICMP packet\r\n");
+//    #endif
+    
+//    IPV4_HEADER*    p_ip_hdr;
+//    uint16_t        ip_total_length;
+//
+//    pRxPkt->pktFlags &= ~TCPIP_MAC_PKT_FLAG_TYPE_MASK;
+//    pRxPkt->pktFlags |= TCPIP_MAC_PKT_FLAG_IPV4;
+//    pRxPkt->pktFlags |= TCPIP_MAC_PKT_FLAG_ICMPV4;
+    
+//    p_ip_hdr = (IPV4_HEADER*)pRxPkt->pNetLayer;
+//    
+//    ip_total_length = p_ip_hdr->TotalLength;
+//
+//    send_packet_2_amak_parser(pRxPkt, (uint8_t*)p_ip_hdr, ip_total_length);
+//    //----------------------------------------------------------------------
+//    return true;
+    //----------------------------------------------------------------------
+    return false;
+}
+
 /* UDP packet handler Pointer
 <editor-fold defaultstate="collapsed" desc="//-----------------------------------------------------------------------------">
 
@@ -1537,20 +2044,40 @@ bool is_necessary_port(UDP_HEADER* pUDPHdr)
 //</editor-fold>
 static bool amak_shdsl_udp_packet_handler(TCPIP_NET_HANDLE hNet, TCPIP_MAC_PACKET* pRxPkt, const void* hParam)
 {
-    UDP_HEADER*		 pUDPHdr;
-    uint16_t         udpTotLength;
+//    #ifdef ENABLE_CONSOLE_MESSAGE
+//        SYS_CONSOLE_PRINT("   UDP packet\r\n");
+//    #endif
+
+    IPV4_HEADER*    p_ip_hdr;
+    UDP_HEADER*     p_udp_hdr;
+    uint16_t        udp_tot_length;
+    uint8_t         header_len;
     const IPV4_ADDR* pPktSrcAdd;
     const IPV4_ADDR* pPktDstAdd;
     
-    pUDPHdr = (UDP_HEADER*)pRxPkt->pTransportLayer;
+    p_ip_hdr = (IPV4_HEADER*)pRxPkt->pNetLayer;
 
-    if ( is_necessary_port(pUDPHdr) )
+    header_len = p_ip_hdr->IHL << 2;
+    p_udp_hdr  = (UDP_HEADER*)(pRxPkt->pNetLayer + header_len);
+    
+    pRxPkt->pTransportLayer = (uint8_t*)p_udp_hdr;
+    
+//    udp_tot_length = TCPIP_Helper_ntohs( p_udp_hdr->Length );
+//    pRxPkt->totTransportLen = udp_tot_length;                       //?!
+    pRxPkt->totTransportLen = TCPIP_Helper_ntohs(p_ip_hdr->TotalLength) - header_len;   //?!
+            
+    p_udp_hdr = (UDP_HEADER*)pRxPkt->pTransportLayer;
+
+    if ( is_necessary_port(p_udp_hdr) )
     {
+        #ifdef ENABLE_CONSOLE_MESSAGE
+            SYS_CONSOLE_PRINT( "   (src port) = %d (dest port) = %d\r\n", TCPIP_Helper_ntohs(p_udp_hdr->SourcePort), TCPIP_Helper_ntohs(p_udp_hdr->DestinationPort) );
+        #endif
         //----------------------------------------------------------------------
-        udpTotLength = TCPIP_Helper_ntohs(pUDPHdr->Length);
+        udp_tot_length = TCPIP_Helper_ntohs( p_udp_hdr->Length );
         //----------------------------------------------------------------------
         #if (_TCPIP_IPV4_FRAGMENTATION == 0)
-            if(udpTotLength != pRxPkt->totTransportLen)
+            if(udp_tot_length != pRxPkt->totTransportLen)
             {   // discard suspect packet
                 return false; //TCPIP_MAC_PKT_ACK_STRUCT_ERR;
             }
@@ -1561,7 +2088,7 @@ static bool amak_shdsl_udp_packet_handler(TCPIP_NET_HANDLE hNet, TCPIP_MAC_PACKE
         //----------------------------------------------------------------------
         // See if we need to validate the checksum field (0x0000 is disabled)
         #ifdef TCPIP_UDP_USE_RX_CHECKSUM
-            if((pUDPHdr->Checksum != 0))
+            if((p_udp_hdr->Checksum != 0))
             {
                 IPV4_PSEUDO_HEADER  pseudoHdr;
                 uint16_t            calcChkSum;
@@ -1571,7 +2098,7 @@ static bool amak_shdsl_udp_packet_handler(TCPIP_NET_HANDLE hNet, TCPIP_MAC_PACKE
                 pseudoHdr.DestAddress.Val = pPktDstAdd->Val;
                 pseudoHdr.Zero	= 0;
                 pseudoHdr.Protocol = IP_PROT_UDP;
-                pseudoHdr.Length = pUDPHdr->Length;
+                pseudoHdr.Length = p_udp_hdr->Length;
                 //--------------------------------------------------------------
                 calcChkSum = ~TCPIP_Helper_CalcIPChecksum((uint8_t*)&pseudoHdr, sizeof(pseudoHdr), 0);
                 //--------------------------------------------------------------
@@ -1588,7 +2115,7 @@ static bool amak_shdsl_udp_packet_handler(TCPIP_NET_HANDLE hNet, TCPIP_MAC_PACKE
                 //--------------------------------------------------------------
                 calcChkSum = ~calcChkSum;
                 //--------------------------------------------------------------
-                if(udpTotLength != totCalcUdpLen)
+                if(udp_tot_length != totCalcUdpLen)
                 {   // discard suspect packet
                     return false; //TCPIP_MAC_PKT_ACK_STRUCT_ERR;
                 }
@@ -1597,11 +2124,11 @@ static bool amak_shdsl_udp_packet_handler(TCPIP_NET_HANDLE hNet, TCPIP_MAC_PACKE
             #else
                 if((pRxPkt->pktFlags & TCPIP_MAC_PKT_FLAG_SPLIT) != 0)
                 {
-                    calcChkSum = TCPIP_Helper_PacketChecksum(pRxPkt, (uint8_t*)pUDPHdr, udpTotLength, calcChkSum);
+                    calcChkSum = TCPIP_Helper_PacketChecksum(pRxPkt, (uint8_t*)p_udp_hdr, udp_tot_length, calcChkSum);
                 }
                 else
                 {
-                    calcChkSum = TCPIP_Helper_CalcIPChecksum((uint8_t*)pUDPHdr, udpTotLength, calcChkSum);
+                    calcChkSum = TCPIP_Helper_CalcIPChecksum((uint8_t*)p_udp_hdr, udp_tot_length, calcChkSum);
                 }
             #endif  // (_TCPIP_IPV4_FRAGMENTATION != 0)
                 //--------------------------------------------------------------
@@ -1613,20 +2140,15 @@ static bool amak_shdsl_udp_packet_handler(TCPIP_NET_HANDLE hNet, TCPIP_MAC_PACKE
             }
         #endif // TCPIP_UDP_USE_RX_CHECKSUM
         //----------------------------------------------------------------------
-        app_udp_taskData.event_info.data_len = udpTotLength;
-        //----------------------------------------------------------------------
-        app_udp_taskData.event_info.pData = malloc(udpTotLength);
-        configASSERT(app_udp_taskData.event_info.pData);
-        memcpy((uint8_t*)app_udp_taskData.event_info.pData, (uint8_t*)pRxPkt->pTransportLayer, udpTotLength);
-        //----------------------------------------------------------------------
-        app_udp_taskData.event_info.event_id = (ENUM_EVENT_TYPE)EVENT_TYPE_AMAK_UDP_POCKET;
-        //----------------------------------------------------------------------
-        xQueueSend( eventQueue_app_amak_parser_task, (void*)&( app_udp_taskData.event_info ), 0 );//portMAX_DELAY); 
-        //----------------------------------------------------------------------
-        if( (*pRxPkt->ackFunc)(pRxPkt, pRxPkt->ackParam) )
-        {
-               pRxPkt->pktFlags &= ~TCPIP_MAC_PKT_FLAG_QUEUED;
-        }
+//        pUDPHdr      = (UDP_HEADER*)pRxPkt->pTransportLayer;
+//        udpTotLength = TCPIP_Helper_ntohs(pUDPHdr->Length);
+
+        pRxPkt->pktFlags &= ~TCPIP_MAC_PKT_FLAG_TYPE_MASK;
+        pRxPkt->pktFlags |= TCPIP_MAC_PKT_FLAG_IPV4;
+        pRxPkt->pktFlags |= TCPIP_MAC_PKT_FLAG_UDP;
+            
+        send_packet_2_amak_parser(pRxPkt, (uint8_t*)p_udp_hdr, udp_tot_length);
+//        send_packet_2_amak_parser(pRxPkt, (uint8_t*)p_ip_hdr, p_ip_hdr->TotalLength);
         //----------------------------------------------------------------------
         return true;
         //----------------------------------------------------------------------
@@ -1634,6 +2156,34 @@ static bool amak_shdsl_udp_packet_handler(TCPIP_NET_HANDLE hNet, TCPIP_MAC_PACKE
     
     return false;
 }
+//------------------------------------------------------------------------------
+inline bool is_necessary_port(const UDP_HEADER* const pUDPHdr)
+{
+    return ( (app_udp_taskData.necessary_src_port  == pUDPHdr->SourcePort) 
+          && (app_udp_taskData.necessary_dest_port == pUDPHdr->DestinationPort) 
+           );
+}
+//------------------------------------------------------------------------------
+inline void send_packet_2_amak_parser(TCPIP_MAC_PACKET* pRxPkt, const uint8_t* packet, const uint16_t len)
+{
+    //----------------------------------------------------------------------
+    app_udp_taskData.event_info.data_len = len;
+    //----------------------------------------------------------------------
+    app_udp_taskData.event_info.pData = malloc(len);
+    configASSERT(app_udp_taskData.event_info.pData);
+    memcpy((uint8_t*)app_udp_taskData.event_info.pData, (uint8_t*)packet, len);
+    //----------------------------------------------------------------------
+    app_udp_taskData.event_info.event_id = (ENUM_EVENT_TYPE)EVENT_TYPE_AMAK_UDP_POCKET;
+    //----------------------------------------------------------------------
+    xQueueSend( eventQueue_app_amak_parser_task, (void*)&( app_udp_taskData.event_info ), 0 );//portMAX_DELAY); 
+    //----------------------------------------------------------------------
+    if( (*pRxPkt->ackFunc)(pRxPkt, pRxPkt->ackParam) )
+    {
+           pRxPkt->pktFlags &= ~TCPIP_MAC_PKT_FLAG_QUEUED;
+    }
+    //----------------------------------------------------------------------
+}
+
 //------------------------------------------------------------------------------
 // End of File
 //------------------------------------------------------------------------------
