@@ -2229,7 +2229,7 @@ static bool amak_shdsl_udp_packet_handler(TCPIP_NET_HANDLE hNet, TCPIP_MAC_PACKE
 //    pRxPkt->totTransportLen = udp_tot_length;                       //?!
     pRxPkt->totTransportLen = TCPIP_Helper_ntohs(p_ip_hdr->TotalLength) - header_len;   //?!
             
-    p_udp_hdr = (UDP_HEADER*)pRxPkt->pTransportLayer;
+//    p_udp_hdr = (UDP_HEADER*)pRxPkt->pTransportLayer;
 
     if ( is_necessary_port(p_udp_hdr) )
     {
@@ -2237,12 +2237,28 @@ static bool amak_shdsl_udp_packet_handler(TCPIP_NET_HANDLE hNet, TCPIP_MAC_PACKE
             SYS_CONSOLE_PRINT( "   (src port) = %d (dest port) = %d\r\n", TCPIP_Helper_ntohs(p_udp_hdr->SourcePort), TCPIP_Helper_ntohs(p_udp_hdr->DestinationPort) );
         #endif
         //----------------------------------------------------------------------
+        // cut from TCPIP_UDP_Process() in "udp.c"
+        //----------------------------------------------------------------------
+        TCPIP_MAC_PKT_ACK_RES ackRes;
+        
+        ackRes = TCPIP_MAC_PKT_ACK_PROTO_DEST_ERR;
+        if( pRxPkt->totTransportLen < sizeof(UDP_HEADER) )
+        {
+            ackRes = TCPIP_MAC_PKT_ACK_STRUCT_ERR;
+            _TCPIP_PKT_PacketAcknowledge(pRxPkt, ackRes, TCPIP_MODULE_UDP);
+            return true;
+        }
+        //----------------------------------------------------------------------
+        // cut from TCPIP_UDP_ProcessIPv4() in "udp.c"
+        //----------------------------------------------------------------------
         udp_tot_length = TCPIP_Helper_ntohs( p_udp_hdr->Length );
         //----------------------------------------------------------------------
         #if (_TCPIP_IPV4_FRAGMENTATION == 0)
             if(udp_tot_length != pRxPkt->totTransportLen)
             {   // discard suspect packet
-                return false; //TCPIP_MAC_PKT_ACK_STRUCT_ERR;
+                ackRes = TCPIP_MAC_PKT_ACK_STRUCT_ERR;
+                _TCPIP_PKT_PacketAcknowledge(pRxPkt, ackRes, TCPIP_MODULE_UDP);
+                return true;
             }
         #endif  // (_TCPIP_IPV4_FRAGMENTATION != 0)
         //----------------------------------------------------------------------
@@ -2257,11 +2273,11 @@ static bool amak_shdsl_udp_packet_handler(TCPIP_NET_HANDLE hNet, TCPIP_MAC_PACKE
                 uint16_t            calcChkSum;
                 
                 // Calculate IP pseudoheader checksum.
-                pseudoHdr.SourceAddress.Val = pPktSrcAdd->Val;
-                pseudoHdr.DestAddress.Val = pPktDstAdd->Val;
-                pseudoHdr.Zero	= 0;
+                pseudoHdr.Zero	   = 0;
+                pseudoHdr.Length   = p_udp_hdr->Length;
                 pseudoHdr.Protocol = IP_PROT_UDP;
-                pseudoHdr.Length = p_udp_hdr->Length;
+                pseudoHdr.DestAddress.Val   = pPktDstAdd->Val;
+                pseudoHdr.SourceAddress.Val = pPktSrcAdd->Val;
                 //--------------------------------------------------------------
                 calcChkSum = ~TCPIP_Helper_CalcIPChecksum((uint8_t*)&pseudoHdr, sizeof(pseudoHdr), 0);
                 //--------------------------------------------------------------
@@ -2280,7 +2296,9 @@ static bool amak_shdsl_udp_packet_handler(TCPIP_NET_HANDLE hNet, TCPIP_MAC_PACKE
                 //--------------------------------------------------------------
                 if(udp_tot_length != totCalcUdpLen)
                 {   // discard suspect packet
-                    return false; //TCPIP_MAC_PKT_ACK_STRUCT_ERR;
+                    ackRes = TCPIP_MAC_PKT_ACK_STRUCT_ERR;
+                    _TCPIP_PKT_PacketAcknowledge(pRxPkt, ackRes, TCPIP_MODULE_UDP);
+                    return true;
                 }
                 //--------------------------------------------------------------
                
@@ -2297,7 +2315,9 @@ static bool amak_shdsl_udp_packet_handler(TCPIP_NET_HANDLE hNet, TCPIP_MAC_PACKE
                 //--------------------------------------------------------------
                 if(calcChkSum != 0)
                 {   // discard packet
-                    return false; //TCPIP_MAC_PKT_ACK_CHKSUM_ERR;
+                    ackRes = TCPIP_MAC_PKT_ACK_CHKSUM_ERR;
+                    _TCPIP_PKT_PacketAcknowledge(pRxPkt, ackRes, TCPIP_MODULE_UDP);
+                    return true;
                 }
                 //--------------------------------------------------------------
             }
