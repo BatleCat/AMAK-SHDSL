@@ -1747,7 +1747,6 @@ static bool amak_shdsl_mac_packet_handler(TCPIP_NET_HANDLE hNet, TCPIP_MAC_PACKE
 {
     bool res;
     
-//    switch ( TCPIP_Helper_ntohs(frameType) )
     switch ( frameType )
     {
         case TCPIP_ETHER_TYPE_IPV4:    // IP (v4)  protocol
@@ -1893,25 +1892,189 @@ static bool amak_shdsl_ip_packet_handler(TCPIP_NET_HANDLE hNet, TCPIP_MAC_PACKET
 
     p_ip_hdr = (IPV4_HEADER*)pRxPkt->pNetLayer;
     
-    switch ( (IPV4_HEADER_TYPE)(p_ip_hdr->Protocol) )
+    //--------------------------------------------------------------------------
+    // cut from void TCPIP_IPV4_Process(void) in "ipv4.c"
+//    #define TCPIP_THIS_MODULE_ID    TCPIP_MODULE_IPV4
+
+    // This is left shifted by 4.  Actual value is 0x04.
+    #define IPv4_VERSION        (0x04)
+
+//    TCPIP_NET_IF* pNetIf;
+//    TCPIP_MAC_PACKET* pRxPkt;
+    uint8_t     header_len;
+    uint16_t    header_checksum;
+    uint16_t    total_length;
+    uint16_t    payload_len;
+    IPV4_HEADER cIpv4Hdr, *pCHeader;
+//    IPV4_PKT_PROC_TYPE procType;
+    TCPIP_MAC_PKT_ACK_RES ackRes;
+
+    while(true)
     {
-        case ( IP_PROT_ICMP ):
+        ackRes = TCPIP_MAC_PKT_ACK_NONE;
+
+        // Make sure that this is an IPv4 packet.
+        if ( (p_ip_hdr->Version) != IPv4_VERSION )
         {
-            res = amak_shdsl_icmp_packet_handler(hNet, pRxPkt, hParam);
+            ackRes = TCPIP_MAC_PKT_ACK_STRUCT_ERR;
             break;
         }
-        case ( IP_PROT_UDP):
+
+        // make sure the header length is within packet limits
+        header_len = p_ip_hdr->IHL << 2;
+        if ( ( header_len < sizeof(IPV4_HEADER) ) || ( (uint16_t)header_len > pRxPkt->pDSeg->segLen ) )
         {
-            res = amak_shdsl_udp_packet_handler(hNet, pRxPkt, hParam);
+            ackRes = TCPIP_MAC_PKT_ACK_STRUCT_ERR;
             break;
         }
-        default:
+
+        total_length = TCPIP_Helper_ntohs(p_ip_hdr->TotalLength);
+        if (total_length < (uint16_t)header_len)
         {
-            res = false;
+            ackRes = TCPIP_MAC_PKT_ACK_STRUCT_ERR;
             break;
+        }
+
+        payload_len = TCPIP_PKT_PayloadLen(pRxPkt);
+        if (total_length > payload_len)
+        {
+            ackRes = TCPIP_MAC_PKT_ACK_STRUCT_ERR;
+            break;
+        }
+
+        // detect the proper alias interface
+        //pNetIf = _TCPIPStackMapAliasInterface((TCPIP_NET_IF*)pRxPkt->pktIf, &p_ip_hdr->DestAddress);    // ?!
+        //pRxPkt->pktIf = pNetIf;                                                                         // ?!
+
+        // because it is Ethernet/SHDSL bridge
+        //if ( !TCPIP_STACK_NetworkIsUp(pNetIf) )
+        //{   // discard the packet
+        //    ackRes = TCPIP_MAC_PKT_ACK_IP_REJECT_ERR;
+        //    break;
+        //}
+
+        //----------------------------------------------------------------------
+        // discard wrong source address
+        // ----------------------------------------------------------------
+        // if(_TCPIPStack_IsBcastAddress(pNetIf, &p_ip_hdr->SourceAddress))
+        // ----------------------------------------------------------------
+        // restrict broadcast check because packet send over Ethernet/SHDSL 
+        // bridge and DirectedBcast check is uncorrect
+        if ( _TCPIPStack_IsLimitedBcast(&p_ip_hdr->SourceAddress) ) 
+        {   // net or limited bcast
+            ackRes = TCPIP_MAC_PKT_ACK_SOURCE_ERR;
+            break;
+        }
+        //----------------------------------------------------------------------
+
+        // discard wrong destination address
+        if (p_ip_hdr->DestAddress.Val == 0)
+        {   // invalid destination
+            ackRes = TCPIP_MAC_PKT_ACK_DEST_ERR;
+            break;
+        }
+
+        // Validate the IP header.  If it is correct, the checksum 
+        // will come out to 0x0000 (because the header contains a 
+        // precomputed checksum).  A corrupt header will have a 
+        // nonzero checksum.
+        header_checksum = TCPIP_Helper_CalcIPChecksum((uint8_t*)p_ip_hdr, header_len, 0);
+
+        if (header_checksum)
+        {
+            // Bad packet. The function caller will be notified by means of the false 
+            // return value and it should discard the packet.
+            ackRes = TCPIP_MAC_PKT_ACK_CHKSUM_ERR;
+            break;
+        }
+
+        // Make a copy of the header for the network to host conversion
+        cIpv4Hdr = *p_ip_hdr;
+        pCHeader = &cIpv4Hdr;
+//        pCHeader->TotalLength = total_length;
+        pCHeader->FragmentInfo.val = TCPIP_Helper_ntohs(pCHeader->FragmentInfo.val);
+
+#if (_TCPIP_IPV4_FRAGMENTATION == 0)
+        // Throw this packet away if it is a fragment.  
+        // We don't support IPv4 fragment reconstruction.
+        if ( (pCHeader->FragmentInfo.MF != 0) || (pCHeader->FragmentInfo.fragOffset != 0) )
+        {   // discard the fragment
+            ackRes = TCPIP_MAC_PKT_ACK_STRUCT_ERR;
+            break;
+        }
+#endif  // (_TCPIP_IPV4_FRAGMENTATION == 0)
+
+        //------------------------------------------------------------------
+        // заглушка функции TCPIP_IPV4_CheckRxPkt() при выключеной отладке 
+        // протокола TCPIP_IPV4, определена в "ipv4.c"
+        //------------------------------------------------------------------
+        //  TCPIP_IPV4_CheckRxPkt(pRxPkt);  
+        //------------------------------------------------------------------
+
+        //------------------------------------------------------------------------------
+        // In Ethernet/SHDSL bridge we do not check the packet arrived on the proper interface and passes the filters
+        //------------------------------------------------------------------------------
+        //    procType = TCPIP_IPV4_VerifyPkt(pNetIf, pCHeader, pRxPkt);
+        //
+        //    if((procType & IPV4_PKT_DEST_HOST) == 0)
+        //    {   // not processed internally; but some oter module may still need it; check the filters
+        //        if(TCPIP_IPV4_VerifyPktFilters(pRxPkt, header_len))
+        //        {
+        //            procType = IPV4_PKT_DEST_HOST;
+        //        }
+        //    }
+        //
+        //    #if (TCPIP_IPV4_FORWARDING_ENABLE != 0)
+        //        if((procType & IPV4_PKT_DEST_FWD) != 0)
+        //        {   // packet to be forwarded
+        //            if(TCPIP_IPV4_ProcessExtPkt(pNetIf, pRxPkt, procType))
+        //            {   // we're done
+        //                break;
+        //            }
+        //        }
+        //    #endif  // (TCPIP_IPV4_FORWARDING_ENABLE != 0)
+        //
+        //    if((procType & (IPV4_PKT_DEST_HOST)) == 0)
+        //    {   // discard
+        //        ackRes = TCPIP_MAC_PKT_ACK_IP_REJECT_ERR;
+        //        break;
+        //    }
+        //------------------------------------------------------------------------------
+
+        // valid IPv4 packet will be processed below
+        //ackRes = TCPIP_IPV4_DispatchPacket(pRxPkt);
+        break;
+    }
+
+    if (ackRes != TCPIP_MAC_PKT_ACK_NONE)
+    {   // something wrong; discard
+//        TCPIP_PKT_PacketAcknowledge(pRxPkt, ackRes); 
+        _TCPIP_PKT_PacketAcknowledge(pRxPkt, ackRes, TCPIP_MODULE_IPV4);
+        
+        res = true;
+    }
+    //--------------------------------------------------------------------------
+    else    // if (ackRes != TCPIP_MAC_PKT_ACK_NONE)
+    {
+        switch ( (IPV4_HEADER_TYPE)(p_ip_hdr->Protocol) )
+        {
+            case ( IP_PROT_ICMP ):
+            {
+                res = amak_shdsl_icmp_packet_handler(hNet, pRxPkt, hParam);
+                break;
+            }
+            case ( IP_PROT_UDP):
+            {
+                res = amak_shdsl_udp_packet_handler(hNet, pRxPkt, hParam);
+                break;
+            }
+            default:
+            {
+                res = false;
+                break;
+            }
         }
     }
-    
     return res;
 }
 
@@ -2157,14 +2320,14 @@ static bool amak_shdsl_udp_packet_handler(TCPIP_NET_HANDLE hNet, TCPIP_MAC_PACKE
     return false;
 }
 //------------------------------------------------------------------------------
-inline bool is_necessary_port(const UDP_HEADER* const pUDPHdr)
+inline bool __attribute__((always_inline)) is_necessary_port(const UDP_HEADER* const pUDPHdr)
 {
     return ( (app_udp_taskData.necessary_src_port  == pUDPHdr->SourcePort) 
           && (app_udp_taskData.necessary_dest_port == pUDPHdr->DestinationPort) 
            );
 }
 //------------------------------------------------------------------------------
-inline void send_packet_2_amak_parser(TCPIP_MAC_PACKET* pRxPkt, const uint8_t* packet, const uint16_t len)
+inline void __attribute__((always_inline)) send_packet_2_amak_parser(TCPIP_MAC_PACKET* pRxPkt, const uint8_t* packet, const uint16_t len)
 {
     //----------------------------------------------------------------------
     app_udp_taskData.event_info.data_len = len;
