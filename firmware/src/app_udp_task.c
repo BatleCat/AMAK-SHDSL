@@ -321,10 +321,12 @@ static bool amak_shdsl_udp_packet_handler(TCPIP_NET_HANDLE hNet, TCPIP_MAC_PACKE
 // Section: Application Local Functions
 //------------------------------------------------------------------------------
 
+__inline__ bool __attribute__((always_inline)) is_ipv4_hdr_len_in_packet_limits(TCPIP_MAC_PACKET* pRxPkt, uint8_t header_len);
+__inline__ bool __attribute__((always_inline)) is_fragment_ipv4(IPV4_HEADER* pCHeader);
 //------------------------------------------------------------------------------
-inline bool is_necessary_port(const UDP_HEADER* const pUDPHdr);
+__inline__ bool __attribute__((always_inline)) is_necessary_port(const UDP_HEADER* const pUDPHdr);
 
-inline void send_packet_2_amak_parser(TCPIP_MAC_PACKET* pRxPkt, const uint8_t* packet, const uint16_t len);
+__inline__ void __attribute__((always_inline)) send_packet_2_amak_parser(TCPIP_MAC_PACKET* pRxPkt, const uint8_t* packet, const uint16_t len);
 
 ///*------------------------------------------------------------------------------
 //<editor-fold defaultstate="collapsed" desc="Description function: wait_console_buffer_free()">
@@ -1922,7 +1924,8 @@ static bool amak_shdsl_ip_packet_handler(TCPIP_NET_HANDLE hNet, TCPIP_MAC_PACKET
 
         // make sure the header length is within packet limits
         header_len = p_ip_hdr->IHL << 2;
-        if ( ( header_len < sizeof(IPV4_HEADER) ) || ( (uint16_t)header_len > pRxPkt->pDSeg->segLen ) )
+//        if ( ( header_len < sizeof(IPV4_HEADER) ) || ( (uint16_t)header_len > pRxPkt->pDSeg->segLen ) )
+        if ( is_ipv4_hdr_len_in_packet_limits(pRxPkt, header_len) )
         {
             ackRes = TCPIP_MAC_PKT_ACK_STRUCT_ERR;
             break;
@@ -1991,13 +1994,14 @@ static bool amak_shdsl_ip_packet_handler(TCPIP_NET_HANDLE hNet, TCPIP_MAC_PACKET
         // Make a copy of the header for the network to host conversion
         cIpv4Hdr = *p_ip_hdr;
         pCHeader = &cIpv4Hdr;
-//        pCHeader->TotalLength = total_length;
+        pCHeader->TotalLength = total_length;
         pCHeader->FragmentInfo.val = TCPIP_Helper_ntohs(pCHeader->FragmentInfo.val);
 
 #if (_TCPIP_IPV4_FRAGMENTATION == 0)
         // Throw this packet away if it is a fragment.  
         // We don't support IPv4 fragment reconstruction.
-        if ( (pCHeader->FragmentInfo.MF != 0) || (pCHeader->FragmentInfo.fragOffset != 0) )
+//        if ( (pCHeader->FragmentInfo.MF != 0) || (pCHeader->FragmentInfo.fragOffset != 0) )
+        if ( is_fragment_ipv4(pCHeader) )
         {   // discard the fragment
             ackRes = TCPIP_MAC_PKT_ACK_STRUCT_ERR;
             break;
@@ -2242,7 +2246,7 @@ static bool amak_shdsl_udp_packet_handler(TCPIP_NET_HANDLE hNet, TCPIP_MAC_PACKE
         TCPIP_MAC_PKT_ACK_RES ackRes;
         
         ackRes = TCPIP_MAC_PKT_ACK_PROTO_DEST_ERR;
-        if( pRxPkt->totTransportLen < sizeof(UDP_HEADER) )
+        if ( pRxPkt->totTransportLen < sizeof(UDP_HEADER) )
         {
             ackRes = TCPIP_MAC_PKT_ACK_STRUCT_ERR;
             _TCPIP_PKT_PacketAcknowledge(pRxPkt, ackRes, TCPIP_MODULE_UDP);
@@ -2254,7 +2258,7 @@ static bool amak_shdsl_udp_packet_handler(TCPIP_NET_HANDLE hNet, TCPIP_MAC_PACKE
         udp_tot_length = TCPIP_Helper_ntohs( p_udp_hdr->Length );
         //----------------------------------------------------------------------
         #if (_TCPIP_IPV4_FRAGMENTATION == 0)
-            if(udp_tot_length != pRxPkt->totTransportLen)
+            if (udp_tot_length != pRxPkt->totTransportLen)
             {   // discard suspect packet
                 ackRes = TCPIP_MAC_PKT_ACK_STRUCT_ERR;
                 _TCPIP_PKT_PacketAcknowledge(pRxPkt, ackRes, TCPIP_MODULE_UDP);
@@ -2267,7 +2271,7 @@ static bool amak_shdsl_udp_packet_handler(TCPIP_NET_HANDLE hNet, TCPIP_MAC_PACKE
         //----------------------------------------------------------------------
         // See if we need to validate the checksum field (0x0000 is disabled)
         #ifdef TCPIP_UDP_USE_RX_CHECKSUM
-            if((p_udp_hdr->Checksum != 0))
+            if (p_udp_hdr->Checksum != 0)
             {
                 IPV4_PSEUDO_HEADER  pseudoHdr;
                 uint16_t            calcChkSum;
@@ -2294,7 +2298,7 @@ static bool amak_shdsl_udp_packet_handler(TCPIP_NET_HANDLE hNet, TCPIP_MAC_PACKE
                 //--------------------------------------------------------------
                 calcChkSum = ~calcChkSum;
                 //--------------------------------------------------------------
-                if(udp_tot_length != totCalcUdpLen)
+                if (udp_tot_length != totCalcUdpLen)
                 {   // discard suspect packet
                     ackRes = TCPIP_MAC_PKT_ACK_STRUCT_ERR;
                     _TCPIP_PKT_PacketAcknowledge(pRxPkt, ackRes, TCPIP_MODULE_UDP);
@@ -2303,7 +2307,7 @@ static bool amak_shdsl_udp_packet_handler(TCPIP_NET_HANDLE hNet, TCPIP_MAC_PACKE
                 //--------------------------------------------------------------
                
             #else
-                if((pRxPkt->pktFlags & TCPIP_MAC_PKT_FLAG_SPLIT) != 0)
+                if ( (pRxPkt->pktFlags & TCPIP_MAC_PKT_FLAG_SPLIT) != 0 )
                 {
                     calcChkSum = TCPIP_Helper_PacketChecksum(pRxPkt, (uint8_t*)p_udp_hdr, udp_tot_length, calcChkSum);
                 }
@@ -2313,7 +2317,7 @@ static bool amak_shdsl_udp_packet_handler(TCPIP_NET_HANDLE hNet, TCPIP_MAC_PACKE
                 }
             #endif  // (_TCPIP_IPV4_FRAGMENTATION != 0)
                 //--------------------------------------------------------------
-                if(calcChkSum != 0)
+                if (calcChkSum != 0)
                 {   // discard packet
                     ackRes = TCPIP_MAC_PKT_ACK_CHKSUM_ERR;
                     _TCPIP_PKT_PacketAcknowledge(pRxPkt, ackRes, TCPIP_MODULE_UDP);
@@ -2330,8 +2334,9 @@ static bool amak_shdsl_udp_packet_handler(TCPIP_NET_HANDLE hNet, TCPIP_MAC_PACKE
         pRxPkt->pktFlags |= TCPIP_MAC_PKT_FLAG_IPV4;
         pRxPkt->pktFlags |= TCPIP_MAC_PKT_FLAG_UDP;
             
-        send_packet_2_amak_parser(pRxPkt, (uint8_t*)p_udp_hdr, udp_tot_length);
-//        send_packet_2_amak_parser(pRxPkt, (uint8_t*)p_ip_hdr, p_ip_hdr->TotalLength);
+//        send_packet_2_amak_parser(pRxPkt, (uint8_t*)p_udp_hdr, udp_tot_length);
+        uint16_t ipv4_tot_length = TCPIP_Helper_ntohs(p_ip_hdr->TotalLength);
+        send_packet_2_amak_parser(pRxPkt, (uint8_t*)p_ip_hdr, ipv4_tot_length);
         //----------------------------------------------------------------------
         return true;
         //----------------------------------------------------------------------
@@ -2340,14 +2345,28 @@ static bool amak_shdsl_udp_packet_handler(TCPIP_NET_HANDLE hNet, TCPIP_MAC_PACKE
     return false;
 }
 //------------------------------------------------------------------------------
-inline bool __attribute__((always_inline)) is_necessary_port(const UDP_HEADER* const pUDPHdr)
+__inline__ bool __attribute__((always_inline)) is_ipv4_hdr_len_in_packet_limits(TCPIP_MAC_PACKET* pRxPkt, uint8_t header_len)
+{
+    return  (  (           header_len < sizeof(IPV4_HEADER)   ) 
+            || ( (uint16_t)header_len > pRxPkt->pDSeg->segLen ) 
+            );
+}
+//------------------------------------------------------------------------------
+__inline__ bool __attribute__((always_inline)) is_fragment_ipv4(IPV4_HEADER* pCHeader)
+{
+    return  (  ( pCHeader->FragmentInfo.MF         != 0 ) 
+            || ( pCHeader->FragmentInfo.fragOffset != 0 )
+            );
+}
+//------------------------------------------------------------------------------
+__inline__ bool __attribute__((always_inline)) is_necessary_port(const UDP_HEADER* const pUDPHdr)
 {
     return ( (app_udp_taskData.necessary_src_port  == pUDPHdr->SourcePort) 
           && (app_udp_taskData.necessary_dest_port == pUDPHdr->DestinationPort) 
            );
 }
 //------------------------------------------------------------------------------
-inline void __attribute__((always_inline)) send_packet_2_amak_parser(TCPIP_MAC_PACKET* pRxPkt, const uint8_t* packet, const uint16_t len)
+__inline__ void __attribute__((always_inline)) send_packet_2_amak_parser(TCPIP_MAC_PACKET* pRxPkt, const uint8_t* packet, const uint16_t len)
 {
     //----------------------------------------------------------------------
     app_udp_taskData.event_info.data_len = len;
