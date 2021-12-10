@@ -35,17 +35,23 @@
 
 #include "config/default/library/tcpip/tcp.h"
 #include "config/default/library/tcpip/udp.h"
+#include "config/default/library/tcpip/icmp.h"
+#include "config/default/library/tcpip/tcpip_mac.h"
+#include "config/default/library/tcpip/tcpip_manager.h"
 #include "config/default/library/tcpip/src/tcpip_packet.h"
 #include "config/default/library/tcpip/src/tcpip_manager_control.h"
 #include "config/default/library/tcpip/src/ipv4_manager.h"
-#include "config/default/library/tcpip/tcpip_manager.h"
 #include "config/default/library/tcpip/src/udp_manager.h"
-#include "config/default/library/tcpip/icmp.h"
-#include "config/default/library/tcpip/tcpip_mac.h"
+#include "config/default/library/tcpip/src/oahash.h"
+#include "config/default/library/tcpip/src/link_list.h"
+#include "config/default/library/tcpip/src/arp_private.h"
+
 #include "third_party/rtos/FreeRTOS/Source/include/FreeRTOS.h"
 #include "third_party/rtos/FreeRTOS/Source/include/queue.h"
+
 #include "config/default/system/debug/sys_debug.h"
 #include "config/default/system/console/sys_console.h"
+
 #include <bsp/bsp.h>
 //------------------------------------------------------------------------------
 #include "AMAK_SHDSL_Queue.h"
@@ -913,7 +919,7 @@ void wait_console_buffer_free(void)
             // Get the number of bytes of free space available in the transmit buffer.
             nFreeSpace = SYS_CONSOLE_WriteFreeBufferCountGet(myConsoleHandle);
             // wait console bufer empty
-            while ( ( nFreeSpace < (SYS_CONSOLE_PRINT_BUFFER_SIZE - 1) ) && ( nFreeSpace != -1 ) ) 
+            while ( ( (SYS_CONSOLE_PRINT_BUFFER_SIZE - 1) > nFreeSpace ) && ( -1 != nFreeSpace ) ) 
             {
                 taskYIELD();
                 nFreeSpace = SYS_CONSOLE_WriteFreeBufferCountGet(myConsoleHandle);
@@ -966,7 +972,7 @@ APP_UDP_TASK_STATES app_udp_task_start(void)
     // </editor-fold>
     //------------------------------------------------------------------
     SYS_STATUS tcpipStat = TCPIP_STACK_Status(sysObj.tcpip);
-    if(tcpipStat < 0)
+    if (0 > tcpipStat)
     {   // some error occurred
         #ifdef ENABLE_CONSOLE_MESSAGE
             SYS_CONSOLE_MESSAGE(" APP_UDP_TASK: TCP/IP stack initialization failed!\r\n");
@@ -1821,14 +1827,56 @@ static bool amak_shdsl_mac_packet_handler(TCPIP_NET_HANDLE hNet, TCPIP_MAC_PACKE
 //</editor-fold>
 static bool amak_shdsl_arp_packet_handler(TCPIP_NET_HANDLE hNet, TCPIP_MAC_PACKET* pRxPkt, const void* hParam)
 {
-//    #ifdef ENABLE_CONSOLE_MESSAGE
-//        SYS_CONSOLE_PRINT("   ARP packet\r\n");
-//    #endif
+    #ifdef ENABLE_CONSOLE_MESSAGE
+        SYS_CONSOLE_PRINT("   ARP packet\r\n");
+    #endif
 
 //    pRxPkt->pktFlags &= ~TCPIP_MAC_PKT_FLAG_TYPE_MASK;
 //    pRxPkt->pktFlags |= TCPIP_MAC_PKT_FLAG_ARP;
+    //--------------------------------------------------------------------------
+    // copy from void TCPIP_ARP_Process(void) in "arp.c"
+//    TCPIP_NET_IF* pInIf, *pTgtIf;
+//    TCPIP_MAC_PACKET* pPkt;
 
-    return false;
+    ARP_PACKET      *p_arp_pkt;
+//    OA_HASH_ENTRY   *hE;
+//    ARP_CACHE_DCPT  *pArpDcpt;
+    TCPIP_MAC_PKT_ACK_RES ackRes;
+//    TCPIP_ARP_RESULT arpReqRes;
+//    IPV4_ADDR targetAdd;
+//    IPV4_ADDR   algnSenderIpAddr;
+
+
+//    TCPIP_PKT_FlightLogRx(pPkt, TCPIP_MODULE_ARP);
+//    arpReqRes = ARP_RES_OK;
+
+    // Obtain the incoming ARP packet and process
+    p_arp_pkt = (ARP_PACKET*)pRxPkt->pNetLayer;
+
+    // Validate the ARP packet
+    if ( HW_ETHERNET            != TCPIP_Helper_ntohs(p_arp_pkt->HardwareType) ||
+         sizeof(TCPIP_MAC_ADDR) != p_arp_pkt->MACAddrLen  ||
+         sizeof(IPV4_ADDR)      != p_arp_pkt->ProtocolLen )
+    {
+        ackRes = TCPIP_MAC_PKT_ACK_STRUCT_ERR;
+        _TCPIP_PKT_PacketAcknowledge(pRxPkt, ackRes, TCPIP_MODULE_ARP);
+        return true;    // битый ARP-пакет, удаляем
+    }
+    //--------------------------------------------------------------------------
+    pRxPkt->pktFlags &= ~TCPIP_MAC_PKT_FLAG_TYPE_MASK;
+    pRxPkt->pktFlags |= TCPIP_MAC_PKT_FLAG_ARP;
+
+    uint16_t mac_pkt_len = sizeof(ARP_PACKET) + sizeof(TCPIP_MAC_ETHERNET_HEADER);
+    uint8_t* p_mac_pkt = pRxPkt->pMacLayer;
+    
+    send_packet_2_amak_parser(pRxPkt, p_mac_pkt, mac_pkt_len);
+    
+//    uint16_t    total_length;
+//    total_length = sizeof(ARP_PACKET);
+//
+//    send_packet_2_amak_parser(pRxPkt, (uint8_t*)p_arp_pkt, total_length);
+
+    return false;   // дополнительно проводим стандартную обработку ARP-запросов в стандартном обработчике
 }
 
 /*------------------------------------------------------------------------------
@@ -1895,7 +1943,7 @@ static bool amak_shdsl_ip_packet_handler(TCPIP_NET_HANDLE hNet, TCPIP_MAC_PACKET
     p_ip_hdr = (IPV4_HEADER*)pRxPkt->pNetLayer;
     
     //--------------------------------------------------------------------------
-    // cut from void TCPIP_IPV4_Process(void) in "ipv4.c"
+    // copy from void TCPIP_IPV4_Process(void) in "ipv4.c"
 //    #define TCPIP_THIS_MODULE_ID    TCPIP_MODULE_IPV4
 
     // This is left shifted by 4.  Actual value is 0x04.
@@ -1916,7 +1964,7 @@ static bool amak_shdsl_ip_packet_handler(TCPIP_NET_HANDLE hNet, TCPIP_MAC_PACKET
         ackRes = TCPIP_MAC_PKT_ACK_NONE;
 
         // Make sure that this is an IPv4 packet.
-        if ( (p_ip_hdr->Version) != IPv4_VERSION )
+        if ( IPv4_VERSION != (p_ip_hdr->Version) )
         {
             ackRes = TCPIP_MAC_PKT_ACK_STRUCT_ERR;
             break;
@@ -1971,7 +2019,7 @@ static bool amak_shdsl_ip_packet_handler(TCPIP_NET_HANDLE hNet, TCPIP_MAC_PACKET
         //----------------------------------------------------------------------
 
         // discard wrong destination address
-        if (p_ip_hdr->DestAddress.Val == 0)
+        if ( 0 == p_ip_hdr->DestAddress.Val)
         {   // invalid destination
             ackRes = TCPIP_MAC_PKT_ACK_DEST_ERR;
             break;
@@ -2050,7 +2098,7 @@ static bool amak_shdsl_ip_packet_handler(TCPIP_NET_HANDLE hNet, TCPIP_MAC_PACKET
         break;
     }
 
-    if (ackRes != TCPIP_MAC_PKT_ACK_NONE)
+    if (TCPIP_MAC_PKT_ACK_NONE != ackRes)
     {   // something wrong; discard
 //        TCPIP_PKT_PacketAcknowledge(pRxPkt, ackRes); 
         _TCPIP_PKT_PacketAcknowledge(pRxPkt, ackRes, TCPIP_MODULE_IPV4);
@@ -2139,7 +2187,6 @@ static bool amak_shdsl_icmp_packet_handler(TCPIP_NET_HANDLE hNet, TCPIP_MAC_PACK
     #endif
     
     IPV4_HEADER*    p_ip_hdr;
-    uint16_t        ip_total_length;
     uint8_t         header_len;
 
 //    pRxPkt->pktFlags &= ~TCPIP_MAC_PKT_FLAG_TYPE_MASK;
@@ -2191,7 +2238,7 @@ static bool amak_shdsl_icmp_packet_handler(TCPIP_NET_HANDLE hNet, TCPIP_MAC_PACK
 
     icmpTotLength = pRxPkt->totTransportLen;    // length of the 1st segment (if fragmented)
 
-    if(icmpTotLength < sizeof(*pRxHdr))
+    if (icmpTotLength < sizeof(*pRxHdr))
     {
         ackRes = TCPIP_MAC_PKT_ACK_STRUCT_ERR;
         _TCPIP_PKT_PacketAcknowledge(pRxPkt, ackRes, TCPIP_MODULE_ICMP);
@@ -2214,7 +2261,7 @@ static bool amak_shdsl_icmp_packet_handler(TCPIP_NET_HANDLE hNet, TCPIP_MAC_PACK
     checksum = TCPIP_Helper_PacketChecksum(pRxPkt, (uint8_t*)pRxHdr, icmpTotLength, 0);
 #endif  // (_TCPIP_IPV4_FRAGMENTATION != 0)
 
-    if(checksum != 0)
+    if(0 != checksum)
     {
         ackRes = TCPIP_MAC_PKT_ACK_CHKSUM_ERR;
         _TCPIP_PKT_PacketAcknowledge(pRxPkt, ackRes, TCPIP_MODULE_ICMP);
@@ -2224,10 +2271,16 @@ static bool amak_shdsl_icmp_packet_handler(TCPIP_NET_HANDLE hNet, TCPIP_MAC_PACK
     pRxPkt->pktFlags &= ~TCPIP_MAC_PKT_FLAG_TYPE_MASK;
     pRxPkt->pktFlags |= TCPIP_MAC_PKT_FLAG_IPV4;
     pRxPkt->pktFlags |= TCPIP_MAC_PKT_FLAG_ICMPV4;
-    
-    ip_total_length = TCPIP_Helper_ntohs(p_ip_hdr->TotalLength);
 
-    send_packet_2_amak_parser(pRxPkt, (uint8_t*)p_ip_hdr, ip_total_length);
+    uint16_t mac_pkt_len = TCPIP_Helper_ntohs(p_ip_hdr->TotalLength) + sizeof(TCPIP_MAC_ETHERNET_HEADER);
+    uint8_t* p_mac_pkt = pRxPkt->pMacLayer;
+    
+    send_packet_2_amak_parser(pRxPkt, p_mac_pkt, mac_pkt_len);
+    
+//    uint16_t        ip_total_length;
+//    ip_total_length = TCPIP_Helper_ntohs(p_ip_hdr->TotalLength);
+//
+//    send_packet_2_amak_parser(pRxPkt, (uint8_t*)p_ip_hdr, ip_total_length);
     //----------------------------------------------------------------------
     return false;
 }
@@ -2347,7 +2400,7 @@ static bool amak_shdsl_udp_packet_handler(TCPIP_NET_HANDLE hNet, TCPIP_MAC_PACKE
         //----------------------------------------------------------------------
         // See if we need to validate the checksum field (0x0000 is disabled)
         #ifdef TCPIP_UDP_USE_RX_CHECKSUM
-            if (p_udp_hdr->Checksum != 0)
+            if (0 != p_udp_hdr->Checksum)
             {
                 IPV4_PSEUDO_HEADER  pseudoHdr;
                 uint16_t            calcChkSum;
@@ -2362,7 +2415,7 @@ static bool amak_shdsl_udp_packet_handler(TCPIP_NET_HANDLE hNet, TCPIP_MAC_PACKE
                 calcChkSum = ~TCPIP_Helper_CalcIPChecksum((uint8_t*)&pseudoHdr, sizeof(pseudoHdr), 0);
                 //--------------------------------------------------------------
                 
-            #if (_TCPIP_IPV4_FRAGMENTATION != 0)
+            #if (0 != _TCPIP_IPV4_FRAGMENTATION)
                 TCPIP_MAC_PACKET* pFragPkt;
                 uint16_t totCalcUdpLen = 0;
                 //--------------------------------------------------------------
@@ -2383,7 +2436,7 @@ static bool amak_shdsl_udp_packet_handler(TCPIP_NET_HANDLE hNet, TCPIP_MAC_PACKE
                 //--------------------------------------------------------------
                
             #else
-                if ( (pRxPkt->pktFlags & TCPIP_MAC_PKT_FLAG_SPLIT) != 0 )
+                if ( 0 != (pRxPkt->pktFlags & TCPIP_MAC_PKT_FLAG_SPLIT) )
                 {
                     calcChkSum = TCPIP_Helper_PacketChecksum(pRxPkt, (uint8_t*)p_udp_hdr, udp_tot_length, calcChkSum);
                 }
@@ -2393,7 +2446,7 @@ static bool amak_shdsl_udp_packet_handler(TCPIP_NET_HANDLE hNet, TCPIP_MAC_PACKE
                 }
             #endif  // (_TCPIP_IPV4_FRAGMENTATION != 0)
                 //--------------------------------------------------------------
-                if (calcChkSum != 0)
+                if (0 != calcChkSum)
                 {   // discard packet
                     ackRes = TCPIP_MAC_PKT_ACK_CHKSUM_ERR;
                     _TCPIP_PKT_PacketAcknowledge(pRxPkt, ackRes, TCPIP_MODULE_UDP);
@@ -2409,10 +2462,17 @@ static bool amak_shdsl_udp_packet_handler(TCPIP_NET_HANDLE hNet, TCPIP_MAC_PACKE
         pRxPkt->pktFlags &= ~TCPIP_MAC_PKT_FLAG_TYPE_MASK;
         pRxPkt->pktFlags |= TCPIP_MAC_PKT_FLAG_IPV4;
         pRxPkt->pktFlags |= TCPIP_MAC_PKT_FLAG_UDP;
+        
+        uint16_t mac_pkt_len = TCPIP_Helper_ntohs(p_ip_hdr->TotalLength) + sizeof(TCPIP_MAC_ETHERNET_HEADER);
+        uint8_t* p_mac_pkt = pRxPkt->pMacLayer;
+
+        send_packet_2_amak_parser(pRxPkt, p_mac_pkt, mac_pkt_len);
+        
             
 //        send_packet_2_amak_parser(pRxPkt, (uint8_t*)p_udp_hdr, udp_tot_length);
-        uint16_t ipv4_tot_length = TCPIP_Helper_ntohs(p_ip_hdr->TotalLength);
-        send_packet_2_amak_parser(pRxPkt, (uint8_t*)p_ip_hdr, ipv4_tot_length);
+        
+//        uint16_t ipv4_tot_length = TCPIP_Helper_ntohs(p_ip_hdr->TotalLength);
+//        send_packet_2_amak_parser(pRxPkt, (uint8_t*)p_ip_hdr, ipv4_tot_length);
         //----------------------------------------------------------------------
         return true;
         //----------------------------------------------------------------------
@@ -2430,8 +2490,8 @@ __inline__ bool __attribute__((always_inline)) is_ipv4_hdr_len_in_packet_limits(
 //------------------------------------------------------------------------------
 __inline__ bool __attribute__((always_inline)) is_fragment_ipv4(IPV4_HEADER* pCHeader)
 {
-    return  (  ( pCHeader->FragmentInfo.MF         != 0 ) 
-            || ( pCHeader->FragmentInfo.fragOffset != 0 )
+    return  (  ( 0 != pCHeader->FragmentInfo.MF         ) 
+            || ( 0 != pCHeader->FragmentInfo.fragOffset )
             );
 }
 //------------------------------------------------------------------------------

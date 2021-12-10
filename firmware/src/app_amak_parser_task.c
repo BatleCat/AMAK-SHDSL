@@ -577,13 +577,13 @@ void app_amak_parse_udp_pocket(void)
 
     #ifdef ENABLE_CONSOLE_MESSAGE
         SYS_CONSOLE_PRINT("    Rx UDP length = %d \r\n", rx_udp_len);
-        SYS_CONSOLE_PRINT("%2X %2X %2X %2X %2X %2X \r\n",   
+        SYS_CONSOLE_PRINT("%2X %2X %2X %2X ... %2X %2X \r\n",   
                 app_amak_parser_taskData.event_info.pData[0], 
                 app_amak_parser_taskData.event_info.pData[1], 
                 app_amak_parser_taskData.event_info.pData[2],
                 app_amak_parser_taskData.event_info.pData[3], 
-                app_amak_parser_taskData.event_info.pData[4], 
-                app_amak_parser_taskData.event_info.pData[5]);
+                app_amak_parser_taskData.event_info.pData[rx_udp_len - 2], 
+                app_amak_parser_taskData.event_info.pData[rx_udp_len - 1]);
         wait_console_buffer_free();
     #endif
 
@@ -595,13 +595,13 @@ void app_amak_parse_udp_pocket(void)
 
     #ifdef ENABLE_CONSOLE_MESSAGE
         SYS_CONSOLE_PRINT("    Rx UDP length = %d \r\n", rx_udp_len);
-        SYS_CONSOLE_PRINT("%2X %2X %2X %2X %2X %2X \r\n",   
+        SYS_CONSOLE_PRINT("%2X %2X %2X %2X ... %2X %2X \r\n",   
                 amak2shdsl_frame.udp_pocket[0], 
                 amak2shdsl_frame.udp_pocket[1], 
                 amak2shdsl_frame.udp_pocket[2],
                 amak2shdsl_frame.udp_pocket[3], 
-                amak2shdsl_frame.udp_pocket[4], 
-                amak2shdsl_frame.udp_pocket[5]);
+                amak2shdsl_frame.udp_pocket[(rx_udp_len / 2) - 2], 
+                amak2shdsl_frame.udp_pocket[(rx_udp_len / 2) - 1]);
         wait_console_buffer_free();
     #endif
 
