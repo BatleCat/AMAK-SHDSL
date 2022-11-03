@@ -12,7 +12,7 @@ children:
       - type: Boolean
         attributes: {id: enabled}
         children:
-        - {type: Value, value: 'true'}
+        - {type: Value, value: 'false'}
       - type: String
         attributes: {id: name}
         children:
@@ -25,7 +25,7 @@ children:
       - type: Boolean
         attributes: {id: enabled}
         children:
-        - {type: Value, value: 'true'}
+        - {type: Value, value: 'false'}
       - type: String
         attributes: {id: name}
         children:
@@ -35,10 +35,6 @@ children:
     children:
     - type: Attributes
       children:
-      - type: Boolean
-        attributes: {id: enabled}
-        children:
-        - {type: Value, value: 'true'}
       - type: String
         attributes: {id: name}
         children:
@@ -48,10 +44,6 @@ children:
     children:
     - type: Attributes
       children:
-      - type: Boolean
-        attributes: {id: enabled}
-        children:
-        - {type: Value, value: 'true'}
       - type: String
         attributes: {id: name}
         children:
@@ -61,10 +53,6 @@ children:
     children:
     - type: Attributes
       children:
-      - type: Boolean
-        attributes: {id: enabled}
-        children:
-        - {type: Value, value: 'true'}
       - type: String
         attributes: {id: name}
         children:
@@ -74,10 +62,6 @@ children:
     children:
     - type: Attributes
       children:
-      - type: Boolean
-        attributes: {id: enabled}
-        children:
-        - {type: Value, value: 'true'}
       - type: String
         attributes: {id: name}
         children:
@@ -119,9 +103,9 @@ children:
         - type: Pairs
           children:
           - type: Pair
-            attributes: {description: 'FALSE', value: '2', key: ENABLE_DRV_COMMON}
+            attributes: {description: 'FALSE', value: '3', key: ENABLE_DRV_COMMON}
           - type: Pair
-            attributes: {description: 'FALSE', value: '3', key: ENABLE_SYS_COMMON}
+            attributes: {description: 'FALSE', value: '4', key: ENABLE_SYS_COMMON}
           - type: Pair
             attributes: {description: 'FALSE', value: '0', key: ENABLE_SYS_MEDIA}
           - type: Pair
@@ -590,19 +574,26 @@ children:
       - type: User
         attributes: {value: '4'}
   - type: Boolean
+    attributes: {id: GEN_APP_TASK_ENABLE_0}
+    children:
+    - type: Values
+      children:
+      - type: User
+        attributes: {value: 'false'}
+  - type: Boolean
     attributes: {id: GEN_APP_TASK_ENABLE_1}
     children:
     - type: Values
       children:
       - type: User
-        attributes: {value: 'true'}
+        attributes: {value: 'false'}
   - type: Boolean
     attributes: {id: GEN_APP_TASK_ENABLE_2}
     children:
     - type: Values
       children:
       - type: User
-        attributes: {value: 'true'}
+        attributes: {value: 'false'}
   - type: Boolean
     attributes: {id: GEN_APP_TASK_ENABLE_3}
     children:

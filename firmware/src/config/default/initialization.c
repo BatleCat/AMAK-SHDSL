@@ -77,7 +77,7 @@
 #pragma config DMTINTV =    WIN_127_128
 #pragma config FSOSCEN =    OFF
 #pragma config IESO =       OFF
-#pragma config POSCMOD =    OFF
+#pragma config POSCMOD =    EC
 #pragma config OSCIOFNC =   OFF
 #pragma config FCKSM =      CSECME
 #pragma config WDTPS =      PS1048576
@@ -89,9 +89,9 @@
 #pragma config FDMTEN =     OFF
 
 /*** DEVCFG2 ***/
-#pragma config FPLLIDIV =   DIV_1
+#pragma config FPLLIDIV =   DIV_3
 #pragma config FPLLRNG =    RANGE_5_10_MHZ
-#pragma config FPLLICLK =   PLL_FRC
+#pragma config FPLLICLK =   PLL_POSC
 #pragma config FPLLMULT =   MUL_50
 #pragma config FPLLODIV =   DIV_2
 #pragma config UPLLFSEL =   FREQ_24MHZ
@@ -130,6 +130,53 @@ static const DRV_MIIM_INIT drvMiimInitData;
 /* Forward declaration of PHY initialization data */
 const DRV_ETHPHY_INIT tcpipPhyInitData_LAN8740;
 
+// <editor-fold defaultstate="collapsed" desc="DRV_USART Instance 0 Initialization Data">
+
+static DRV_USART_CLIENT_OBJ drvUSART0ClientObjPool[DRV_USART_CLIENTS_NUMBER_IDX0];
+
+
+const DRV_USART_PLIB_INTERFACE drvUsart0PlibAPI = {
+    .readCallbackRegister = (DRV_USART_PLIB_READ_CALLBACK_REG)UART6_ReadCallbackRegister,
+    .read = (DRV_USART_PLIB_READ)UART6_Read,
+    .readIsBusy = (DRV_USART_PLIB_READ_IS_BUSY)UART6_ReadIsBusy,
+    .readCountGet = (DRV_USART_PLIB_READ_COUNT_GET)UART6_ReadCountGet,
+    .readAbort = (DRV_USART_PLIB_READ_ABORT)UART6_ReadAbort,
+    .writeCallbackRegister = (DRV_USART_PLIB_WRITE_CALLBACK_REG)UART6_WriteCallbackRegister,
+    .write = (DRV_USART_PLIB_WRITE)UART6_Write,
+    .writeIsBusy = (DRV_USART_PLIB_WRITE_IS_BUSY)UART6_WriteIsBusy,
+    .writeCountGet = (DRV_USART_PLIB_WRITE_COUNT_GET)UART6_WriteCountGet,
+    .errorGet = (DRV_USART_PLIB_ERROR_GET)UART6_ErrorGet,
+    .serialSetup = (DRV_USART_PLIB_SERIAL_SETUP)UART6_SerialSetup
+};
+
+const uint32_t drvUsart0remapDataWidth[] = { 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0x0, 0x6 };
+const uint32_t drvUsart0remapParity[] = { 0x0, 0x2, 0x4, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF };
+const uint32_t drvUsart0remapStopBits[] = { 0x0, 0xFFFFFFFF, 0x1 };
+const uint32_t drvUsart0remapError[] = { 0x2, 0x8, 0x4 };
+
+const DRV_USART_INIT drvUsart0InitData =
+{
+    .usartPlib = &drvUsart0PlibAPI,
+
+    /* USART Number of clients */
+    .numClients = DRV_USART_CLIENTS_NUMBER_IDX0,
+
+    /* USART Client Objects Pool */
+    .clientObjPool = (uintptr_t)&drvUSART0ClientObjPool[0],
+
+
+    .remapDataWidth = drvUsart0remapDataWidth,
+
+    .remapParity = drvUsart0remapParity,
+
+    .remapStopBits = drvUsart0remapStopBits,
+
+    .remapError = drvUsart0remapError,
+
+    .dataWidth = DRV_USART_DATA_8_BIT,
+};
+
+// </editor-fold>
 
 
 // *****************************************************************************
@@ -459,7 +506,6 @@ void SYS_Initialize ( void* data )
 
   
     CLK_Initialize();
-    
     /* Configure Prefetch, Wait States and ECC */
     PRECONbits.PREFEN = 3;
     PRECONbits.PFMWS = 3;
@@ -469,14 +515,24 @@ void SYS_Initialize ( void* data )
 
 	GPIO_Initialize();
 
+	UART6_Initialize();
+
     CORETIMER_Initialize();
+    TMR6_Initialize();
+
 	UART2_Initialize();
+
+    TMR8_Initialize();
+
+    DMAC_Initialize();
 
 	BSP_Initialize();
 
 
     /* Initialize the MIIM Driver */
     sysObj.drvMiim = DRV_MIIM_Initialize( DRV_MIIM_INDEX_0, (const SYS_MODULE_INIT *) &drvMiimInitData );
+
+    sysObj.drvUsart0 = DRV_USART_Initialize(DRV_USART_INDEX_0, (SYS_MODULE_INIT *)&drvUsart0InitData);
 
 
     sysObj.sysTime = SYS_TIME_Initialize(SYS_TIME_INDEX_0, (SYS_MODULE_INIT *)&sysTimeInitData);
@@ -492,9 +548,6 @@ SYS_ASSERT(sysObj.tcpip != SYS_MODULE_OBJ_INVALID, "TCPIP_STACK_Init Failed" );
 
 
 
-    APP_UDP_TASK_Initialize();
-    APP_SHDSL_TASK_Initialize();
-    APP_AMAK_PARSER_TASK_Initialize();
     APP_SERVICE_UART_TASK_Initialize();
 
 

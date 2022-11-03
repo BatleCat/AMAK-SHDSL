@@ -123,6 +123,7 @@ static void DMAC_ChannelSetAddresses( DMAC_CHANNEL channel, const void *srcAddr,
         sourceAddress = ConvertToPhysicalAddress(sourceAddress);
     }
 
+
     /* Set the source address, DCHxSSA */
     regs = (volatile uint32_t *)(_DMAC_BASE_ADDRESS + 0x60 + (channel * 0xC0) + 0x30);
     *(volatile uint32_t *)(regs) = sourceAddress;
@@ -255,8 +256,8 @@ void DMAC_Initialize( void )
     /* DMA channel-level control registers.  They will have additional settings made when starting a transfer. */
 
     /* DMA channel 0 configuration */
-    /* CHPRI = 0, CHAEN= 0, CHCHN= 0, CHCHNS= 0x0, CHAED= 0 */
-    DCH0CON = 0x1;
+    /* CHPRI = 1, CHAEN= 1, CHCHN= 1, CHCHNS= 0x0, CHAED= 0 */
+    DCH0CON = 0x31;
     /* CHSIRQ = 147, SIRQEN = 1 */
     DCH0ECON = 0x9310;
     /* CHBCIE = 1, CHTAIE=1, CHERIE=1, CHSHIE= 0, CHDHIE= 0 */
@@ -264,8 +265,8 @@ void DMAC_Initialize( void )
 
 
     /* DMA channel 1 configuration */
-    /* CHPRI = 0, CHAEN= 0, CHCHN= 0, CHCHNS= 0x0, CHAED= 0 */
-    DCH1CON = 0x2;
+    /* CHPRI = 2, CHAEN= 1, CHCHN= 1, CHCHNS= 0x0, CHAED= 0 */
+    DCH1CON = 0x32;
     /* CHSIRQ = 146, SIRQEN = 1 */
     DCH1ECON = 0x9210;
     /* CHBCIE = 1, CHTAIE=1, CHERIE=1, CHSHIE= 0, CHDHIE= 0 */
@@ -277,7 +278,6 @@ void DMAC_Initialize( void )
 
 
 }
-
 // *****************************************************************************
 /* Function:
    void DMAC_ChannelCallbackRegister
@@ -302,7 +302,6 @@ void DMAC_ChannelCallbackRegister(DMAC_CHANNEL channel, const DMAC_CHANNEL_CALLB
 
     gDMAChannelObj[channel].hClientArg = contextHandle;
 }
-
 // *****************************************************************************
 /* Function:
    bool DMAC_ChannelTransfer
@@ -327,9 +326,17 @@ bool DMAC_ChannelTransfer( DMAC_CHANNEL channel, const void *srcAddr, size_t src
 {
     bool returnStatus = false;
     volatile uint32_t *regs;
+    uint32_t DCHxINT_Flags;
 
-    if(gDMAChannelObj[channel].inUse == false)
+    regs = ((volatile uint32_t *)(_DMAC_BASE_ADDRESS + 0x60 + (channel * 0xC0) + 0x20));
+    DCHxINT_Flags = *(volatile uint32_t *)(regs) & (_DCH0INT_CHERIF_MASK | _DCH0INT_CHTAIF_MASK | _DCH0INT_CHBCIF_MASK);
+
+    if((gDMAChannelObj[channel].inUse == false) || (DCHxINT_Flags != 0))
     {
+        /* Clear all the interrupt flags */
+        regs = (volatile uint32_t *)(_DMAC_BASE_ADDRESS + 0x60 + (channel * 0xC0) + 0x20) + 1;
+        *(volatile uint32_t *)(regs) = (_DCH0INT_CHSHIF_MASK |_DCH0INT_CHDHIF_MASK | _DCH0INT_CHBCIF_MASK | _DCH0INT_CHTAIF_MASK| _DCH0INT_CHERIF_MASK);
+
         gDMAChannelObj[channel].inUse = true;
         returnStatus = true;
 
@@ -372,9 +379,17 @@ bool DMAC_ChainTransferSetup( DMAC_CHANNEL channel, const void *srcAddr, size_t 
 {
     bool returnStatus = false;
     volatile uint32_t *regs;
+    uint32_t DCHxINT_Flags;
 
-    if(gDMAChannelObj[channel].inUse == false)
+    regs = ((volatile uint32_t *)(_DMAC_BASE_ADDRESS + 0x60 + (channel * 0xC0) + 0x20));
+    DCHxINT_Flags = *(volatile uint32_t *)(regs) & (_DCH0INT_CHERIF_MASK | _DCH0INT_CHTAIF_MASK | _DCH0INT_CHBCIF_MASK);
+
+    if((gDMAChannelObj[channel].inUse == false) || (DCHxINT_Flags != 0))
     {
+        /* Clear all the interrupt flags */
+        regs = (volatile uint32_t *)(_DMAC_BASE_ADDRESS + 0x60 + (channel * 0xC0) + 0x20) + 1;
+        *(volatile uint32_t *)(regs) = (_DCH0INT_CHSHIF_MASK |_DCH0INT_CHDHIF_MASK | _DCH0INT_CHBCIF_MASK | _DCH0INT_CHTAIF_MASK| _DCH0INT_CHERIF_MASK);
+
         gDMAChannelObj[channel].inUse = true;
         returnStatus = true;
 
@@ -470,8 +485,44 @@ void DMAC_ChannelDisable (DMAC_CHANNEL channel)
 */
 bool DMAC_ChannelIsBusy (DMAC_CHANNEL channel)
 {
-    return (gDMAChannelObj[channel].inUse);
+    uint32_t DCHxINT_Flags;
 
+    DCHxINT_Flags = *(volatile uint32_t *)(_DMAC_BASE_ADDRESS + 0x60 + (channel * 0xC0) + 0x20);
+    DCHxINT_Flags = DCHxINT_Flags & (_DCH0INT_CHERIF_MASK | _DCH0INT_CHTAIF_MASK | _DCH0INT_CHBCIF_MASK);
+
+    if ((gDMAChannelObj[channel].inUse == true) && (DCHxINT_Flags == 0))
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+
+}
+
+DMAC_TRANSFER_EVENT DMAC_ChannelTransferStatusGet(DMAC_CHANNEL channel)
+{
+    uint32_t DCHxINT_Flags;
+
+    DMAC_TRANSFER_EVENT dmaEvent = DMAC_TRANSFER_EVENT_NONE;
+
+    DCHxINT_Flags = *(volatile uint32_t *)(_DMAC_BASE_ADDRESS + 0x60 + (channel * 0xC0) + 0x20);
+
+    if (DCHxINT_Flags & (_DCH0INT_CHSHIF_MASK | _DCH0INT_CHDHIF_MASK))  /* Dest Half-full or Src Half-empty flags */
+    {
+        dmaEvent = DMAC_TRANSFER_EVENT_HALF_COMPLETE;
+    }
+    if (DCHxINT_Flags & (_DCH0INT_CHTAIF_MASK | _DCH0INT_CHERIF_MASK))  /* Abort or Error flags*/
+    {
+        dmaEvent = DMAC_TRANSFER_EVENT_ERROR;
+    }
+    if (DCHxINT_Flags & _DCH0INT_CHBCIF_MASK)   /* Block Transfer complete flag */
+    {
+        dmaEvent = DMAC_TRANSFER_EVENT_COMPLETE;
+    }
+
+    return dmaEvent;
 }
 
 // *****************************************************************************

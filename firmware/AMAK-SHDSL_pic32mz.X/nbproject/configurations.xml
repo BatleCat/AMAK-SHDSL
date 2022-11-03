@@ -40,6 +40,10 @@
               </logicalFolder>
               <itemPath>../src/config/default/driver/miim/drv_miim.h</itemPath>
             </logicalFolder>
+            <logicalFolder name="f2" displayName="usart" projectFiles="true">
+              <itemPath>../src/config/default/driver/usart/drv_usart.h</itemPath>
+              <itemPath>../src/config/default/driver/usart/drv_usart_definitions.h</itemPath>
+            </logicalFolder>
             <itemPath>../src/config/default/driver/driver.h</itemPath>
             <itemPath>../src/config/default/driver/driver_common.h</itemPath>
           </logicalFolder>
@@ -189,15 +193,24 @@
             <logicalFolder name="f1" displayName="coretimer" projectFiles="true">
               <itemPath>../src/config/default/peripheral/coretimer/plib_coretimer.h</itemPath>
             </logicalFolder>
+            <logicalFolder name="f7" displayName="dmac" projectFiles="true">
+              <itemPath>../src/config/default/peripheral/dmac/plib_dmac.h</itemPath>
+            </logicalFolder>
             <logicalFolder name="f6" displayName="evic" projectFiles="true">
               <itemPath>../src/config/default/peripheral/evic/plib_evic.h</itemPath>
             </logicalFolder>
             <logicalFolder name="f5" displayName="gpio" projectFiles="true">
               <itemPath>../src/config/default/peripheral/gpio/plib_gpio.h</itemPath>
             </logicalFolder>
+            <logicalFolder name="f3" displayName="tmr" projectFiles="true">
+              <itemPath>../src/config/default/peripheral/tmr/plib_tmr_common.h</itemPath>
+              <itemPath>../src/config/default/peripheral/tmr/plib_tmr6.h</itemPath>
+              <itemPath>../src/config/default/peripheral/tmr/plib_tmr8.h</itemPath>
+            </logicalFolder>
             <logicalFolder name="f2" displayName="uart" projectFiles="true">
               <itemPath>../src/config/default/peripheral/uart/plib_uart_common.h</itemPath>
               <itemPath>../src/config/default/peripheral/uart/plib_uart2.h</itemPath>
+              <itemPath>../src/config/default/peripheral/uart/plib_uart6.h</itemPath>
             </logicalFolder>
           </logicalFolder>
           <logicalFolder name="f2" displayName="system" projectFiles="true">
@@ -273,12 +286,9 @@
           </logicalFolder>
         </logicalFolder>
       </logicalFolder>
-      <itemPath>../src/app_udp_task.h</itemPath>
       <itemPath>../src/AMAK_SHDSL_Queue.h</itemPath>
       <itemPath>../src/app_commands.h</itemPath>
       <itemPath>../src/app_service_uart_task.h</itemPath>
-      <itemPath>../src/app_shdsl_task.h</itemPath>
-      <itemPath>../src/app_amak_parser_task.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -322,6 +332,10 @@
                 </logicalFolder>
               </logicalFolder>
             </logicalFolder>
+            <logicalFolder name="f2" displayName="usart" projectFiles="true">
+              <itemPath>../src/config/default/driver/usart/src/drv_usart.c</itemPath>
+              <itemPath>../src/config/default/driver/usart/src/drv_usart_local.h</itemPath>
+            </logicalFolder>
           </logicalFolder>
           <logicalFolder name="f2" displayName="library" projectFiles="true">
             <logicalFolder name="f1" displayName="tcpip" projectFiles="true">
@@ -357,14 +371,22 @@
             <logicalFolder name="f1" displayName="coretimer" projectFiles="true">
               <itemPath>../src/config/default/peripheral/coretimer/plib_coretimer.c</itemPath>
             </logicalFolder>
+            <logicalFolder name="f7" displayName="dmac" projectFiles="true">
+              <itemPath>../src/config/default/peripheral/dmac/plib_dmac.c</itemPath>
+            </logicalFolder>
             <logicalFolder name="f6" displayName="evic" projectFiles="true">
               <itemPath>../src/config/default/peripheral/evic/plib_evic.c</itemPath>
             </logicalFolder>
             <logicalFolder name="f5" displayName="gpio" projectFiles="true">
               <itemPath>../src/config/default/peripheral/gpio/plib_gpio.c</itemPath>
             </logicalFolder>
+            <logicalFolder name="f3" displayName="tmr" projectFiles="true">
+              <itemPath>../src/config/default/peripheral/tmr/plib_tmr6.c</itemPath>
+              <itemPath>../src/config/default/peripheral/tmr/plib_tmr8.c</itemPath>
+            </logicalFolder>
             <logicalFolder name="f2" displayName="uart" projectFiles="true">
               <itemPath>../src/config/default/peripheral/uart/plib_uart2.c</itemPath>
+              <itemPath>../src/config/default/peripheral/uart/plib_uart6.c</itemPath>
             </logicalFolder>
           </logicalFolder>
           <logicalFolder name="f6" displayName="stdio" projectFiles="true">
@@ -425,12 +447,9 @@
           <itemPath>../src/third_party/rtos/FreeRTOS/Source/stream_buffer.c</itemPath>
         </logicalFolder>
       </logicalFolder>
-      <itemPath>../src/app_udp_task.c</itemPath>
       <itemPath>../src/main.c</itemPath>
       <itemPath>../src/app_commands.c</itemPath>
       <itemPath>../src/app_service_uart_task.c</itemPath>
-      <itemPath>../src/app_shdsl_task.c</itemPath>
-      <itemPath>../src/app_amak_parser_task.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -474,6 +493,7 @@
         <itemPath>../src/config/default/default.mhc/core.yml</itemPath>
         <itemPath>../src/config/default/default.mhc/core_timer.yml</itemPath>
         <itemPath>../src/config/default/default.mhc/dfp.yml</itemPath>
+        <itemPath>../src/config/default/default.mhc/drv_usart.yml</itemPath>
         <itemPath>../src/config/default/default.mhc/FreeRTOS.yml</itemPath>
         <itemPath>../src/config/default/default.mhc/GraphSettings.yml</itemPath>
         <itemPath>../src/config/default/default.mhc/HarmonyCore.yml</itemPath>
@@ -482,7 +502,10 @@
         <itemPath>../src/config/default/default.mhc/sys_command.yml</itemPath>
         <itemPath>../src/config/default/default.mhc/sys_console.yml</itemPath>
         <itemPath>../src/config/default/default.mhc/sys_time.yml</itemPath>
+        <itemPath>../src/config/default/default.mhc/tmr6.yml</itemPath>
+        <itemPath>../src/config/default/default.mhc/tmr8.yml</itemPath>
         <itemPath>../src/config/default/default.mhc/uart2.yml</itemPath>
+        <itemPath>../src/config/default/default.mhc/uart6.yml</itemPath>
       </logicalFolder>
       <itemPath>Makefile</itemPath>
       <itemPath>../src/config/default/harmony-manifest-success.yml</itemPath>
@@ -499,9 +522,9 @@
         <targetDevice>PIC32MZ2048EFH144</targetDevice>
         <targetHeader></targetHeader>
         <targetPluginBoard></targetPluginBoard>
-        <platformTool>PKOBSKDEPlatformTool</platformTool>
+        <platformTool>noID</platformTool>
         <languageToolchain>XC32</languageToolchain>
-        <languageToolchainVersion>3.01</languageToolchainVersion>
+        <languageToolchainVersion>4.10</languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <packs>
@@ -555,6 +578,7 @@
         <property key="preprocessor-macros" value=""/>
         <property key="strict-ansi" value="false"/>
         <property key="support-ansi" value="false"/>
+        <property key="tentative-definitions" value="-fno-common"/>
         <property key="toplevel-reordering" value=""/>
         <property key="unaligned-access" value=""/>
         <property key="use-cci" value="false"/>
@@ -588,6 +612,7 @@
       </C32-AS>
       <C32-CO>
         <property key="coverage-enable" value=""/>
+        <property key="stack-guidance" value="false"/>
       </C32-CO>
       <C32-LD>
         <property key="additional-options-use-response-files" value="false"/>
@@ -669,6 +694,7 @@
         <property key="omit-pack-options" value="1"/>
         <property key="relaxed-math" value="false"/>
         <property key="save-temps" value="false"/>
+        <property key="stack-smashing" value=""/>
         <property key="wpo-lto" value="false"/>
       </C32Global>
       <PICkit3PlatformTool>
@@ -738,7 +764,6 @@
         <property key="ToolFirmwareFilePath"
                   value="Press to browse for a specific firmware version"/>
         <property key="ToolFirmwareOption.UseLatestFirmware" value="true"/>
-        <property key="firmware.download.all" value="false"/>
         <property key="memories.configurationmemory" value="true"/>
         <property key="memories.dataflash" value="true"/>
         <property key="memories.eeprom" value="true"/>

@@ -32,6 +32,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include "configuration.h"
+#include "driver/usart/drv_usart.h"
 //------------------------------------------------------------------------------
 #include "AMAK_SHDSL_Queue.h"
 //------------------------------------------------------------------------------
@@ -92,6 +93,8 @@ typedef struct
 
     /* TODO: Define any additional data used by the application. */
     EVENT_INFO          event_info;
+    DRV_HANDLE          usart_handle;
+    char                usart_buf[80];
 } APP_SERVICE_UART_TASK_DATA;
 
 // *****************************************************************************

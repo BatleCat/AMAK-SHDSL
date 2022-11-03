@@ -50,8 +50,11 @@
 #include <stdbool.h>
 #include "driver/ethmac/drv_ethmac.h"
 #include "system/time/sys_time.h"
+#include "peripheral/uart/plib_uart6.h"
 #include "peripheral/coretimer/plib_coretimer.h"
+#include "peripheral/tmr/plib_tmr6.h"
 #include "peripheral/uart/plib_uart2.h"
+#include "peripheral/tmr/plib_tmr8.h"
 #include "library/tcpip/tcpip.h"
 #include "system/sys_time_h2_adapter.h"
 #include "system/sys_random_h2_adapter.h"
@@ -64,15 +67,14 @@
 #include "peripheral/clk/plib_clk.h"
 #include "peripheral/gpio/plib_gpio.h"
 #include "peripheral/evic/plib_evic.h"
+#include "peripheral/dmac/plib_dmac.h"
 #include "bsp/bsp.h"
 #include "driver/miim/drv_miim.h"
+#include "driver/usart/drv_usart.h"
 #include "system/console/sys_console.h"
 #include "system/console/src/sys_console_uart_definitions.h"
 #include "FreeRTOS.h"
 #include "task.h"
-#include "app_udp_task.h"
-#include "app_shdsl_task.h"
-#include "app_amak_parser_task.h"
 #include "app_service_uart_task.h"
 
 
@@ -205,6 +207,7 @@ typedef struct
     SYS_MODULE_OBJ  tcpip;
 
     SYS_MODULE_OBJ  drvMiim;
+    SYS_MODULE_OBJ  drvUsart0;
 
 } SYSTEM_OBJECTS;
 

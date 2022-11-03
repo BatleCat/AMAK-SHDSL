@@ -39,7 +39,7 @@
 //------------------------------------------------------------------------------
 #include "app_udp_task.h"
 //------------------------------------------------------------------------------
-#define ENABLE_CONSOLE_MESSAGE
+//#define ENABLE_CONSOLE_MESSAGE
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -617,9 +617,10 @@ void app_amak_parse_udp_pocket(void)
 
     //--------------------------------------------------------------
     //--------------------------------------------------------------
-    uint16_t frame_count = 0x07 & amak2shdsl_frame_count;
 
     #ifdef ENABLE_CONSOLE_MESSAGE
+        uint16_t frame_count = 0x07 & amak2shdsl_frame_count;
+    
         SYS_CONSOLE_PRINT   ("    Frame count = %d \r\n", frame_count);
         wait_console_buffer_free();
     #endif

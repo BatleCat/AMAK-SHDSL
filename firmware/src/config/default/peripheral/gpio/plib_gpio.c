@@ -57,57 +57,56 @@
 */
 void GPIO_Initialize ( void )
 {
+
     /* PORTA Initialization */
-
     /* PORTB Initialization */
-    ANSELBCLR = 0x7000; /* Digital Mode Enable */
-    CNPUBSET = 0x7000; /* Pull-Up Enable */
-
+    ANSELBCLR = 0x7b08; /* Digital Mode Enable */
+    CNPUBSET = 0x7800; /* Pull-Up Enable */
     /* PORTC Initialization */
     LATC = 0x2; /* Initial Latch Value */
     TRISCCLR = 0x2; /* Direction Control */
     ANSELCCLR = 0x6; /* Digital Mode Enable */
-
     /* PORTD Initialization */
-
     /* PORTE Initialization */
     LATE = 0x0; /* Initial Latch Value */
     TRISECLR = 0x80; /* Direction Control */
     ANSELECLR = 0xe0; /* Digital Mode Enable */
-
     /* PORTF Initialization */
-
     /* PORTG Initialization */
     ANSELGCLR = 0x1c0; /* Digital Mode Enable */
-
     /* PORTH Initialization */
     LATH = 0x2; /* Initial Latch Value */
     TRISHCLR = 0x7; /* Direction Control */
     ANSELHCLR = 0x33; /* Digital Mode Enable */
-
     /* PORTJ Initialization */
     ANSELJCLR = 0xb00; /* Digital Mode Enable */
-
     /* PORTK Initialization */
-
 
     /* Unlock system for PPS configuration */
     SYSKEY = 0x00000000;
     SYSKEY = 0xAA996655;
     SYSKEY = 0x556699AA;
+
     CFGCONbits.IOLOCK = 0;
 
     /* PPS Input Remapping */
     SS2R = 12;
     SDI2R = 1;
     U2RXR = 1;
+    U6RXR = 0;
+    U6CTSR = 3;
+    T8CKR = 2;
+    T6CKR = 5;
 
     /* PPS Output Remapping */
     RPG8R = 6;
     RPB14R = 2;
+    RPD0R = 4;
+    RPB3R = 4;
 
-    /* Lock back the system after PPS configuration */
+        /* Lock back the system after PPS configuration */
     CFGCONbits.IOLOCK = 1;
+
     SYSKEY = 0x00000000;
 
 }

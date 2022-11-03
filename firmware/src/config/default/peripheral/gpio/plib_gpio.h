@@ -98,6 +98,15 @@
 #define COT_nRTA_Get()               ((PORTC >> 1) & 0x1)
 #define COT_nRTA_PIN                  GPIO_PIN_RC1
 
+/*** Macros for MM pin ***/
+#define MM_Set()               (LATBSET = (1<<11))
+#define MM_Clear()             (LATBCLR = (1<<11))
+#define MM_Toggle()            (LATBINV= (1<<11))
+#define MM_OutputEnable()      (TRISBCLR = (1<<11))
+#define MM_InputEnable()       (TRISBSET = (1<<11))
+#define MM_Get()               ((PORTB >> 11) & 0x1)
+#define MM_PIN                  GPIO_PIN_RB11
+
 
 // *****************************************************************************
 /* GPIO Port

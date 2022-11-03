@@ -62,10 +62,15 @@
 
 
 void CORE_TIMER_InterruptHandler( void );
+void DMA0_InterruptHandler( void );
+void DMA1_InterruptHandler( void );
 void UART2_FAULT_InterruptHandler( void );
 void UART2_RX_InterruptHandler( void );
 void UART2_TX_InterruptHandler( void );
 void ETHERNET_InterruptHandler( void );
+void UART6_FAULT_InterruptHandler( void );
+void UART6_RX_InterruptHandler( void );
+void UART6_TX_InterruptHandler( void );
 
 
 
@@ -76,6 +81,16 @@ void CORE_TIMER_Handler (void)
 }
 
 
+
+void DMA0_Handler (void)
+{
+    DMA0_InterruptHandler();
+}
+
+void DMA1_Handler (void)
+{
+    DMA1_InterruptHandler();
+}
 
 void UART2_FAULT_Handler (void)
 {
@@ -99,6 +114,21 @@ void ETHERNET_Handler (void)
 
 void FLASH_CONTROL_Handler (void)
 {
+}
+
+void UART6_FAULT_Handler (void)
+{
+    UART6_FAULT_InterruptHandler();
+}
+
+void UART6_RX_Handler (void)
+{
+    UART6_RX_InterruptHandler();
+}
+
+void UART6_TX_Handler (void)
+{
+    UART6_TX_InterruptHandler();
 }
 
 

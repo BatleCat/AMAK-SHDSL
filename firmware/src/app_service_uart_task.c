@@ -31,6 +31,7 @@
 //------------------------------------------------------------------------------
 #include <stddef.h>
 #include <string.h>
+#include <stdio.h>
 
 #include "system_config.h"
 #include "system_definitions.h"
@@ -39,6 +40,8 @@
 #include "third_party/rtos/FreeRTOS/Source/include/queue.h"
 #include "config/default/system/debug/sys_debug.h"
 #include "config/default/system/console/sys_console.h"
+#include "driver/usart/drv_usart.h"
+
 #include <bsp/bsp.h>
 
 //#include "FreeRTOS.h"
@@ -137,34 +140,89 @@ void APP_SERVICE_UART_TASK_Initialize ( void )
 //------------------------------------------------------------------------------
 void APP_SERVICE_UART_TASK_Tasks ( void )
 {
-
+    static int step = 0;
     /* Check the application's current state. */
     switch ( app_service_uart_taskData.state )
     {
         /* Application's initial state. */
         case APP_SERVICE_UART_TASK_STATE_INIT:
         {
-            bool appInitialized = APP_Commands_Init();
+            LED1_Toggle();
+            vTaskDelay(500/portTICK_PERIOD_MS);
+            
+            #ifdef ENABLE_CONSOLE_MESSAGE
+                   SYS_CONSOLE_MESSAGE("APP_SERVICE_UART_TASK: start init\r\n");
+                   step++; 
+                   SYS_CONSOLE_PRINT("%d", step);
+            #endif
 
+            bool appInitialized = APP_Commands_Init();
 
             if (appInitialized)
             {
+                LED2_Toggle();
                 #ifdef ENABLE_CONSOLE_MESSAGE
-                        SYS_CONSOLE_MESSAGE("APP_SERVICE_UART_TASK: init complite\r\n");
+                       step++; 
+                       SYS_CONSOLE_PRINT(" %d", step);
                 #endif
-//                app_service_uart_taskData.state = APP_SERVICE_UART_TASK_STATE_SEND_UDP;
-                app_service_uart_taskData.state = APP_SERVICE_UART_TASK_STATE_SERVICE_TASKS;
+                if ( SYS_STATUS_READY == DRV_USART_Status(sysObj.drvUsart0) )
+                {
+                    LED3_Toggle();
+                    
+                    #ifdef ENABLE_CONSOLE_MESSAGE
+                           step++; 
+                           SYS_CONSOLE_PRINT(" %d", step);
+                    #endif
+
+                    app_service_uart_taskData.usart_handle = DRV_USART_Open(DRV_USART_INDEX_0, DRV_IO_INTENT_READWRITE);
+                    if ( DRV_HANDLE_INVALID != app_service_uart_taskData.usart_handle )
+                    {
+                        #ifdef ENABLE_CONSOLE_MESSAGE
+                               step++; 
+                               SYS_CONSOLE_PRINT(" %d\r\n", step);
+                        #endif
+
+//                        int strlen = sprintf(app_service_uart_taskData.usart_buf, "config show \r\n");
+//                        strcpy(app_service_uart_taskData.usart_buf, "config show \r\n");
+                        strcpy(app_service_uart_taskData.usart_buf, "get dslstate\r\n");
+                        
+                        DRV_USART_WriteBuffer(app_service_uart_taskData.usart_handle, app_service_uart_taskData.usart_buf, strlen(app_service_uart_taskData.usart_buf) );
+
+                        #ifdef ENABLE_CONSOLE_MESSAGE
+                                SYS_CONSOLE_PRINT("%s \r\n", app_service_uart_taskData.usart_buf);
+                                SYS_CONSOLE_MESSAGE("APP_SERVICE_UART_TASK: init complite\r\n");
+                        #endif
+//                        app_service_uart_taskData.state = APP_SERVICE_UART_TASK_STATE_SEND_UDP;
+                        app_service_uart_taskData.state = APP_SERVICE_UART_TASK_STATE_SERVICE_TASKS;
+                    }
+                }
+                LED1_Toggle();
+                LED2_Toggle();
+                LED3_Toggle();
             }
             break;
         }
 
         case APP_SERVICE_UART_TASK_STATE_SERVICE_TASKS:
         {
-            if (APP_Send_Packet)
+            char usartData = '.';
+            
+//            DRV_USART_ReadBuffer(app_service_uart_taskData.usart_handle, &usartData, 1 );
+//            SYS_CONSOLE_PRINT("%c", usartData);
+
+            if (DRV_USART_ReadBuffer(app_service_uart_taskData.usart_handle, &usartData, 1 ) == true)
             {
-                APP_Send_Packet = false;
-                app_service_uart_taskData.state = APP_SERVICE_UART_TASK_STATE_SEND_UDP;
+                SYS_CONSOLE_PRINT("%c", usartData);
             }
+
+//            if (APP_Send_Packet)
+//            {
+//                APP_Send_Packet = false;
+//                app_service_uart_taskData.state = APP_SERVICE_UART_TASK_STATE_SEND_UDP;
+//            }
+
+//            taskYIELD();
+            
             break;
         }
         
@@ -180,7 +238,7 @@ void APP_SERVICE_UART_TASK_Tasks ( void )
 
             app_service_uart_taskData.event_info.data_len = 1024;
             app_service_uart_taskData.event_info.event_id = (ENUM_EVENT_TYPE)EVENT_TYPE_UART_SERVICE_POCKET;
-            xQueueSend( eventQueue_app_udp_task, (void*)&( app_service_uart_taskData.event_info ), 0 );//portMAX_DELAY); 
+//            xQueueSend( eventQueue_app_udp_task, (void*)&( app_service_uart_taskData.event_info ), 0 );//portMAX_DELAY); 
 
             break;
         }

@@ -51,10 +51,13 @@
 // *****************************************************************************
 // *****************************************************************************
 
-#define SYS_DMA_ChannelCallbackRegister(channel, eventHandler, context)
+#include "peripheral/dmac/plib_dmac.h"
 
-#define SYS_DMA_ChannelIsBusy(channel)
+#define SYS_DMA_ChannelCallbackRegister(channel, eventHandler, context)  DMAC_ChannelCallbackRegister((DMAC_CHANNEL)channel, (DMAC_CHANNEL_CALLBACK)eventHandler, context)
 
-#define SYS_DMA_ChannelDisable(channel)
+#define SYS_DMA_ChannelIsBusy(channel)  DMAC_ChannelIsBusy((DMAC_CHANNEL)channel)
+
+#define SYS_DMA_ChannelDisable(channel)  DMAC_ChannelDisable((DMAC_CHANNEL)channel)
+
 
 #endif // SYS_DMA_MAPPING_H

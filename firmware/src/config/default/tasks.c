@@ -69,36 +69,6 @@ void _TCPIP_STACK_Task(  void *pvParameters  )
     }
 }
 
-/* Handle for the APP_UDP_TASK_Tasks. */
-TaskHandle_t xAPP_UDP_TASK_Tasks;
-
-void _APP_UDP_TASK_Tasks(  void *pvParameters  )
-{   
-    while(1)
-    {
-        APP_UDP_TASK_Tasks();
-    }
-}
-/* Handle for the APP_SHDSL_TASK_Tasks. */
-TaskHandle_t xAPP_SHDSL_TASK_Tasks;
-
-void _APP_SHDSL_TASK_Tasks(  void *pvParameters  )
-{   
-    while(1)
-    {
-        APP_SHDSL_TASK_Tasks();
-    }
-}
-/* Handle for the APP_AMAK_PARSER_TASK_Tasks. */
-TaskHandle_t xAPP_AMAK_PARSER_TASK_Tasks;
-
-void _APP_AMAK_PARSER_TASK_Tasks(  void *pvParameters  )
-{   
-    while(1)
-    {
-        APP_AMAK_PARSER_TASK_Tasks();
-    }
-}
 /* Handle for the APP_SERVICE_UART_TASK_Tasks. */
 TaskHandle_t xAPP_SERVICE_UART_TASK_Tasks;
 
@@ -187,31 +157,7 @@ void SYS_Tasks ( void )
 
 
     /* Maintain the application's state machine. */
-        /* Create OS Thread for APP_UDP_TASK_Tasks. */
-    xTaskCreate((TaskFunction_t) _APP_UDP_TASK_Tasks,
-                "APP_UDP_TASK_Tasks",
-                1024,
-                NULL,
-                1,
-                &xAPP_UDP_TASK_Tasks);
-
-    /* Create OS Thread for APP_SHDSL_TASK_Tasks. */
-    xTaskCreate((TaskFunction_t) _APP_SHDSL_TASK_Tasks,
-                "APP_SHDSL_TASK_Tasks",
-                2048,
-                NULL,
-                1,
-                &xAPP_SHDSL_TASK_Tasks);
-
-    /* Create OS Thread for APP_AMAK_PARSER_TASK_Tasks. */
-    xTaskCreate((TaskFunction_t) _APP_AMAK_PARSER_TASK_Tasks,
-                "APP_AMAK_PARSER_TASK_Tasks",
-                2048,
-                NULL,
-                1,
-                &xAPP_AMAK_PARSER_TASK_Tasks);
-
-    /* Create OS Thread for APP_SERVICE_UART_TASK_Tasks. */
+        /* Create OS Thread for APP_SERVICE_UART_TASK_Tasks. */
     xTaskCreate((TaskFunction_t) _APP_SERVICE_UART_TASK_Tasks,
                 "APP_SERVICE_UART_TASK_Tasks",
                 1024,

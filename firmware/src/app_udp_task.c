@@ -57,7 +57,7 @@
 #include "AMAK_SHDSL_Queue.h"
 
 //------------------------------------------------------------------------------
-#define ENABLE_CONSOLE_MESSAGE
+//#define ENABLE_CONSOLE_MESSAGE
 //------------------------------------------------------------------------------
 // Section: Global Data Definitions
 //------------------------------------------------------------------------------
@@ -769,7 +769,7 @@ void APP_UDP_TASK_Initialize ( void )
     /* TODO: Initialize your application's state machine and other
      * parameters.
      */
-    LED2_Toggle();
+//    LED2_Toggle();
     eventQueue_app_udp_task = xQueueCreate( APP_UDP_TASK_QUEUE_LEN, EVENT_INFO_SIZE );
     if (NULL == eventQueue_app_udp_task)
     {
@@ -815,7 +815,7 @@ void APP_UDP_TASK_Tasks ( void )
         //----------------------------------------------------------------------
         case APP_UDP_TASK_STATE_INIT:
         {
-            app_udp_taskData.state = app_udp_task_init();
+//            app_udp_taskData.state = app_udp_task_init();
             taskYIELD();
             break;
         }
@@ -931,7 +931,7 @@ void wait_console_buffer_free(void)
 //------------------------------------------------------------------------------
 APP_UDP_TASK_STATES app_udp_task_init(void)
 {
-    LED3_Toggle();
+//    LED3_Toggle();
     
     bool                appUdpTaskInitialized = false;
     APP_UDP_TASK_STATES result = app_udp_taskData.state;
